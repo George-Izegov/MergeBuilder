@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "MBBasePawn.h"
+#include "Components/SphereComponent.h"
 #include "TopDownPawn.generated.h"
 
 UCLASS()
-class MERGEBUILDER_API ATopDownPawn : public APawn
+class MERGEBUILDER_API ATopDownPawn : public AMBBasePawn
 {
 	GENERATED_BODY()
 
@@ -19,10 +21,34 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void TouchPress(const ETouchIndex::Type FingerIndex, const FVector Location) override;
+	virtual void TouchRelease(const ETouchIndex::Type FingerIndex, const FVector Location) override;
+	virtual void TouchMove(const ETouchIndex::Type FingerIndex, const FVector Location) override;
+	virtual void OnClick(const FVector Location) override;
+
+	void TouchDouble(const ETouchIndex::Type FingerIndex, const FVector Location);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		USphereComponent* RootSphere;
+
+	UPROPERTY(EditAnywhere)
+		int32 MovementType = 0;
+
+	UPROPERTY(EditAnywhere)
+		TArray<float> MovementSpeed;
+
+	// 2 type of movement vars
+	bool InMovement = false;
+	FVector LastMovementTouchLocation;
+
+
 };

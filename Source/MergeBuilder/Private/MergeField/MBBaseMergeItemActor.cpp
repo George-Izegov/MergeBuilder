@@ -14,8 +14,9 @@ AMBBaseMergeItemActor::AMBBaseMergeItemActor()
 	Root = CreateDefaultSubobject<USceneComponent>(FName("Root"));
 	SetRootComponent(Root);
 
+	auto AttachmentRules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, false);
 	Sprite = CreateDefaultSubobject<UPaperSpriteComponent>(FName("Sprite"));
-	Sprite->AttachTo(Root);
+	Sprite->AttachToComponent(Root, AttachmentRules);
 }
 
 // Called when the game starts or when spawned

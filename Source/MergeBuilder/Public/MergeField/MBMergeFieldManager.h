@@ -12,7 +12,7 @@ class MERGEBUILDER_API AMBMergeFieldManager : public AActor
 {
 	GENERATED_BODY()
 
-	friend class AMBBasePlayerController;
+	friend class AMBMergeFieldPawn;
 	
 public:	
 	// Sets default values for this actor's properties
