@@ -46,7 +46,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 		TArray<float> MovementSpeed;
 
-	// 2 type of movement vars
+	// 0 type of movement vars
 	bool InMovement = false;
 	FVector LastMovementTouchLocation;
 

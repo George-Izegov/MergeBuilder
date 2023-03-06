@@ -83,6 +83,9 @@ protected:
 
 	void ParseAccount(const FString& JsonString);
 
+	UFUNCTION()
+	void InitAccount();
+
 	void InitEnergy(int32 OldEnergy, const FDateTime& OldTime, float OldRemainTime);
 	int32 GetMaxExperienceForLevel(int32 InLevel);
 	// -1 for NextRestoreTime means default restore time

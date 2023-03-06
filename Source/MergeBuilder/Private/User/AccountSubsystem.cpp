@@ -11,21 +11,7 @@ UAccountSubsystem::UAccountSubsystem()
 
 void UAccountSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	FTimerDelegate Delegate = FTimerDelegate::CreateLambda([this]() {
-		
-		FString SavedData;
-		if (UMBUtilityFunctionLibrary::ReadFromStorage("Account", SavedData))
-		{
-			ParseAccount(SavedData);
-		}
-		else
-		{
-			Energy = MaxEnergy;
-		}
-
-		MaxExperience = GetMaxExperienceForLevel(Level);
-
-		});
+	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &UAccountSubsystem::InitAccount);
 	GetWorld()->GetTimerManager().SetTimerForNextTick(Delegate);
 }
 
@@ -84,6 +70,21 @@ void UAccountSubsystem::ParseAccount(const FString& JsonString)
 	JsonObject->TryGetNumberField("remainRestoreEnergySeconds", RemainTimeSeconds);
 
 	InitEnergy(OldEnergy, LastSaveTime, RemainTimeSeconds);
+}
+
+void UAccountSubsystem::InitAccount()
+{
+	FString SavedData;
+	if (UMBUtilityFunctionLibrary::ReadFromStorage("Account", SavedData))
+	{
+		ParseAccount(SavedData);
+	}
+	else
+	{
+		Energy = MaxEnergy;
+	}
+
+	MaxExperience = GetMaxExperienceForLevel(Level);
 }
 
 void UAccountSubsystem::InitEnergy(int32 OldEnergy, const FDateTime& OldTime, float OldRemainTime)
