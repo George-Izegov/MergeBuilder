@@ -18,6 +18,11 @@ void AMBBaseCityObjectActor::BeginPlay()
 	
 }
 
+void AMBBaseCityObjectActor::Initialize(const FCityObject& ObjectStruct, const FCityObjectData*& ObjectTableData)
+{
+	CityObjectData = ObjectStruct;
+}
+
 // Called every frame
 void AMBBaseCityObjectActor::Tick(float DeltaTime)
 {

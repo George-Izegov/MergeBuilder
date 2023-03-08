@@ -2,6 +2,8 @@
 
 
 #include "CitySystem/MBCityBuilderManager.h"
+#include "CitySystem/CityBuilderSubsystem.h"
+#include "CitySystem/MBBaseCityObjectActor.h"
 
 // Sets default values
 AMBCityBuilderManager::AMBCityBuilderManager()
@@ -16,6 +18,39 @@ void AMBCityBuilderManager::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	InitializeCity();
+}
+
+void AMBCityBuilderManager::InitializeCity()
+{
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	TArray<FCityObject> CityObjects;
+	CityBuilderSubsystem->GetCityObjects(CityObjects);
+
+	for (const auto& Object : CityObjects)
+	{
+		const FCityObjectData* RowStruct = CityBuilderSubsystem->CityObjectsDataTable->FindRow<FCityObjectData>(Object.ObjectName, "AMBCityBuilderManager::InitializeCity()");
+
+		if (!RowStruct)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AMBCityBuilderManager::InitializeCity() - Failed to find row with name %s"), *Object.ObjectName.ToString());
+			continue;
+		}
+
+		UClass* ObjectActorClass = RowStruct->ObjectClass.LoadSynchronous();
+
+		FTransform SpawnTransform = FTransform::Identity;
+		SpawnTransform.SetLocation(Object.Location);
+		FRotator Rotation = FRotator::ZeroRotator;
+		Rotation.Yaw = Object.Rotation;
+		SpawnTransform.SetRotation(Rotation.Quaternion());
+		SpawnTransform.SetScale3D(FVector(Object.Scale));
+
+		auto SpawnedObject = GetWorld()->SpawnActor<AMBBaseCityObjectActor>(ObjectActorClass, SpawnTransform);
+
+		SpawnedObject->Initialize(Object, RowStruct);
+	}
 }
 
 // Called every frame

@@ -49,12 +49,21 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	virtual void Deinitialize() override;
+
+	void GetCityObjects(TArray<FCityObject>& OutObjects) { OutObjects = CityObjects; }
 	
 protected:
 
 	void ParseCity(const FString& JsonString);
 
+	void InitCity();
+
 	void SaveCity();
+
+	UPROPERTY()
+	TArray<FCityObject> CityObjects;
+
+public:
 
 	UPROPERTY()
 	UDataTable* CityObjectsDataTable;

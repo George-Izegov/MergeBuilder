@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "CityBuilderSubsystem.h"
 #include "MBBaseCityObjectActor.generated.h"
 
 UCLASS()
 class MERGEBUILDER_API AMBBaseCityObjectActor : public AActor
 {
 	GENERATED_BODY()
+
+		friend class AMBCityBuilderManager;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -19,8 +22,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void Initialize(const FCityObject& ObjectStruct, const FCityObjectData*& ObjectTableData);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+protected:
+
+	UPROPERTY(BlueprintReadOnly)
+		FCityObject CityObjectData;
 };
