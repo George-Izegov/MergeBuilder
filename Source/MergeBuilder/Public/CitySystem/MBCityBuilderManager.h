@@ -21,8 +21,27 @@ protected:
 
 	void InitializeCity();
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnNewObject(const FName& ObjectName);
+
+	void GetInitialSpawnLocation(FVector& Location);
+
+	UFUNCTION(BlueprintCallable)
+	void SetEditedObject(AMBBaseCityObjectActor* Object);
+	UFUNCTION(BlueprintCallable)
+	void AcceptEditObject();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	const AMBBaseCityObjectActor* GetEditedObject();
+
+	void MoveEditedObject(const FVector& DeltaLocation);
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly)
+	AMBBaseCityObjectActor* EditedObject;
 
 };

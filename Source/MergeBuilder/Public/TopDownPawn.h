@@ -35,6 +35,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	bool GetWorldObjectHitResult(const ETouchIndex::Type FingerIndex, FHitResult& HitResult);
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
@@ -49,6 +51,7 @@ protected:
 	// 0 type of movement vars
 	bool InMovement = false;
 	FVector LastMovementTouchLocation;
+	bool DragItem = false;
 
-
+	FVector PrevDragLocation;
 };

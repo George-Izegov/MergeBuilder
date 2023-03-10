@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CityBuilderSubsystem.h"
+#include "Components/StaticMeshComponent.h"
 #include "MBBaseCityObjectActor.generated.h"
 
 UCLASS()
@@ -28,7 +29,22 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	bool CheckLocation();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetEditMaterial(bool IsAcceptable);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetDefaultMaterial();
+
 protected:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		USceneComponent* Root;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		UStaticMeshComponent* BaseMesh;
 
 	UPROPERTY(BlueprintReadOnly)
 		FCityObject CityObjectData;
