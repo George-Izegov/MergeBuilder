@@ -51,6 +51,8 @@ public:
 	virtual void Deinitialize() override;
 
 	void GetCityObjects(TArray<FCityObject>& OutObjects) { OutObjects = CityObjects; }
+
+	void AddNewObject(const FCityObject& NewObject);
 	
 protected:
 

@@ -76,6 +76,11 @@ void AMBCityBuilderManager::SpawnNewObject(const FName& ObjectName)
 	SpawnTransform.SetLocation(SpawnLocation);
 
 	auto SpawnedObject = GetWorld()->SpawnActor<AMBBaseCityObjectActor>(ObjectActorClass, SpawnTransform);
+	FCityObject ObjectStruct;
+	ObjectStruct.ObjectName = ObjectName;
+	ObjectStruct.Location = SpawnLocation;
+
+	SpawnedObject->Initialize(ObjectStruct, RowStruct);
 
 	SetEditedObject(SpawnedObject);
 }
@@ -112,8 +117,12 @@ void AMBCityBuilderManager::SetEditedObject(AMBBaseCityObjectActor* Object)
 
 void AMBCityBuilderManager::AcceptEditObject()
 {
-	// TODO: Save changes in CityBuilderSubsystem
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	EditedObject->CityObjectData.Location = EditedObject->GetActorLocation();
+	EditedObject->CityObjectData.Rotation = EditedObject->GetActorRotation().Yaw;
 	
+	CityBuilderSubsystem->AddNewObject(EditedObject->CityObjectData);
 	EditedObject->SetDefaultMaterial();
 
 	EditedObject = nullptr;
@@ -136,7 +145,19 @@ void AMBCityBuilderManager::MoveEditedObject(const FVector& DeltaLocation)
 	check(EditedObject);
 
 	EditedObject->AddActorWorldOffset(FVector(DeltaLocation.X, DeltaLocation.Y, 0.0f));
+
 	bool IsAcceptable = EditedObject->CheckLocation();
 	EditedObject->SetEditMaterial(IsAcceptable);
 }
 
+void AMBCityBuilderManager::RotateEditedObject(int32 Direction)
+{
+	check(EditedObject);
+
+	FRotator DeltaRotation = FRotator::ZeroRotator;
+	DeltaRotation.Yaw = Direction * 30.0f;
+	EditedObject->AddActorWorldRotation(DeltaRotation);
+
+	bool IsAcceptable = EditedObject->CheckLocation();
+	EditedObject->SetEditMaterial(IsAcceptable);
+}

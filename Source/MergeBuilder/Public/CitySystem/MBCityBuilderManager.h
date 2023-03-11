@@ -38,6 +38,8 @@ public:
 	const AMBBaseCityObjectActor* GetEditedObject();
 
 	void MoveEditedObject(const FVector& DeltaLocation);
+	UFUNCTION(BlueprintCallable)
+	void RotateEditedObject(int32 Direction);
 
 protected:
 

@@ -26,6 +26,11 @@ void UCityBuilderSubsystem::Deinitialize()
 	SaveCity();
 }
 
+void UCityBuilderSubsystem::AddNewObject(const FCityObject& NewObject)
+{
+	CityObjects.Add(NewObject);
+}
+
 void UCityBuilderSubsystem::ParseCity(const FString& JsonString)
 {
 	TSharedPtr<FJsonObject> JsonObject;
