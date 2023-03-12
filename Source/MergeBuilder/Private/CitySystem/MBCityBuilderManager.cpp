@@ -122,10 +122,25 @@ void AMBCityBuilderManager::AcceptEditObject()
 	EditedObject->CityObjectData.Location = EditedObject->GetActorLocation();
 	EditedObject->CityObjectData.Rotation = EditedObject->GetActorRotation().Yaw;
 	
-	CityBuilderSubsystem->AddNewObject(EditedObject->CityObjectData);
-	EditedObject->SetDefaultMaterial();
+	if (EditedObject->CityObjectData.ObjectID == -1)
+	{
+		CityBuilderSubsystem->AddNewObject(EditedObject->CityObjectData);
+	}
+	else
+	{
+		CityBuilderSubsystem->EditObject(EditedObject->CityObjectData);
+	}
 
+	EditedObject->SetDefaultMaterial();
 	EditedObject = nullptr;
+}
+
+void AMBCityBuilderManager::RemoveCityObject(AMBBaseCityObjectActor* ObjectToRemove)
+{
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+	CityBuilderSubsystem->RemoveObject(ObjectToRemove->CityObjectData);
+
+	ObjectToRemove->Destroy();
 }
 
 // Called every frame
@@ -160,4 +175,33 @@ void AMBCityBuilderManager::RotateEditedObject(int32 Direction)
 
 	bool IsAcceptable = EditedObject->CheckLocation();
 	EditedObject->SetEditMaterial(IsAcceptable);
+}
+
+void AMBCityBuilderManager::CancelEditionObject()
+{
+	check(EditedObject);
+
+	if (EditedObject->CityObjectData.ObjectID == -1)
+	{
+		EditedObject->Destroy();
+	}
+	else
+	{
+		FTransform PreEditedTransform;
+		PreEditedTransform.SetLocation(EditedObject->CityObjectData.Location);
+		FRotator Rotation = FRotator::ZeroRotator;
+		Rotation.Yaw = EditedObject->CityObjectData.Rotation;
+		PreEditedTransform.SetRotation(Rotation.Quaternion());
+		PreEditedTransform.SetScale3D(FVector(EditedObject->CityObjectData.Scale));
+
+		EditedObject->SetActorTransform(PreEditedTransform);
+		EditedObject->SetDefaultMaterial();
+	}
+
+	EditedObject = nullptr;
+}
+
+void AMBCityBuilderManager::HandleObjectClick(AMBBaseCityObjectActor* CityObject)
+{
+	OnObjectClicked.Broadcast(CityObject);
 }

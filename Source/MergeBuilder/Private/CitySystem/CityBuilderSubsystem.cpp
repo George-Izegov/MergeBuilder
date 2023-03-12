@@ -26,9 +26,21 @@ void UCityBuilderSubsystem::Deinitialize()
 	SaveCity();
 }
 
-void UCityBuilderSubsystem::AddNewObject(const FCityObject& NewObject)
+void UCityBuilderSubsystem::AddNewObject(FCityObject& NewObject)
 {
-	CityObjects.Add(NewObject);
+	int32 ID = CityObjects.Add(NewObject);
+	CityObjects[ID].ObjectID = ID;
+	NewObject.ObjectID = ID;
+}
+
+void UCityBuilderSubsystem::EditObject(const FCityObject& EditedObject)
+{
+	CityObjects[EditedObject.ObjectID] = EditedObject;
+}
+
+void UCityBuilderSubsystem::RemoveObject(const FCityObject& ObjectToRemove)
+{
+	CityObjects[ObjectToRemove.ObjectID].ObjectName = NAME_None;
 }
 
 void UCityBuilderSubsystem::ParseCity(const FString& JsonString)
@@ -48,7 +60,8 @@ void UCityBuilderSubsystem::ParseCity(const FString& JsonString)
 			FCityObject Item;
 			FJsonObjectConverter::JsonObjectToUStruct<FCityObject>(CityObjectValue->AsObject().ToSharedRef(), &Item);
 
-			CityObjects.Add(Item);
+			int32 ID = CityObjects.Add(Item);
+			CityObjects[ID].ObjectID = ID;
 		}
 	}
 }
@@ -70,6 +83,9 @@ void UCityBuilderSubsystem::SaveCity()
 
 	for (const auto& Object : CityObjects)
 	{
+		if (Object.ObjectName == NAME_None)
+			continue;
+
 		TSharedPtr<FJsonObject> CityJsonObject = FJsonObjectConverter::UStructToJsonObject<FCityObject>(Object);
 		TSharedPtr<FJsonValue> ObjectValue = MakeShared<FJsonValueObject>(CityJsonObject);
 

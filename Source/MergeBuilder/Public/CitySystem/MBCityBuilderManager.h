@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "MBCityBuilderManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectClicked, AMBBaseCityObjectActor*, ClickedObject);
+
 UCLASS()
 class MERGEBUILDER_API AMBCityBuilderManager : public AActor
 {
@@ -31,6 +33,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void AcceptEditObject();
 
+	UFUNCTION(BlueprintCallable)
+	void RemoveCityObject(AMBBaseCityObjectActor* ObjectToRemove);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -41,9 +46,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RotateEditedObject(int32 Direction);
 
+	UFUNCTION(BlueprintCallable)
+	void CancelEditionObject();
+
+	void HandleObjectClick(AMBBaseCityObjectActor* CityObject);
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	AMBBaseCityObjectActor* EditedObject;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnObjectClicked OnObjectClicked;
 
 };

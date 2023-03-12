@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "MBBasePawn.h"
 #include "Components/SphereComponent.h"
+#include "Utilities/MBCoreTypes.h"
 #include "TopDownPawn.generated.h"
 
 UCLASS()
@@ -54,4 +55,7 @@ protected:
 	bool DragItem = false;
 
 	FVector PrevDragLocation;
+
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnVoidClick;
 };

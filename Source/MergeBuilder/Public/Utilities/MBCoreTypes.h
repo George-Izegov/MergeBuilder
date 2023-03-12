@@ -6,6 +6,7 @@
 #include "MBCoreTypes.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FNoParamsSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FNoParamsSignatureDyn);
 
 UCLASS()
 class MERGEBUILDER_API UMBCoreTypes : public UObject

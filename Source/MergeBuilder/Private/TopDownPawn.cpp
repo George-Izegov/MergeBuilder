@@ -106,6 +106,21 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 void ATopDownPawn::OnClick(const FVector Location)
 {
 	AMBBasePawn::OnClick(Location);
+
+	auto CityManager = Cast<AMBCityBuilderManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBCityBuilderManager::StaticClass()));
+	FHitResult HitResult;
+	if (GetWorldObjectHitResult(ETouchIndex::Touch1, HitResult))
+	{
+		auto CityObject = Cast<AMBBaseCityObjectActor>(HitResult.Actor);
+		if (CityObject)
+		{
+			CityManager->HandleObjectClick(CityObject);
+		}
+	}
+	else
+	{
+		OnVoidClick.Broadcast();
+	}
 }
 
 // Called every frame

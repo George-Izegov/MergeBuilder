@@ -25,6 +25,7 @@ struct FCityObject
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float Scale = 1.0f;
 
+	int32 ObjectID = -1;
 };
 USTRUCT(BlueprintType)
 struct FCityObjectData : public FTableRowBase
@@ -52,7 +53,9 @@ public:
 
 	void GetCityObjects(TArray<FCityObject>& OutObjects) { OutObjects = CityObjects; }
 
-	void AddNewObject(const FCityObject& NewObject);
+	void AddNewObject(FCityObject& NewObject);
+	void EditObject(const FCityObject& EditedObject);
+	void RemoveObject(const FCityObject& ObjectToRemove);
 	
 protected:
 
