@@ -36,6 +36,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void RemoveCityObject(AMBBaseCityObjectActor* ObjectToRemove);
 
+	UFUNCTION(BlueprintCallable)
+		void CollectRewardFromCityObject(AMBBaseCityObjectActor* CityObject);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

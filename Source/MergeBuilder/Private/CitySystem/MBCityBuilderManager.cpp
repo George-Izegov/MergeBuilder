@@ -143,6 +143,12 @@ void AMBCityBuilderManager::RemoveCityObject(AMBBaseCityObjectActor* ObjectToRem
 	ObjectToRemove->Destroy();
 }
 
+void AMBCityBuilderManager::CollectRewardFromCityObject(AMBBaseCityObjectActor* CityObject)
+{
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+	CityBuilderSubsystem->CollectFromObject(CityObject->CityObjectData);
+}
+
 // Called every frame
 void AMBCityBuilderManager::Tick(float DeltaTime)
 {

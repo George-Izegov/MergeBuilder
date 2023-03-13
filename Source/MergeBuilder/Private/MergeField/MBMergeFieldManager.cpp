@@ -385,11 +385,13 @@ AMBBaseMergeItemActor* AMBMergeFieldManager::GenerateNewItemFromLocation(const F
 AMBBaseMergeItemActor* AMBMergeFieldManager::GenerateNewItemFromLocation(const FIntPoint& SourceIndex, const FVector& SourceLocation, const FMergeFieldItem& NewItem)
 {
 	auto MergeSystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+	FMergeFieldItem ItemToSpawn = NewItem;
+	MergeSystem->InitItem(ItemToSpawn);
 
 	FIntPoint ClosestIndex;
 	MergeSystem->GetClosestFreeIndex(SourceIndex, ClosestIndex);
 
-	auto SpawnedItem = SpawnItemAtIndex(NewItem, ClosestIndex);
+	auto SpawnedItem = SpawnItemAtIndex(ItemToSpawn, ClosestIndex);
 
 	SpawnedItem->SetActorLocation(SourceLocation);
 	FVector DestinationLocation;
@@ -397,7 +399,7 @@ AMBBaseMergeItemActor* AMBMergeFieldManager::GenerateNewItemFromLocation(const F
 	SpawnedItem->MoveToLocation(DestinationLocation);
 	SpawnedItem->PlayAppearingAnimation();
 
-	MergeSystem->SetItemAt(ClosestIndex, NewItem);
+	MergeSystem->SetItemAt(ClosestIndex, ItemToSpawn);
 
 	return SpawnedItem;
 }

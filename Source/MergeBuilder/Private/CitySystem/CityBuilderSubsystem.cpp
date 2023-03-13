@@ -4,6 +4,7 @@
 #include "CitySystem/CityBuilderSubsystem.h"
 #include "MBUtilityFunctionLibrary.h"
 #include "JsonObjectConverter.h"
+#include "TimeSubsystem.h"
 
 UCityBuilderSubsystem::UCityBuilderSubsystem()
 {
@@ -41,6 +42,22 @@ void UCityBuilderSubsystem::EditObject(const FCityObject& EditedObject)
 void UCityBuilderSubsystem::RemoveObject(const FCityObject& ObjectToRemove)
 {
 	CityObjects[ObjectToRemove.ObjectID].ObjectName = NAME_None;
+}
+
+void UCityBuilderSubsystem::CollectFromObject(FCityObject& Object)
+{
+	auto TimeSubsystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
+	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+	
+	check(CityObjects[Object.ObjectID].RestoreTime < TimeSubsystem->GetUTCNow());
+
+	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(Object.ObjectName, "");
+
+	MergeSubsystem->AddNewReward(RowStruct->GeneratorSettings.GeneratedBox);
+
+	FTimespan RestoreDuration = FTimespan::FromSeconds(RowStruct->GeneratorSettings.MinutesToRestore * 60);
+	CityObjects[Object.ObjectID].RestoreTime = TimeSubsystem->GetUTCNow() + RestoreDuration;
+	Object = CityObjects[Object.ObjectID];
 }
 
 void UCityBuilderSubsystem::ParseCity(const FString& JsonString)

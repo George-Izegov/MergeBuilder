@@ -5,8 +5,20 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Engine/DataTable.h"
+#include "MergeSubsystem.h"
 #include "CityBuilderSubsystem.generated.h"
 
+USTRUCT(BlueprintType)
+struct FGeneratorSettings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		FMergeFieldItem GeneratedBox;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		int32 MinutesToRestore;
+};
 
 USTRUCT(BlueprintType)
 struct FCityObject
@@ -25,6 +37,9 @@ struct FCityObject
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float Scale = 1.0f;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		FDateTime RestoreTime;
+
 	int32 ObjectID = -1;
 };
 USTRUCT(BlueprintType)
@@ -34,6 +49,12 @@ struct FCityObjectData : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		TSoftClassPtr<class AMBBaseCityObjectActor> ObjectClass;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		bool IsGenerator = false;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FGeneratorSettings GeneratorSettings;
 };
 /**
  * 
@@ -56,6 +77,8 @@ public:
 	void AddNewObject(FCityObject& NewObject);
 	void EditObject(const FCityObject& EditedObject);
 	void RemoveObject(const FCityObject& ObjectToRemove);
+
+	void CollectFromObject(FCityObject& Object);
 	
 protected:
 
