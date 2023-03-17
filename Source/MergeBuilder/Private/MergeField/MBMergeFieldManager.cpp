@@ -240,14 +240,16 @@ void AMBMergeFieldManager::HandleClickOnReward()
 {
 	auto MergeSystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
 
+	FMergeFieldItem RewardItem;
+	if (!MergeSystem->GetFirstReward(RewardItem))
+		return;
+
 	if (!MergeSystem->HasFreePlace())
 	{
 		// TODO: Add failed sound/anim
 		return;
 	}
 
-	FMergeFieldItem RewardItem;
-	MergeSystem->GetFirstReward(RewardItem);
 	GenerateNewItemFromLocation(FIntPoint(3, 8), RewardActor->GetActorLocation() + FVector(0, 32.0f, 0), RewardItem);
 
 	MergeSystem->RemoveFirstReward();
