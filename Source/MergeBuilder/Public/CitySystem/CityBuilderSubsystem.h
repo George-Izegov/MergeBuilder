@@ -67,7 +67,10 @@ struct FCityObjectData : public FTableRowBase
 		TSoftObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TArray<FMergeFieldItem> CostInItems;
+		FText LocalizedName;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<FRequiredItem> RequiredItems;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 CostInCoins;
@@ -104,6 +107,11 @@ public:
 	void RemoveObject(const FCityObject& ObjectToRemove);
 
 	void CollectFromObject(FCityObject& Object);
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckRequierementsForBuildObject(const FName& ObjectName);
+
+	void SpendResourcesForBuildObject(const FName& ObjectName);
 	
 protected:
 

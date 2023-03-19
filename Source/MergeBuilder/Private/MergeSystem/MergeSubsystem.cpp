@@ -351,3 +351,40 @@ void UMergeSubsystem::AddNewReward(const FMergeFieldItem& NewRewardItem)
 {
 	RewardsQueue.Add(NewRewardItem);
 }
+
+int32 UMergeSubsystem::GetItemTotalCount(const FMergeFieldItem& Item)
+{
+	int32 Count = 0;
+
+	for (const auto& Row : MergeField)
+	{
+		for (const auto& RowItem : Row)
+		{
+			if (Item == RowItem)
+				Count++;
+		}
+	}
+
+	return Count;
+}
+
+void UMergeSubsystem::SpendItems(const FMergeFieldItem& Item, int32 Count)
+{
+	if (Count == 0)
+		return;
+
+	for (auto& Row : MergeField)
+	{
+		for (auto& RowItem : Row)
+		{
+			if (Item == RowItem)
+			{
+				RowItem.Type = EMergeItemType::None;
+				Count--;
+
+				if (Count == 0)
+					return;
+			}
+		}
+	}
+}

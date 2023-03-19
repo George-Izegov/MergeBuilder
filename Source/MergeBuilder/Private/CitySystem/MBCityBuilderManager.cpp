@@ -124,6 +124,7 @@ void AMBCityBuilderManager::AcceptEditObject()
 	
 	if (EditedObject->CityObjectData.ObjectID == -1)
 	{
+		CityBuilderSubsystem->SpendResourcesForBuildObject(EditedObject->CityObjectData.ObjectName);
 		CityBuilderSubsystem->AddNewObject(EditedObject->CityObjectData);
 	}
 	else

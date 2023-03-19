@@ -183,6 +183,26 @@ bool UAccountSubsystem::SpendEnergy(int32 EnergyToSpend)
 	return true;
 }
 
+void UAccountSubsystem::SpendSoftCoins(int32 CoinsToSpend)
+{
+	if (CoinsToSpend <= 0)
+		return;
+
+	CoinsToSpend = FMath::Min(CoinsToSpend, SoftCoins);
+
+	SoftCoins -= CoinsToSpend;
+}
+
+void UAccountSubsystem::SpendPremCoins(int32 CoinsToSpend)
+{
+	if (CoinsToSpend <= 0)
+		return;
+
+	CoinsToSpend = FMath::Min(CoinsToSpend, PremCoins);
+
+	PremCoins -= CoinsToSpend;
+}
+
 bool UAccountSubsystem::GetRemainTimeToRestoreEnergy(int32& RemainTimeMinutes, int32& RemainTimeSeconds)
 {
 	if (!GetWorld()->GetTimerManager().IsTimerActive(EnergyRestoreTimerHandle))

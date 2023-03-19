@@ -78,6 +78,18 @@ struct FMergeFieldItem
 };
 
 USTRUCT(BlueprintType)
+struct FRequiredItem
+{
+	GENERATED_BODY()
+
+		UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		FMergeFieldItem Item;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		int32 RequiredNum;
+};
+
+USTRUCT(BlueprintType)
 struct FSpawnItemData
 {
 	GENERATED_BODY()
@@ -175,6 +187,11 @@ public:
 	void RemoveFirstReward();
 
 	void AddNewReward(const FMergeFieldItem& NewRewardItem);
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetItemTotalCount(const FMergeFieldItem& Item);
+
+	void SpendItems(const FMergeFieldItem& Item, int32 Count);
 
 protected:
 

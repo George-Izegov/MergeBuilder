@@ -76,6 +76,9 @@ public:
 	bool HasEnoughEnergy(int32 EnergyToSpend);
 	bool SpendEnergy(int32 EnergyToSpend);
 
+	void SpendSoftCoins(int32 CoinsToSpend);
+	void SpendPremCoins(int32 CoinsToSpend);
+
 	UFUNCTION(BlueprintCallable)
 		bool GetRemainTimeToRestoreEnergy(int32& RemainTimeMinutes, int32& RemainTimeSeconds);
 

@@ -5,6 +5,7 @@
 #include "MBUtilityFunctionLibrary.h"
 #include "JsonObjectConverter.h"
 #include "TimeSubsystem.h"
+#include "User/AccountSubsystem.h"
 
 UCityBuilderSubsystem::UCityBuilderSubsystem()
 {
@@ -115,4 +116,60 @@ void UCityBuilderSubsystem::SaveCity()
 	UMBUtilityFunctionLibrary::JsonObjectToString(JsonObject, StringData);
 
 	UMBUtilityFunctionLibrary::SaveToStorage("City", StringData);
+}
+
+bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& ObjectName)
+{
+	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+
+	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(ObjectName, "");
+	check(RowStruct);
+
+	for (const auto& Item : RowStruct->RequiredItems)
+	{
+		int32 TotalCount = MergeSubsystem->GetItemTotalCount(Item.Item);
+
+		if (TotalCount < Item.RequiredNum)
+			return false;
+	}
+
+	switch (RowStruct->CoinsType)
+	{
+	case EConsumableParamType::SoftCoin:
+		if (AccountSubsystem->GetSoftCoins() < RowStruct->CostInCoins)
+			return false;
+		break;
+	case EConsumableParamType::PremCoin:
+		if (AccountSubsystem->GetPremCoins() < RowStruct->CostInCoins)
+			return false;
+		break;
+	}
+
+	return true;
+}
+
+
+void UCityBuilderSubsystem::SpendResourcesForBuildObject(const FName& ObjectName)
+{
+	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+
+	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(ObjectName, "");
+	check(RowStruct);
+
+	for (const auto& Item : RowStruct->RequiredItems)
+	{
+		MergeSubsystem->SpendItems(Item.Item, Item.RequiredNum);
+	}
+
+	switch (RowStruct->CoinsType)
+	{
+	case EConsumableParamType::SoftCoin:
+		AccountSubsystem->SpendSoftCoins(RowStruct->CostInCoins);
+		break;
+	case EConsumableParamType::PremCoin:
+		AccountSubsystem->SpendPremCoins(RowStruct->CostInCoins);
+		break;
+	}
 }
