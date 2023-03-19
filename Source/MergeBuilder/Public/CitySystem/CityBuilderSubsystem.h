@@ -42,6 +42,16 @@ struct FCityObject
 
 	int32 ObjectID = -1;
 };
+
+UENUM(BlueprintType)
+enum class ECityObjectCategory : uint8
+{
+	Other,
+	Buildings,
+	Plants,
+	Infrastructure
+};
+
 USTRUCT(BlueprintType)
 struct FCityObjectData : public FTableRowBase
 {
@@ -49,6 +59,21 @@ struct FCityObjectData : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		TSoftClassPtr<class AMBBaseCityObjectActor> ObjectClass;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		ECityObjectCategory Category;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		TSoftObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TArray<FMergeFieldItem> CostInItems;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 CostInCoins;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	EConsumableParamType CoinsType = EConsumableParamType::SoftCoin;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		bool IsGenerator = false;
