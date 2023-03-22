@@ -94,9 +94,9 @@ void UAccountSubsystem::InitEnergy(int32 OldEnergy, const FDateTime& OldTime, fl
 	if (!TimeSystem->IsTimeValid())
 	{
 		Energy = OldEnergy;
-		FDelegateHandle DelegateHandle = TimeSystem->OnTimeSuccessRequested.AddLambda([this, TimeSystem, OldEnergy, DelegateHandle, OldTime, OldRemainTime]() {
+		OnGetTimeDelegateHandle = TimeSystem->OnTimeSuccessRequested.AddLambda([this, TimeSystem, OldEnergy, OldTime, OldRemainTime]() {
+			TimeSystem->OnTimeSuccessRequested.Remove(OnGetTimeDelegateHandle);
 			InitEnergy(OldEnergy, OldTime, OldRemainTime);
-			TimeSystem->OnTimeSuccessRequested.Remove(DelegateHandle);
 			});
 
 		return;

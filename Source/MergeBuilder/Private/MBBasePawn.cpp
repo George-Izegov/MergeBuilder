@@ -37,12 +37,18 @@ void AMBBasePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void AMBBasePawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
-	StartTouchLocation = Location;
-	OnPressedTime = FDateTime::Now();
+	if (FingerIndex == ETouchIndex::Touch1)
+	{
+		StartTouchLocation = Location;
+		OnPressedTime = FDateTime::Now();
+	}
 }
 
 void AMBBasePawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
+	if (FingerIndex != ETouchIndex::Touch1)
+		return;
+
 	if ((FDateTime::Now() - OnPressedTime).GetTotalMilliseconds() <= 200)
 		OnClick(StartTouchLocation);
 }

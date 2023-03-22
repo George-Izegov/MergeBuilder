@@ -148,6 +148,15 @@ struct FMergeItemChainRow : public FTableRowBase
 		TArray<FMergeItemData> ItemsChain;
 };
 
+USTRUCT(BlueprintType)
+struct FMergeItemsField : public FTableRowBase
+{
+	GENERATED_BODY()
+
+		UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		TArray<FMergeFieldItem> ItemsRow;
+};
+
 const FIntPoint MergeFieldSize = FIntPoint(7, 9);
 
 /**
@@ -195,6 +204,8 @@ public:
 
 protected:
 
+	void InitFieldFromStartTable();
+
 	void ParseField(const FString& JsonString);
 
 	void SaveField();
@@ -211,4 +222,7 @@ protected:
 
 	UPROPERTY()
 	UDataTable* MergeItemsDataTable;
+
+	UPROPERTY()
+	UDataTable* StartFieldDataTable;
 };

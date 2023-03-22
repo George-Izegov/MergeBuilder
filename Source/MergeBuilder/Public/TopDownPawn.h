@@ -29,6 +29,11 @@ protected:
 
 	void TouchDouble(const ETouchIndex::Type FingerIndex, const FVector Location);
 
+	void HandleGesture(float DeltaDistance, float DeltaAngle);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void AddSpringArmLength(float Delta);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -58,4 +63,7 @@ protected:
 
 	UPROPERTY(BlueprintAssignable)
 	FNoParamsSignatureDyn OnVoidClick;
+
+	FVector DeltaVectorTwoFingers;
+	bool TwoFingersTouch = false;
 };

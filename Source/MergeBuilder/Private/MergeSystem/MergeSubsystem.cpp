@@ -12,8 +12,14 @@ UMergeSubsystem::UMergeSubsystem()
 	{
 		MergeItemsDataTable = ItemsDataTable.Object;
 	}
-
 	check(MergeItemsDataTable);
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> StartField(TEXT("DataTable'/Game/Development/DataTables/StartMergeField.StartMergeField'"));
+	if (StartField.Succeeded())
+	{
+		StartFieldDataTable = StartField.Object;
+	}
+	check(StartFieldDataTable);
 }
 
 void UMergeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -28,11 +34,38 @@ void UMergeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		ParseField(SavedData);
 	}
+	else
+	{
+		InitFieldFromStartTable();
+	}
 }
 
 void UMergeSubsystem::Deinitialize()
 {
 	SaveField();
+}
+
+void UMergeSubsystem::InitFieldFromStartTable()
+{
+	for (int32 i = 0; i < MergeFieldSize.Y; i++)
+	{
+		auto FieldRow = StartFieldDataTable->FindRow<FMergeItemsField>(FName(FString::FromInt(i)), "");
+		if (!FieldRow)
+			continue;
+
+		for (int32 j = 0; j < MergeFieldSize.X; j++)
+		{
+			if (FieldRow->ItemsRow.Num() <= j)
+				break;
+
+			const auto& Item = FieldRow->ItemsRow[j];
+
+			if (Item.Type == EMergeItemType::None)
+				continue;
+
+			MergeField[i][j] = Item;
+		}
+	}
 }
 
 void UMergeSubsystem::ParseField(const FString& JsonString)

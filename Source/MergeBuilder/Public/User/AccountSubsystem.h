@@ -97,4 +97,8 @@ protected:
 	void RestoreEnergy();
 
 	void LevelUp();
+
+private:
+
+	FDelegateHandle OnGetTimeDelegateHandle;
 };

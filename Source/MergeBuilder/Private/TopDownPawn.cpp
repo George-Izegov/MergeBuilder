@@ -44,6 +44,12 @@ void ATopDownPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector
 			}
 		}
 	}
+
+	if (FingerIndex == ETouchIndex::Touch2)
+	{
+		DeltaVectorTwoFingers = Location - StartTouchLocation;
+		TwoFingersTouch = true;
+	}
 }
 
 void ATopDownPawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVector Location)
@@ -55,10 +61,24 @@ void ATopDownPawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVect
 		InMovement = false;
 		DragItem = false;
 	}
+
+	if (FingerIndex == ETouchIndex::Touch2)
+	{
+		TwoFingersTouch = false;
+	}
 }
 
 void ATopDownPawn::TouchDouble(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
+}
+
+void ATopDownPawn::HandleGesture(float DeltaDistance, float DeltaAngle)
+{
+	AddSpringArmLength(DeltaDistance / GSystemResolution.ResX);
+
+	FRotator DeltaRotation = FRotator::ZeroRotator;
+	DeltaRotation.Yaw = FMath::RadiansToDegrees(DeltaAngle);
+	AddActorWorldRotation(DeltaRotation);
 }
 
 void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector Location)
@@ -79,26 +99,52 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 		}
 		else
 		{
-			FVector DeltaLocation = Location - StartTouchLocation;
-			DeltaLocation.Z = 0.0f;
-			DeltaLocation = DeltaLocation.RotateAngleAxis(GetActorRotation().Yaw, FVector::UpVector);
+			if (!TwoFingersTouch)
+			{
+				FVector DeltaLocation = Location - StartTouchLocation;
+				DeltaLocation.Z = 0.0f;
+				DeltaLocation = DeltaLocation.RotateAngleAxis(GetActorRotation().Yaw, FVector::UpVector);
 
-			switch (MovementType)
-			{
-			case 0:
-			{
-				InMovement = true;
-				LastMovementTouchLocation = Location;
-				break;
-			}
-			case 1:
-			{
-				RootSphere->AddForce(DeltaLocation * MovementSpeed[MovementType]);
-				StartTouchLocation = Location;
-				break;
-			}
+				switch (MovementType)
+				{
+				case 0:
+				{
+					InMovement = true;
+					LastMovementTouchLocation = Location;
+					break;
+				}
+				case 1:
+				{
+					RootSphere->AddForce(DeltaLocation * MovementSpeed[MovementType]);
+					StartTouchLocation = Location;
+					break;
+				}
+				}
 			}
 		}
+	}
+
+	if (FingerIndex == ETouchIndex::Touch2)
+	{
+		FVector CurrentDeltaVector = Location - StartTouchLocation;
+
+		float DeltaDistance = CurrentDeltaVector.Size() - DeltaVectorTwoFingers.Size();
+
+		FVector PrevNormalized = DeltaVectorTwoFingers.GetSafeNormal();
+		FVector CurNormalized = CurrentDeltaVector.GetSafeNormal();
+
+		float DeltaAngle = CurNormalized.HeadingAngle() - PrevNormalized.HeadingAngle();
+		
+		if (FMath::Sign(CurNormalized.HeadingAngle() * PrevNormalized.HeadingAngle()) < 0)
+		{
+			DeltaAngle = DeltaAngle + 2.0f * PI * FMath::Sign(PrevNormalized.HeadingAngle());
+		}
+
+		GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Orange, FString::Printf(TEXT("Gesture Dist: %.1f Angle: %.3f"), DeltaDistance, DeltaAngle));
+		
+		HandleGesture(DeltaDistance, DeltaAngle);
+
+		DeltaVectorTwoFingers = CurrentDeltaVector;
 	}
 	
 }
