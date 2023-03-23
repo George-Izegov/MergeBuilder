@@ -202,13 +202,13 @@ public:
 
 	void SpendItems(const FMergeFieldItem& Item, int32 Count);
 
+	void SaveField();
+
 protected:
 
 	void InitFieldFromStartTable();
 
 	void ParseField(const FString& JsonString);
-
-	void SaveField();
 
 	void SetItemAt(const FIntPoint& Index, const FMergeFieldItem& Item);
 

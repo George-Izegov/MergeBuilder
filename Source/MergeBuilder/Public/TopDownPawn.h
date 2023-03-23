@@ -29,10 +29,14 @@ protected:
 
 	void TouchDouble(const ETouchIndex::Type FingerIndex, const FVector Location);
 
+	UFUNCTION(BlueprintCallable)
 	void HandleGesture(float DeltaDistance, float DeltaAngle);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void AddSpringArmLength(float Delta);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		float GetSpringArmLength();
 
 public:	
 	// Called every frame
@@ -64,6 +68,8 @@ protected:
 	UPROPERTY(BlueprintAssignable)
 	FNoParamsSignatureDyn OnVoidClick;
 
-	FVector DeltaVectorTwoFingers;
+	FVector StartTouch2Location;
+	FVector DeltaVectorTwoFingersTouch2;
+	FVector DeltaVectorTwoFingersTouch1;
 	bool TwoFingersTouch = false;
 };

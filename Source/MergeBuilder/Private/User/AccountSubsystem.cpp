@@ -11,7 +11,11 @@ UAccountSubsystem::UAccountSubsystem()
 
 void UAccountSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &UAccountSubsystem::InitAccount);
+	FTimerDelegate Delegate = FTimerDelegate::CreateLambda([this]() {
+		auto TimeSystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
+		OnGetTimeDelegateHandle = TimeSystem->OnTimeSuccessRequested.AddUObject(this, &UAccountSubsystem::InitAccount);
+	});
+
 	GetWorld()->GetTimerManager().SetTimerForNextTick(Delegate);
 }
 
@@ -87,20 +91,9 @@ void UAccountSubsystem::InitAccount()
 	MaxExperience = GetMaxExperienceForLevel(Level);
 }
 
-void UAccountSubsystem::InitEnergy(int32 OldEnergy, const FDateTime& OldTime, float OldRemainTime)
+void UAccountSubsystem::InitEnergy(int32 OldEnergy, FDateTime OldTime, float OldRemainTime)
 {
 	auto TimeSystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
-
-	if (!TimeSystem->IsTimeValid())
-	{
-		Energy = OldEnergy;
-		OnGetTimeDelegateHandle = TimeSystem->OnTimeSuccessRequested.AddLambda([this, TimeSystem, OldEnergy, OldTime, OldRemainTime]() {
-			TimeSystem->OnTimeSuccessRequested.Remove(OnGetTimeDelegateHandle);
-			InitEnergy(OldEnergy, OldTime, OldRemainTime);
-			});
-
-		return;
-	}
 
 	if (OldEnergy >= MaxEnergy)
 	{
@@ -135,9 +128,6 @@ int32 UAccountSubsystem::GetMaxExperienceForLevel(int32 InLevel)
 void UAccountSubsystem::StartRestoreEnergy(float NextRestoreTime)
 {
 	if (Energy >= MaxEnergy)
-		return;
-
-	if (GetWorld()->GetTimerManager().IsTimerActive(EnergyRestoreTimerHandle))
 		return;
 
 	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &UAccountSubsystem::RestoreEnergy);
@@ -178,7 +168,8 @@ bool UAccountSubsystem::SpendEnergy(int32 EnergyToSpend)
 
 	Energy -= EnergyToSpend;
 
-	StartRestoreEnergy();
+	if (!GetWorld()->GetTimerManager().IsTimerActive(EnergyRestoreTimerHandle))
+		StartRestoreEnergy();
 
 	return true;
 }

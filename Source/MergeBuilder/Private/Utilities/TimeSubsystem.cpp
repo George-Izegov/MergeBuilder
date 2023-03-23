@@ -4,6 +4,7 @@
 #include "Utilities/TimeSubsystem.h"
 #include "WebRequestSubsystem.h"
 #include "MBUtilityFunctionLibrary.h"
+#include "MBGameInstance.h"
 
 UTimeSubsystem::UTimeSubsystem()
 {
@@ -13,6 +14,9 @@ void UTimeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &UTimeSubsystem::RequestTime);
     GetWorld()->GetTimerManager().SetTimerForNextTick(Delegate);
+
+    auto GI = Cast<UMBGameInstance>(GetGameInstance());
+    GI->ApplicationHasEnteredForegroundDelegate.AddDynamic(this, &UTimeSubsystem::RequestTime);
 }
 
 void UTimeSubsystem::Deinitialize()

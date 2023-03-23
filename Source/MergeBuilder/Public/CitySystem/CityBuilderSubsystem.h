@@ -112,14 +112,14 @@ public:
 	bool CheckRequierementsForBuildObject(const FName& ObjectName);
 
 	void SpendResourcesForBuildObject(const FName& ObjectName);
+
+	void SaveCity();
 	
 protected:
 
 	void ParseCity(const FString& JsonString);
 
 	void InitCity();
-
-	void SaveCity();
 
 	UPROPERTY()
 	TArray<FCityObject> CityObjects;

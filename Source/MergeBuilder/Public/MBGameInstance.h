@@ -14,4 +14,12 @@ class MERGEBUILDER_API UMBGameInstance : public UPlatformGameInstance
 {
 	GENERATED_BODY()
 	
+public:
+
+	virtual void Init() override;
+
+protected:
+
+	UFUNCTION()
+	void SaveAllData();
 };

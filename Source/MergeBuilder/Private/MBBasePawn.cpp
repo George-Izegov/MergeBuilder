@@ -49,7 +49,7 @@ void AMBBasePawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVecto
 	if (FingerIndex != ETouchIndex::Touch1)
 		return;
 
-	if ((FDateTime::Now() - OnPressedTime).GetTotalMilliseconds() <= 200)
+	if ((FDateTime::Now() - OnPressedTime).GetTotalMilliseconds() <= 100)
 		OnClick(StartTouchLocation);
 }
 

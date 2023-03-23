@@ -89,7 +89,7 @@ protected:
 	UFUNCTION()
 	void InitAccount();
 
-	void InitEnergy(int32 OldEnergy, const FDateTime& OldTime, float OldRemainTime);
+	void InitEnergy(int32 OldEnergy, FDateTime OldTime, float OldRemainTime);
 	int32 GetMaxExperienceForLevel(int32 InLevel);
 	// -1 for NextRestoreTime means default restore time
 	void StartRestoreEnergy(float NextRestoreTime = -1.0f);
