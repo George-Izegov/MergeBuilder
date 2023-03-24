@@ -43,6 +43,8 @@ protected:
 
 	void InitRewardItem();
 
+	void OpenInBoxItems(const TArray<FIntPoint>& Indexes);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -163,6 +163,51 @@ void UMergeSubsystem::SaveField()
 	UMBUtilityFunctionLibrary::SaveToStorage("Inventory", StringData);
 }
 
+bool UMergeSubsystem::GetAllItemsInBoxAround(const FIntPoint& Index, TArray<FIntPoint>& OutItemIndexes)
+{
+	if (Index.X < 0 || Index.Y < 0 || Index.X >= MergeFieldSize.X || Index.Y >= MergeFieldSize.Y)
+		return false;
+
+	// for all indexes around
+	for (int32 i = Index.X - 1; i <= Index.X + 1; i++)
+	{
+		for (int32 j = Index.Y - 1; j <= Index.Y + 1; j++)
+		{
+			if (i == Index.X && j == Index.Y)
+				continue;
+
+			if (i < 0 || j < 0 || i >= MergeFieldSize.X || j >= MergeFieldSize.Y)
+				continue;
+
+			if (MergeField[j][i].Type == EMergeItemType::None)
+				continue;
+
+			if (MergeField[j][i].IsInBox)
+			{
+				OutItemIndexes.Add(FIntPoint(i, j));
+			}
+		}
+	}
+
+	return OutItemIndexes.Num() > 0;
+}
+
+void UMergeSubsystem::OpenInBoxItem(const FIntPoint& Index, FMergeFieldItem& OutItem)
+{
+	if (Index.X < 0 || Index.Y < 0 || Index.X >= MergeFieldSize.X || Index.Y >= MergeFieldSize.Y)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Index out of range"));
+		return;
+	}
+	
+	OutItem = MergeField[Index.Y][Index.X];
+
+	OutItem.IsDusty = true;
+	OutItem.IsInBox = false;
+
+	MergeField[Index.Y][Index.X] = OutItem;
+}
+
 bool UMergeSubsystem::GetItemAt(const FIntPoint& Index, FMergeFieldItem& OutItem)
 {
 	if (Index.X < 0 || Index.X >= MergeFieldSize.X)

@@ -66,6 +66,12 @@ struct FMergeFieldItem
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		int32 RemainItemsToSpawn = 0;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool IsDusty = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool IsInBox = false;
+
 	bool operator==(const FMergeFieldItem& Other) const
 	{
 		return Type == Other.Type && Level == Other.Level;
@@ -203,6 +209,10 @@ public:
 	void SpendItems(const FMergeFieldItem& Item, int32 Count);
 
 	void SaveField();
+
+	bool GetAllItemsInBoxAround(const FIntPoint& Index, TArray<FIntPoint>& OutItemIndexes);
+
+	void OpenInBoxItem(const FIntPoint& Index, FMergeFieldItem& OutItem);
 
 protected:
 

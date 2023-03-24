@@ -77,6 +77,22 @@ void AMBMergeFieldManager::InitRewardItem()
 	}
 }
 
+void AMBMergeFieldManager::OpenInBoxItems(const TArray<FIntPoint>& Indexes)
+{
+	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+
+	for (const FIntPoint& Index : Indexes)
+	{
+		FMergeFieldItem Item;
+		MergeSubsystem->OpenInBoxItem(Index, Item);
+
+		auto ItemAtIndex = FieldItems[Index.Y][Index.X];
+		ItemAtIndex->Destroy();
+
+		auto SpawnedItemActor = SpawnItemAtIndex(Item, Index);
+	}
+}
+
 AMBBaseMergeItemActor* AMBMergeFieldManager::SpawnItemAtIndex(const FMergeFieldItem& Item, const FIntPoint& Index)
 {
 	FVector Location;
@@ -124,6 +140,12 @@ void AMBMergeFieldManager::DestroyAllItems()
 			Item->Destroy();
 			Item = nullptr;
 		}
+	}
+
+	if (SelectionActor)
+	{
+		SelectionActor->Destroy();
+		SelectionActor = nullptr;
 	}
 }
 
@@ -173,6 +195,7 @@ void AMBMergeFieldManager::HandleReleaseTouchOnIndex(const FIntPoint& Index)
 			FMergeFieldItem MergedItem;
 			if (MergeSystem->TryMergeItems(TouchStartItem->BaseData, Index, MergedItem))
 			{
+				bool MergeWithDusty = ItemAtIndex->BaseData.IsDusty;
 				FVector MergeItemLocation = (TouchStartItem->GetActorLocation() + ItemAtIndex->GetActorLocation()) / 2.0f;
 				TouchStartItem->Destroy();
 				ItemAtIndex->Destroy();
@@ -182,6 +205,17 @@ void AMBMergeFieldManager::HandleReleaseTouchOnIndex(const FIntPoint& Index)
 				FVector IndexLocation;
 				GetLocationForIndex(Index, IndexLocation);
 				MergedItemActor->MoveToLocation(IndexLocation);
+
+				// if merge with item that is dusty
+				if (MergeWithDusty)
+				{
+					// check if there are items in the box around
+					TArray<FIntPoint> InBoxIndexes;
+					if (MergeSystem->GetAllItemsInBoxAround(Index, InBoxIndexes))
+					{
+						OpenInBoxItems(InBoxIndexes);
+					}
+				}
 			}
 			else
 			{
@@ -262,6 +296,9 @@ void AMBMergeFieldManager::StartDrag()
 	if (!TouchStartItem)
 		return;
 
+	if (TouchStartItem->BaseData.IsDusty || TouchStartItem->BaseData.IsInBox)
+		return;
+
 	InDrag = true;
 
 	DeselectCurrentIndex();
@@ -335,7 +372,6 @@ void AMBMergeFieldManager::DeselectCurrentIndex()
 
 	if (SelectionActor)
 		SelectionActor->Destroy();
-
 }
 
 void AMBMergeFieldManager::DestroyItem(const FIntPoint& Index)
