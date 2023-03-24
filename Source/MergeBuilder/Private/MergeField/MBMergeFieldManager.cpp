@@ -351,7 +351,7 @@ void AMBMergeFieldManager::DestroyItem(const FIntPoint& Index)
 	FieldItems[Index.Y][Index.X] = nullptr;
 }
 
-void AMBMergeFieldManager::GenerateNewItemFromAnother(AMBBaseMergeItemActor* SourceItem)
+bool AMBMergeFieldManager::GenerateNewItemFromAnother(AMBBaseMergeItemActor* SourceItem)
 {
 	auto MergeSystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
 
@@ -359,7 +359,7 @@ void AMBMergeFieldManager::GenerateNewItemFromAnother(AMBBaseMergeItemActor* Sou
 	{
 		// TODO: Handle situation if generator has last charge and we can spawn item instead of it
 		// TODO: Add failed sound/anim
-		return;
+		return false;
 	}
 
 	FSpawnItemData ItemToSpawn;
@@ -374,6 +374,8 @@ void AMBMergeFieldManager::GenerateNewItemFromAnother(AMBBaseMergeItemActor* Sou
 		DestroyItem(SourceItem->FieldIndex);
 		DeselectCurrentIndex();
 	}
+
+	return true;
 }
 
 AMBBaseMergeItemActor* AMBMergeFieldManager::GenerateNewItemFromLocation(const FIntPoint& SourceIndex, const FMergeFieldItem& NewItem)

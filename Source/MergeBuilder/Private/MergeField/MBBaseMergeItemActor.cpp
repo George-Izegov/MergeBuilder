@@ -50,32 +50,39 @@ void AMBBaseMergeItemActor::HandleInteraction()
 		return;
 
 	auto AccountSystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
-
-	if (!AccountSystem->SpendEnergy(TableData.EnergyConsume))
+	
+	if (!AccountSystem->HasEnoughEnergy(1))
 		return;
 
+	bool Result = false;
 	switch (TableData.InteractType)
 	{
 	case EItemInteractType::SpawnItem:
 	{
-		GenerateNewItem();
+		Result = GenerateNewItem();
 		break;
 	}
 	case EItemInteractType::AddValue:
 	{
 		AddConsumableValue();
+			Result = true;
 		break;
 	}
 	default:
 		break;
 	}
+
+	if (Result)
+	{
+		AccountSystem->SpendEnergy(TableData.EnergyConsume);
+	}
 }
 
-void AMBBaseMergeItemActor::GenerateNewItem()
+bool AMBBaseMergeItemActor::GenerateNewItem()
 {
 	auto FieldManager = Cast<AMBMergeFieldManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBMergeFieldManager::StaticClass()));
 
-	FieldManager->GenerateNewItemFromAnother(this);
+	return FieldManager->GenerateNewItemFromAnother(this);
 }
 
 void AMBBaseMergeItemActor::AddConsumableValue()

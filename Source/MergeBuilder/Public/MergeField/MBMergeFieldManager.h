@@ -57,7 +57,7 @@ public:
 
 	AMBBaseMergeItemActor* GetItemAtIndex(const FIntPoint& Index);
 
-	void GenerateNewItemFromAnother(AMBBaseMergeItemActor* SourceItem);
+	bool GenerateNewItemFromAnother(AMBBaseMergeItemActor* SourceItem);
 
 	AMBBaseMergeItemActor* GenerateNewItemFromLocation(const FIntPoint& SourceIndex, const FMergeFieldItem& NewItem);
 	AMBBaseMergeItemActor* GenerateNewItemFromLocation(const FIntPoint& SourceIndex, const FVector& SourceLocation, const FMergeFieldItem& NewItem);

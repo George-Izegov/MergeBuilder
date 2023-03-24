@@ -31,7 +31,7 @@ protected:
 
 	void HandleInteraction();
 
-	void GenerateNewItem();
+	bool GenerateNewItem();
 	void AddConsumableValue();
 
 	UFUNCTION(BlueprintImplementableEvent)

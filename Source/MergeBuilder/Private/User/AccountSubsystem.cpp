@@ -26,6 +26,9 @@ void UAccountSubsystem::Deinitialize()
 
 void UAccountSubsystem::SaveAccount()
 {
+	if (!IsInitialized)
+		return;
+	
 	TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
 
 	JsonObject->SetNumberField("level", Level);
@@ -89,6 +92,8 @@ void UAccountSubsystem::InitAccount()
 	}
 
 	MaxExperience = GetMaxExperienceForLevel(Level);
+
+	IsInitialized = true;
 }
 
 void UAccountSubsystem::InitEnergy(int32 OldEnergy, FDateTime OldTime, float OldRemainTime)

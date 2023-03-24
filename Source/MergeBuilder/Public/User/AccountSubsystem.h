@@ -58,6 +58,8 @@ protected:
 	UPROPERTY()
 	FDateTime LastSaveTime;
 
+	bool IsInitialized = false;
+
 public:
 
 	inline int32 GetLevel() { return Level; }
