@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MBCoreTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Engine/DataTable.h"
+#include "MergeSystem/MergeSubsystem.h"
 #include "AccountSubsystem.generated.h"
 
 /**
@@ -60,6 +62,9 @@ protected:
 
 	bool IsInitialized = false;
 
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FMergeFieldItem> LevelRewards;
+
 public:
 
 	inline int32 GetLevel() { return Level; }
@@ -103,4 +108,9 @@ protected:
 private:
 
 	FDelegateHandle OnGetTimeDelegateHandle;
+
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnGetNewLevel;
 };

@@ -41,8 +41,8 @@ protected:
 	void PlaceItemAtIndex(const FIntPoint& Index, AMBBaseMergeItemActor* Item);
 
 	void SelectIndex(const FIntPoint& Index);
-	void DeselectCurrentIndex();
 
+	UFUNCTION()
 	void InitRewardItem();
 
 	void OpenInBoxItems(const TArray<FIntPoint>& Indexes);
@@ -54,6 +54,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void DeselectCurrentIndex();
+	
 	void DestroyItem(const FIntPoint& Index);
 
 	UFUNCTION(BlueprintCallable)
@@ -87,7 +89,7 @@ protected:
 
 	AMBBaseMergeItemActor* TouchStartItem;
 
-	FIntPoint SelectedIndex;
+	FIntPoint SelectedIndex = FIntPoint(-1, -1);
 
 	UPROPERTY(BlueprintReadOnly)
 		AActor* SelectionActor;

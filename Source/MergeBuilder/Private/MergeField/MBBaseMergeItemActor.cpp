@@ -116,4 +116,5 @@ void AMBBaseMergeItemActor::AddConsumableValue()
 	auto FieldManager = Cast<AMBMergeFieldManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBMergeFieldManager::StaticClass()));
 
 	FieldManager->DestroyItem(FieldIndex);
+	FieldManager->DeselectCurrentIndex();
 }

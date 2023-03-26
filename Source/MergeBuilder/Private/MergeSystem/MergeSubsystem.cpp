@@ -428,6 +428,8 @@ void UMergeSubsystem::RemoveFirstReward()
 void UMergeSubsystem::AddNewReward(const FMergeFieldItem& NewRewardItem)
 {
 	RewardsQueue.Add(NewRewardItem);
+
+	OnGetReward.Broadcast();
 }
 
 int32 UMergeSubsystem::GetItemTotalCount(const FMergeFieldItem& Item)

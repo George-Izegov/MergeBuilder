@@ -21,7 +21,9 @@ AMBMergeFieldManager::AMBMergeFieldManager()
 void AMBMergeFieldManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	auto MergeSystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+	MergeSystem->OnGetReward.AddDynamic(this, &AMBMergeFieldManager::InitRewardItem);
 }
 
 // Called every frame

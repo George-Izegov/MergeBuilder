@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MBCoreTypes.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Engine/DataTable.h"
 #include "PaperSprite.h"
@@ -24,7 +25,10 @@ enum class EMergeItemType : uint8
 	Experience,
 	Energy,
 	SoftCoins,
-	PremCoins
+	PremCoins,
+	EnergyBox,
+	SoftCoinBox,
+	PremCoinBox
 };
 
 UENUM(BlueprintType)
@@ -239,4 +243,7 @@ public:
 
 	UPROPERTY()
 	UDataTable* StartFieldDataTable;
+
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnGetReward;
 };

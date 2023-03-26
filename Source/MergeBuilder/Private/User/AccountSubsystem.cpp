@@ -7,6 +7,14 @@
 
 UAccountSubsystem::UAccountSubsystem()
 {
+	LevelRewards.Empty();
+	FMergeFieldItem Reward;
+	Reward.Type = EMergeItemType::SoftCoinBox;
+	LevelRewards.Add(Reward);
+	Reward.Type = EMergeItemType::PremCoinBox;
+	LevelRewards.Add(Reward);
+	Reward.Type = EMergeItemType::EnergyBox;
+	LevelRewards.Add(Reward);
 }
 
 void UAccountSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -260,4 +268,12 @@ void UAccountSubsystem::LevelUp()
 	Level++;
 	Experience = 0;
 	MaxExperience = GetMaxExperienceForLevel(Level);
+
+	auto MergeSystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+	for (auto& Reward : LevelRewards)
+	{
+		MergeSystem->AddNewReward(Reward);
+	}
+
+	OnGetNewLevel.Broadcast();
 }
