@@ -356,6 +356,9 @@ void AMBMergeFieldManager::SelectIndex(const FIntPoint& Index)
 	if (!ActorAtIndex)
 		return;
 
+	if (ActorAtIndex->BaseData.IsInBox)
+		return;
+
 	SelectedIndex = Index;
 
 	FVector IndexLocation;
@@ -364,6 +367,8 @@ void AMBMergeFieldManager::SelectIndex(const FIntPoint& Index)
 	FTransform SpawnTransform = FTransform::Identity;
 	SpawnTransform.SetLocation(IndexLocation);
 	SelectionActor = GetWorld()->SpawnActor<AActor>(SelectionActorClass, SpawnTransform);
+	
+	OnItemSelected.Broadcast(ActorAtIndex);
 }
 
 void AMBMergeFieldManager::DeselectCurrentIndex()
@@ -371,7 +376,11 @@ void AMBMergeFieldManager::DeselectCurrentIndex()
 	SelectedIndex = FIntPoint(-1, -1);
 
 	if (SelectionActor)
+	{
 		SelectionActor->Destroy();
+		SelectionActor = nullptr;
+		OnItemDeselected.Broadcast();
+	}
 }
 
 void AMBMergeFieldManager::DestroyItem(const FIntPoint& Index)
@@ -405,12 +414,18 @@ bool AMBMergeFieldManager::GenerateNewItemFromAnother(AMBBaseMergeItemActor* Sou
 	GenerateNewItemFromLocation(SourceItem->FieldIndex, ItemToSpawn.Item);
 
 	int32 RemainItems = MergeSystem->DecrementRemainItemsToSpawn(SourceItem->FieldIndex);
+	MergeSystem->GetItemAt(SourceItem->FieldIndex, SourceItem->BaseData);
+	
 	if (RemainItems <= 0)
 	{
 		DestroyItem(SourceItem->FieldIndex);
 		DeselectCurrentIndex();
 	}
-
+	else
+	{
+		OnItemUpdated.Broadcast(SourceItem);
+	}
+	
 	return true;
 }
 

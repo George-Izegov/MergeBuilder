@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MBBaseMergeItemActor.h"
+#include "MBCoreTypes.h"
 #include "MBMergeFieldManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemActorAction, AMBBaseMergeItemActor*, ItemActor);
 UCLASS()
 class MERGEBUILDER_API AMBMergeFieldManager : public AActor
 {
@@ -93,4 +95,14 @@ protected:
 	float LocationFieldZ = 2.0f;
 
 	bool InDrag = false;
+
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FOnItemActorAction OnItemSelected;
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnItemDeselected;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnItemActorAction OnItemUpdated;
 };

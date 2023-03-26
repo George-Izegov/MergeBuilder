@@ -120,7 +120,7 @@ struct FMergeItemData
 		TSoftObjectPtr<UPaperSprite> Sprite;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		FText Description;
+		FText LocalizedName;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		bool Interactable;
@@ -229,7 +229,8 @@ protected:
 	TArray<TArray<FMergeFieldItem>> MergeField;
 
 	TArray<FMergeFieldItem> RewardsQueue;
-
+	
+public:
 	UPROPERTY()
 	UDataTable* MergeItemsDataTable;
 

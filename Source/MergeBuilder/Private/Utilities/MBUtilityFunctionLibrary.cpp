@@ -2,6 +2,8 @@
 
 
 #include "Utilities/MBUtilityFunctionLibrary.h"
+
+#include "Kismet/GameplayStatics.h"
 #include "Misc/FileHelper.h"
 
 bool UMBUtilityFunctionLibrary::ReadFromStorage(const FString& StorageName, FString& OutData)
@@ -52,4 +54,32 @@ const int32 UMBUtilityFunctionLibrary::StringToEnum(const FString& Enum, const F
 		return 0;
 
 	return EnumPtr->GetIndexByNameString(EnumString);
+}
+
+void UMBUtilityFunctionLibrary::GetMergeItemData(const FMergeFieldItem& Item, FMergeItemData& OutData)
+{
+	auto GI = UGameplayStatics::GetGameInstance(GEngine->GameViewport->GetWorld());
+	auto MergeSubsystem = GI->GetSubsystem<UMergeSubsystem>();
+
+	FString RowName = EnumToString("EMergeItemType", (int32)Item.Type);
+	auto Row = MergeSubsystem->MergeItemsDataTable->FindRow<FMergeItemChainRow>(FName(RowName),"");
+
+	if (!Row)
+		return;
+	
+	OutData = Row->ItemsChain[Item.Level - 1];
+}
+
+bool UMBUtilityFunctionLibrary::IsMergeItemMaxLevel(const FMergeFieldItem& Item)
+{
+	auto GI = UGameplayStatics::GetGameInstance(GEngine->GameViewport->GetWorld());
+	auto MergeSubsystem = GI->GetSubsystem<UMergeSubsystem>();
+
+	FString RowName = EnumToString("EMergeItemType", (int32)Item.Type);
+	auto Row = MergeSubsystem->MergeItemsDataTable->FindRow<FMergeItemChainRow>(FName(RowName),"");
+
+	if (!Row)
+		return false;
+
+	return Row->ItemsChain.Num() == Item.Level;
 }

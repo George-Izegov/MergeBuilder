@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MergeSubsystem.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MBUtilityFunctionLibrary.generated.h"
 
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class MERGEBUILDER_API UMBUtilityFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
@@ -29,4 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		static const int32 StringToEnum(const FString& Enum, const FString& EnumString);
 
+	UFUNCTION(BlueprintPure)
+	static void GetMergeItemData(const FMergeFieldItem& Item, FMergeItemData& OutData);
+
+	UFUNCTION(BlueprintPure)
+	static bool IsMergeItemMaxLevel(const FMergeFieldItem& Item);
 };
