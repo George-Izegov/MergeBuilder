@@ -47,6 +47,9 @@ protected:
 
 	void OpenInBoxItems(const TArray<FIntPoint>& Indexes);
 
+	UFUNCTION(BlueprintCallable)
+	void SellItem(AMBBaseMergeItemActor* ItemToSell);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

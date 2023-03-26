@@ -4,6 +4,7 @@
 #include "MergeField/MBMergeFieldManager.h"
 #include "MergeSubsystem.h"
 #include "MBUtilityFunctionLibrary.h"
+#include "User/AccountSubsystem.h"
 
 // Sets default values
 AMBMergeFieldManager::AMBMergeFieldManager()
@@ -91,6 +92,15 @@ void AMBMergeFieldManager::OpenInBoxItems(const TArray<FIntPoint>& Indexes)
 
 		auto SpawnedItemActor = SpawnItemAtIndex(Item, Index);
 	}
+}
+
+void AMBMergeFieldManager::SellItem(AMBBaseMergeItemActor* ItemToSell)
+{
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+	AccountSubsystem->AddSoftCoins(ItemToSell->TableData.SellPrice);
+	
+	DestroyItem(ItemToSell->FieldIndex);
+	DeselectCurrentIndex();
 }
 
 AMBBaseMergeItemActor* AMBMergeFieldManager::SpawnItemAtIndex(const FMergeFieldItem& Item, const FIntPoint& Index)

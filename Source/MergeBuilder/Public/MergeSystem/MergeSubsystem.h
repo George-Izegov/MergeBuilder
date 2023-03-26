@@ -121,6 +121,9 @@ struct FMergeItemData
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		FText LocalizedName;
+		
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		int32 SellPrice;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 		bool Interactable;
