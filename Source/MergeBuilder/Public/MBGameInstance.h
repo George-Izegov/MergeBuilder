@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MBCoreTypes.h"
 #include "Kismet/BlueprintPlatformLibrary.h"
 #include "MBGameInstance.generated.h"
 
@@ -16,10 +17,20 @@ class MERGEBUILDER_API UMBGameInstance : public UPlatformGameInstance
 	
 public:
 
+	UMBGameInstance();
+	
 	virtual void Init() override;
 
 protected:
 
 	UFUNCTION()
 	void SaveAllData();
+
+	UFUNCTION()
+	void CheckAllDataLoaded();
+
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnGameLoaded;
 };

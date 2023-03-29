@@ -12,6 +12,8 @@ public class MergeBuilder : ModuleRules
 
         PrivateDependencyModuleNames.AddRange(new string[] { "Http", "Json", "JsonUtilities", "Paper2D" });
 
+        PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "UMG" });
+        
         PublicIncludePaths.AddRange(new string[]
         {
             "MergeBuilder/Public",

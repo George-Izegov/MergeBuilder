@@ -19,6 +19,8 @@ protected:
 
 public:
 
+	AMBBasePlayerController();
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
@@ -34,4 +36,11 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	class ATopDownPawn* TopDownPawn;
+
+	TSubclassOf<class UUserWidget> LoadingScreenClass;
+	
+public:
+	
+	UPROPERTY()
+	UUserWidget* LoadingScreen;
 };
