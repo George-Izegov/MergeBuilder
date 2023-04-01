@@ -35,8 +35,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetEditMaterial(bool IsAcceptable);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetDefaultMaterial();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void SetSelected();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void Deselect();
 
 protected:
 

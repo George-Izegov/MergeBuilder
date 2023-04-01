@@ -132,7 +132,7 @@ void AMBCityBuilderManager::AcceptEditObject()
 		CityBuilderSubsystem->EditObject(EditedObject->CityObjectData);
 	}
 
-	EditedObject->SetDefaultMaterial();
+	EditedObject->Deselect();
 	EditedObject = nullptr;
 }
 
@@ -202,7 +202,7 @@ void AMBCityBuilderManager::CancelEditionObject()
 		PreEditedTransform.SetScale3D(FVector(EditedObject->CityObjectData.Scale));
 
 		EditedObject->SetActorTransform(PreEditedTransform);
-		EditedObject->SetDefaultMaterial();
+		EditedObject->Deselect();
 	}
 
 	EditedObject = nullptr;
