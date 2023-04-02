@@ -32,13 +32,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool CheckLocation();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetEditMaterial(bool IsAcceptable);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetSelected();
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void Deselect();
+
+	UFUNCTION(BlueprintCallable)
+	void TrySnapToClosestObject();
 
 protected:
 
@@ -50,4 +53,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 		FCityObject CityObjectData;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool CanSnap = false;
 };
