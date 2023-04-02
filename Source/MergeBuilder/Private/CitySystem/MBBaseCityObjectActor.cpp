@@ -41,7 +41,7 @@ void AMBBaseCityObjectActor::Tick(float DeltaTime)
 bool AMBBaseCityObjectActor::CheckLocation()
 {
 	TArray<AActor*> OverlappingActors;
-	BaseMesh->GetOverlappingActors(OverlappingActors, AMBBaseCityObjectActor::StaticClass());
+	GetOverlappingActors(OverlappingActors, AMBBaseCityObjectActor::StaticClass());
 
 	return OverlappingActors.Num() == 0;
 }

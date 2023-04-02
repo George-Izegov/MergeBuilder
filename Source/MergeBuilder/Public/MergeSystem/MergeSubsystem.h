@@ -28,7 +28,13 @@ enum class EMergeItemType : uint8
 	PremCoins,
 	EnergyBox,
 	SoftCoinBox,
-	PremCoinBox
+	PremCoinBox,
+	StonesBox,
+	MetalBox,
+	LumberBox,
+	FoodBox,
+	DrinksBox,
+	ClothesBox
 };
 
 UENUM(BlueprintType)
