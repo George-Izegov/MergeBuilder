@@ -51,7 +51,7 @@ void AMBBaseMergeItemActor::HandleInteraction()
 
 	auto AccountSystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
 	
-	if (!AccountSystem->HasEnoughEnergy(1))
+	if (!AccountSystem->HasEnoughEnergy(TableData.EnergyConsume))
 		return;
 
 	bool Result = false;
