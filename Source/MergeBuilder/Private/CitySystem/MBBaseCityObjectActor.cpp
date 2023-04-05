@@ -38,12 +38,29 @@ void AMBBaseCityObjectActor::Tick(float DeltaTime)
 
 }
 
-bool AMBBaseCityObjectActor::CheckLocation()
+ECityObjectLocationState AMBBaseCityObjectActor::CheckLocation()
 {
 	TArray<AActor*> OverlappingActors;
 	GetOverlappingActors(OverlappingActors, AMBBaseCityObjectActor::StaticClass());
 
-	return OverlappingActors.Num() == 0;
+	if (OverlappingActors.Num() == 0)
+		return ECityObjectLocationState::Acceptable;
+
+	for (auto Actor : OverlappingActors)
+	{
+		if (Actor->GetClass() == GetClass())
+		{
+			auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+			const FCityObjectData* RowStruct = CityBuilderSubsystem->CityObjectsDataTable->FindRow<FCityObjectData>(CityObjectData.ObjectName, "");
+
+			if (!RowStruct->NextLevelObjectName.IsNone())
+			{
+				return ECityObjectLocationState::MergeReady;
+			}
+		}
+	}
+	
+	return ECityObjectLocationState::Unacceptable;
 }
 
 void AMBBaseCityObjectActor::TrySnapToClosestObject()

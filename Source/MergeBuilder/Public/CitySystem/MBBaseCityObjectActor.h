@@ -8,6 +8,14 @@
 #include "Components/StaticMeshComponent.h"
 #include "MBBaseCityObjectActor.generated.h"
 
+UENUM(BlueprintType)
+enum class ECityObjectLocationState : uint8
+{
+	Acceptable,
+	Unacceptable,
+	MergeReady
+};
+
 UCLASS()
 class MERGEBUILDER_API AMBBaseCityObjectActor : public AActor
 {
@@ -30,10 +38,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	bool CheckLocation();
+	ECityObjectLocationState CheckLocation();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetEditMaterial(bool IsAcceptable);
+	void SetEditMaterial(ECityObjectLocationState State);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetSelected();

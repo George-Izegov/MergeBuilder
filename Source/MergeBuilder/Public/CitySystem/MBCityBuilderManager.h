@@ -24,7 +24,7 @@ protected:
 	void InitializeCity();
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnNewObject(const FName& ObjectName);
+	AMBBaseCityObjectActor* SpawnNewObject(const FName& ObjectName);
 
 	void GetInitialSpawnLocation(FVector& Location);
 
@@ -39,12 +39,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void CollectRewardFromCityObject(AMBBaseCityObjectActor* CityObject);
 
+	void MergeObjects(AMBBaseCityObjectActor* Object1, AMBBaseCityObjectActor* Object2);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	const AMBBaseCityObjectActor* GetEditedObject();
 
+	void HandleDragRelease();
 	void MoveEditedObject(const FVector& DeltaLocation);
 	UFUNCTION(BlueprintCallable)
 	void RotateEditedObject(int32 Direction);
@@ -62,4 +65,6 @@ protected:
 	UPROPERTY(BlueprintAssignable)
 	FOnObjectClicked OnObjectClicked;
 
+	AMBBaseCityObjectActor* MergedObject1 = nullptr;
+	AMBBaseCityObjectActor* MergedObject2 = nullptr;
 };

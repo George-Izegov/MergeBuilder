@@ -60,6 +60,11 @@ void ATopDownPawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVect
 
 	if (FingerIndex == ETouchIndex::Touch1)
 	{
+		if (DragItem)
+		{
+			auto CityManager = Cast<AMBCityBuilderManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBCityBuilderManager::StaticClass()));
+			CityManager->HandleDragRelease();
+		}
 		InMovement = false;
 		DragItem = false;
 		TwoFingersTouch = false;

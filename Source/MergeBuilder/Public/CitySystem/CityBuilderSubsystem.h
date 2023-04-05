@@ -61,6 +61,9 @@ struct FCityObjectData : public FTableRowBase
 		TSoftClassPtr<class AMBBaseCityObjectActor> ObjectClass;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FName NextLevelObjectName;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		ECityObjectCategory Category;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)

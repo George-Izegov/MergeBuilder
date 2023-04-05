@@ -55,7 +55,7 @@ void AMBCityBuilderManager::InitializeCity()
 	}
 }
 
-void AMBCityBuilderManager::SpawnNewObject(const FName& ObjectName)
+AMBBaseCityObjectActor* AMBCityBuilderManager::SpawnNewObject(const FName& ObjectName)
 {
 	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
 
@@ -64,7 +64,7 @@ void AMBCityBuilderManager::SpawnNewObject(const FName& ObjectName)
 	if (!RowStruct)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AMBCityBuilderManager::SpawnNewObject() - Failed to find row with name %s"), *ObjectName.ToString());
-		return;
+		return nullptr;
 	}
 
 	UClass* ObjectActorClass = RowStruct->ObjectClass.LoadSynchronous();
@@ -83,6 +83,8 @@ void AMBCityBuilderManager::SpawnNewObject(const FName& ObjectName)
 	SpawnedObject->Initialize(ObjectStruct, RowStruct);
 
 	SetEditedObject(SpawnedObject);
+
+	return SpawnedObject;
 }
 
 void AMBCityBuilderManager::GetInitialSpawnLocation(FVector& Location)
@@ -109,8 +111,8 @@ void AMBCityBuilderManager::GetInitialSpawnLocation(FVector& Location)
 
 void AMBCityBuilderManager::SetEditedObject(AMBBaseCityObjectActor* Object)
 {
-	bool IsAcceptable = Object->CheckLocation();
-	Object->SetEditMaterial(IsAcceptable);
+	ECityObjectLocationState State = Object->CheckLocation();
+	Object->SetEditMaterial(State);
 
 	EditedObject = Object;
 }
@@ -132,6 +134,18 @@ void AMBCityBuilderManager::AcceptEditObject()
 		CityBuilderSubsystem->EditObject(EditedObject->CityObjectData);
 	}
 
+	if (MergedObject1)
+	{
+		RemoveCityObject(MergedObject1);
+		MergedObject1 = nullptr;
+	}
+	
+	if (MergedObject2)
+	{
+		RemoveCityObject(MergedObject2);
+		MergedObject2 = nullptr;
+	}
+
 	EditedObject->Deselect();
 	EditedObject = nullptr;
 }
@@ -150,6 +164,27 @@ void AMBCityBuilderManager::CollectRewardFromCityObject(AMBBaseCityObjectActor* 
 	CityBuilderSubsystem->CollectFromObject(CityObject->CityObjectData);
 }
 
+void AMBCityBuilderManager::MergeObjects(AMBBaseCityObjectActor* Object1, AMBBaseCityObjectActor* Object2)
+{
+	check(Object1);
+	check(Object2);
+	
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+	const FCityObjectData* RowStruct = CityBuilderSubsystem->CityObjectsDataTable->FindRow<FCityObjectData>(Object1->CityObjectData.ObjectName, "");
+
+	FName NextLevelObjectName = RowStruct->NextLevelObjectName;
+
+	Object1->SetActorHiddenInGame(true);
+	Object2->SetActorHiddenInGame(true);
+	Object1->SetActorEnableCollision(false);
+	Object2->SetActorEnableCollision(false);
+
+	MergedObject1 = Object1;
+	MergedObject2 = Object2;
+
+	auto NextLevelObject = SpawnNewObject(NextLevelObjectName);
+}
+
 // Called every frame
 void AMBCityBuilderManager::Tick(float DeltaTime)
 {
@@ -162,14 +197,37 @@ const AMBBaseCityObjectActor* AMBCityBuilderManager::GetEditedObject()
 	return EditedObject;
 }
 
+void AMBCityBuilderManager::HandleDragRelease()
+{
+	ECityObjectLocationState State = EditedObject->CheckLocation();
+	if (State == ECityObjectLocationState::MergeReady)
+	{
+		TArray<AActor*> OverlappingActors;
+		EditedObject->GetOverlappingActors(OverlappingActors, AMBBaseCityObjectActor::StaticClass());
+
+		AMBBaseCityObjectActor* ObjectToMerge = nullptr;
+		for (auto Actor : OverlappingActors)
+		{
+			if (Actor->GetClass() == EditedObject->GetClass())
+			{
+				ObjectToMerge = Cast<AMBBaseCityObjectActor>(Actor);
+				break;
+			}
+		}
+
+		EditedObject->Deselect();
+		MergeObjects(EditedObject, ObjectToMerge);
+	}
+}
+
 void AMBCityBuilderManager::MoveEditedObject(const FVector& DeltaLocation)
 {
 	check(EditedObject);
 
 	EditedObject->AddActorWorldOffset(FVector(DeltaLocation.X, DeltaLocation.Y, 0.0f));
 
-	bool IsAcceptable = EditedObject->CheckLocation();
-	EditedObject->SetEditMaterial(IsAcceptable);
+	ECityObjectLocationState State = EditedObject->CheckLocation();
+	EditedObject->SetEditMaterial(State);
 }
 
 void AMBCityBuilderManager::RotateEditedObject(int32 Direction)
@@ -180,8 +238,8 @@ void AMBCityBuilderManager::RotateEditedObject(int32 Direction)
 	DeltaRotation.Yaw = Direction * 30.0f;
 	EditedObject->AddActorWorldRotation(DeltaRotation);
 
-	bool IsAcceptable = EditedObject->CheckLocation();
-	EditedObject->SetEditMaterial(IsAcceptable);
+	ECityObjectLocationState State = EditedObject->CheckLocation();
+	EditedObject->SetEditMaterial(State);
 }
 
 void AMBCityBuilderManager::CancelEditionObject()
@@ -203,6 +261,20 @@ void AMBCityBuilderManager::CancelEditionObject()
 
 		EditedObject->SetActorTransform(PreEditedTransform);
 		EditedObject->Deselect();
+	}
+
+	if (MergedObject1)
+	{
+		MergedObject1->SetActorHiddenInGame(false);
+		MergedObject1->SetActorEnableCollision(true);
+		MergedObject1 = nullptr;
+	}
+
+	if (MergedObject2)
+	{
+		MergedObject2->SetActorHiddenInGame(false);
+		MergedObject2->SetActorEnableCollision(true);
+		MergedObject2 = nullptr;
 	}
 
 	EditedObject = nullptr;
