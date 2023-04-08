@@ -33,6 +33,8 @@ void UCityBuilderSubsystem::AddNewObject(FCityObject& NewObject)
 	int32 ID = CityObjects.Add(NewObject);
 	CityObjects[ID].ObjectID = ID;
 	NewObject.ObjectID = ID;
+
+	CalculateCurrentPopulationAndRatings();
 }
 
 void UCityBuilderSubsystem::EditObject(const FCityObject& EditedObject)
@@ -43,6 +45,8 @@ void UCityBuilderSubsystem::EditObject(const FCityObject& EditedObject)
 void UCityBuilderSubsystem::RemoveObject(const FCityObject& ObjectToRemove)
 {
 	CityObjects[ObjectToRemove.ObjectID].ObjectName = NAME_None;
+
+	CalculateCurrentPopulationAndRatings();
 }
 
 void UCityBuilderSubsystem::CollectFromObject(FCityObject& Object)
@@ -90,6 +94,8 @@ void UCityBuilderSubsystem::InitCity()
 	if (UMBUtilityFunctionLibrary::ReadFromStorage("City", SavedData))
 	{
 		ParseCity(SavedData);
+
+		CalculateCurrentPopulationAndRatings();
 	}
 }
 
@@ -118,6 +124,41 @@ void UCityBuilderSubsystem::SaveCity()
 	UMBUtilityFunctionLibrary::SaveToStorage("City", StringData);
 }
 
+void UCityBuilderSubsystem::CalculateCurrentPopulationAndRatings()
+{
+	int32 TotalPopulation = 0;
+	int32 TotalEmployed = 0;
+	FCityRatings NewRatings;
+
+	for (const auto& Object : CityObjects)
+	{
+		if (Object.ObjectName == NAME_None)
+			continue;
+
+		const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(Object.ObjectName, "");
+
+		if (!RowStruct)
+			continue;
+
+		TotalPopulation += RowStruct->AdditionalPopulation;
+		TotalEmployed += RowStruct->GeneratorSettings.RequiredEmployees;
+		NewRatings += RowStruct->AdditionalRatings;
+	}
+
+	Population = TotalPopulation;
+	EmployedPopulation = TotalEmployed;
+	CityRating = NewRatings;
+}
+
+void UCityBuilderSubsystem::GetTopRatingsForLevel(int32 Level, FCityRatings& TopRatings)
+{
+	int32 Grade = Level;
+
+	TopRatings.Comfort = 10 * Grade;
+	TopRatings.Greening = 10 * Grade;
+	TopRatings.Infrastructure = 10 * Grade;
+}
+
 bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& ObjectName)
 {
 	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
@@ -125,6 +166,9 @@ bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& Object
 
 	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(ObjectName, "");
 	check(RowStruct);
+
+	if (RowStruct->GeneratorSettings.RequiredEmployees > (Population - EmployedPopulation))
+		return false;
 
 	for (const auto& Item : RowStruct->RequiredItems)
 	{

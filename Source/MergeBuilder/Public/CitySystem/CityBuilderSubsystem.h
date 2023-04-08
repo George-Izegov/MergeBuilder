@@ -18,6 +18,9 @@ struct FGeneratorSettings
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		int32 MinutesToRestore;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		int32 RequiredEmployees;
 };
 
 USTRUCT(BlueprintType)
@@ -51,6 +54,31 @@ enum class ECityObjectCategory : uint8
 	Plants,
 	Infrastructure
 };
+
+// City Rating structure
+USTRUCT(BlueprintType)
+struct FCityRatings
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 Greening = 0;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 Infrastructure = 0;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 Comfort = 0;
+
+	const FCityRatings& operator+=(const FCityRatings& Other)
+	{
+		Greening += Other.Greening;
+		Infrastructure += Other.Infrastructure;
+		Comfort += Other.Comfort;
+		return *this;
+	}
+};
+
 
 USTRUCT(BlueprintType)
 struct FCityObjectData : public FTableRowBase
@@ -89,6 +117,12 @@ struct FCityObjectData : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FGeneratorSettings GeneratorSettings;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FCityRatings AdditionalRatings;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 AdditionalPopulation = 0;
 };
 /**
  * 
@@ -120,6 +154,11 @@ public:
 	void SpendResourcesForBuildObject(const FName& ObjectName);
 
 	void SaveCity();
+
+	void CalculateCurrentPopulationAndRatings();
+	
+	UFUNCTION(BlueprintCallable)
+	void GetTopRatingsForLevel(int32 Level, FCityRatings& TopRatings);
 	
 protected:
 
@@ -129,6 +168,15 @@ protected:
 
 	UPROPERTY()
 	TArray<FCityObject> CityObjects;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 Population = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 EmployedPopulation = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	FCityRatings CityRating;
 
 public:
 
