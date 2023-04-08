@@ -46,6 +46,9 @@ ECityObjectLocationState AMBBaseCityObjectActor::CheckLocation()
 	if (OverlappingActors.Num() == 0)
 		return ECityObjectLocationState::Acceptable;
 
+	if (CityObjectData.ObjectID == INDEX_NONE)
+		return ECityObjectLocationState::Unacceptable;
+	
 	for (auto Actor : OverlappingActors)
 	{
 		if (Actor->GetClass() == GetClass())

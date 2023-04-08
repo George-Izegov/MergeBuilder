@@ -183,6 +183,8 @@ void AMBCityBuilderManager::MergeObjects(AMBBaseCityObjectActor* Object1, AMBBas
 	MergedObject2 = Object2;
 
 	auto NextLevelObject = SpawnNewObject(NextLevelObjectName);
+	NextLevelObject->SetActorLocation(Object2->GetActorLocation());
+	NextLevelObject->SetActorRotation(Object2->GetActorRotation());
 }
 
 // Called every frame
@@ -265,6 +267,15 @@ void AMBCityBuilderManager::CancelEditionObject()
 
 	if (MergedObject1)
 	{
+		FTransform PreEditedTransform;
+		PreEditedTransform.SetLocation(MergedObject1->CityObjectData.Location);
+		FRotator Rotation = FRotator::ZeroRotator;
+		Rotation.Yaw = MergedObject1->CityObjectData.Rotation;
+		PreEditedTransform.SetRotation(Rotation.Quaternion());
+		PreEditedTransform.SetScale3D(FVector(MergedObject1->CityObjectData.Scale));
+
+		MergedObject1->SetActorTransform(PreEditedTransform);
+		
 		MergedObject1->SetActorHiddenInGame(false);
 		MergedObject1->SetActorEnableCollision(true);
 		MergedObject1 = nullptr;

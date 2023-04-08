@@ -62,6 +62,9 @@ struct FCityObjectData : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FName NextLevelObjectName;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool IsInShop = true;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		ECityObjectCategory Category;
