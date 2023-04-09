@@ -159,6 +159,20 @@ void UCityBuilderSubsystem::GetTopRatingsForLevel(int32 Level, FCityRatings& Top
 	TopRatings.Infrastructure = 10 * Grade;
 }
 
+float UCityBuilderSubsystem::GetAverageRating()
+{
+	UAccountSubsystem* AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+
+	FCityRatings TopRatings;
+	GetTopRatingsForLevel(AccountSubsystem->GetLevel(), TopRatings);
+
+	float ComfortPercentage = FMath::Clamp((float)CityRating.Comfort / TopRatings.Comfort, 0.0f, 1.0f);
+	float GreeningPercentage = FMath::Clamp((float)CityRating.Greening / TopRatings.Greening, 0.0f, 1.0f);
+	float InfrastructurePercentage = FMath::Clamp((float)CityRating.Infrastructure / TopRatings.Infrastructure, 0.0f, 1.0f);
+
+	return (ComfortPercentage + GreeningPercentage + InfrastructurePercentage) / 3;
+}
+
 bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& ObjectName)
 {
 	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();

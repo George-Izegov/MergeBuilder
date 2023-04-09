@@ -159,6 +159,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void GetTopRatingsForLevel(int32 Level, FCityRatings& TopRatings);
+
+	UFUNCTION(BlueprintCallable)
+	float GetAverageRating();
 	
 protected:
 
