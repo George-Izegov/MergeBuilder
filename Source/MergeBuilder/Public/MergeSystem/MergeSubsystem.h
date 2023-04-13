@@ -245,10 +245,10 @@ protected:
 	
 public:
 	UPROPERTY()
-	UDataTable* MergeItemsDataTable;
+	UDataTable* MergeItemsDataTable = nullptr;
 
 	UPROPERTY()
-	UDataTable* StartFieldDataTable;
+	UDataTable* StartFieldDataTable = nullptr;
 
 	UPROPERTY(BlueprintAssignable)
 	FNoParamsSignatureDyn OnGetReward;

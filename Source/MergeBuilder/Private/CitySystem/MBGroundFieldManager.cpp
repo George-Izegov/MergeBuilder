@@ -65,11 +65,142 @@ void AMBGroundFieldManager::GetTileRotation(const FIntPoint& Index, const TArray
 	EGroundTileType Type, FRotator& Rotation)
 {
 	Rotation = FRotator::ZeroRotator;
+
+	switch (Type)
+	{
+	case EGroundTileType::BaseSquare:
+		break;
+	case EGroundTileType::OneSided:
+		{
+			FIntPoint DeltaSum = FIntPoint(0,0);
+			for (auto& Neighbor : Neighbors)
+			{
+				DeltaSum += Neighbor.Index - Index;
+			}
+
+			if (DeltaSum == FIntPoint(-1, 0))
+			{
+				Rotation.Yaw = 0.0f;
+			}
+			else if (DeltaSum == FIntPoint(0, -1))
+			{
+				Rotation.Yaw = 90.0f;
+			}
+			else if (DeltaSum == FIntPoint(1, 0))
+			{
+				Rotation.Yaw = 180.0f;
+			}
+			else if (DeltaSum == FIntPoint(0, 1))
+			{
+				Rotation.Yaw = 270.0f;
+			}
+			break;
+		}
+	case EGroundTileType::TwoSidedCorner:
+		{
+			FIntPoint NeighborDelta1 = Neighbors[0].Index - Index;
+			FIntPoint NeighborDelta2 = Neighbors[1].Index - Index;
+
+			FIntPoint DeltaSum = NeighborDelta1 + NeighborDelta2;
+
+			if (DeltaSum == FIntPoint(1,1))
+			{
+				Rotation.Yaw = 270.0f;
+			}
+			else if (DeltaSum == FIntPoint(-1,1))
+			{
+				Rotation.Yaw = 0.0f;
+			}
+			else if(DeltaSum == FIntPoint(-1, -1))
+			{
+				Rotation.Yaw = 90.0f;
+			}
+			else if (DeltaSum == FIntPoint(1, -1))
+			{
+				Rotation.Yaw = 180.0f;
+			}
+			break;
+		}
+	case EGroundTileType::TwoSidedEdge:
+		{
+			FIntPoint NeighborDelta1 = Neighbors[0].Index - Index;
+
+			if (NeighborDelta1.X == 0)
+			{
+				Rotation.Yaw = 0.0f;
+			}
+			else
+			{
+				Rotation.Yaw = 90.0f;
+			}
+			break;
+		}
+	case EGroundTileType::ThreeSided:
+		{
+			FIntPoint NeighborDelta = Neighbors[0].Index - Index;
+
+			if (NeighborDelta == FIntPoint(0,1))
+			{
+				Rotation.Yaw = 0.0f;
+			}
+			else if (NeighborDelta == FIntPoint(1,0))
+			{
+				Rotation.Yaw = 270.0f;
+			}
+			else if(NeighborDelta == FIntPoint(0, -1))
+			{
+				Rotation.Yaw = 180.0f;
+			}
+			else if (NeighborDelta == FIntPoint(-1, 0))
+			{
+				Rotation.Yaw = 90.0f;
+			}
+			break;
+		}
+	}
 }
 
 EGroundTileType AMBGroundFieldManager::GetGroundTileTypeByNeighbors(const FIntPoint& Index, const TArray<FMBGroundTile>& Neighbors)
 {
+	switch (Neighbors.Num())
+	{
+	case 1:
+		return EGroundTileType::ThreeSided;
+	case 2:
+		{
+			if (Neighbors[0].Index.X == Neighbors[1].Index.X || Neighbors[0].Index.Y == Neighbors[1].Index.Y)
+				return EGroundTileType::TwoSidedEdge;
+			
+			return EGroundTileType::TwoSidedCorner;
+		}
+	case 3:
+		return EGroundTileType::OneSided;
+	case 4:
+		return EGroundTileType::BaseSquare;
+	}
+	
 	return EGroundTileType::BaseSquare;
+}
+
+void AMBGroundFieldManager::SpawnAllPossibleGroundTiles()
+{
+	auto GroundFieldSubsystem = GetGameInstance()->GetSubsystem<UMBGroundSubsystem>();
+
+	TArray<FMBGroundTile> AllPossibleGroundTiles;
+	GroundFieldSubsystem->GetAllPossibleGroundTiles(AllPossibleGroundTiles);
+
+	for (auto& GroundTile : AllPossibleGroundTiles)
+	{
+		FTransform Transform = FTransform::Identity;
+		FVector Location;
+		GetTileLocationForIndex(GroundTile.Index, Location);
+		Transform.SetLocation(Location);
+
+		auto PossibleTileActor = GetWorld()->SpawnActor<AMBPossibleGroundActor>(PossibleGroundTileClass, Transform);
+		
+		PossibleTileActor->Init(GroundTile.Index);
+	}
+		
 }
 
 // Called every frame

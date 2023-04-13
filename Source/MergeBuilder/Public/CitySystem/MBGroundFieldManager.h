@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "CitySystem/MBBaseGroundTileActor.h"
 #include "CitySystem/MBGroundSubsystem.h"
+#include "CitySystem/MBPossibleGroundActor.h"
 #include "MBGroundFieldManager.generated.h"
 
 UCLASS()
@@ -29,11 +30,16 @@ protected:
 
 	EGroundTileType GetGroundTileTypeByNeighbors(const FIntPoint& Index, const TArray<FMBGroundTile>& Neighbors);
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnAllPossibleGroundTiles();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AMBBaseGroundTileActor> GroundTileClass;
+	TSubclassOf<AMBBaseGroundTileActor> GroundTileClass;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AMBPossibleGroundActor> PossibleGroundTileClass;
 };
