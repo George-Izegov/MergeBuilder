@@ -33,7 +33,18 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SpawnAllPossibleGroundTiles();
 
-public:	
+	UFUNCTION(BlueprintCallable)
+	void RemoveAllPossibleGroundTiles();
+
+	AMBBaseGroundTileActor* SpawnGroundTile(const FMBGroundTile& GroundTile);
+
+public:
+
+	AMBBaseGroundTileActor* GetTileActorByIndex(const FIntPoint& Index);
+
+	UFUNCTION(BlueprintCallable)
+	void BuyGroundTile(const FIntPoint& Index);
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	

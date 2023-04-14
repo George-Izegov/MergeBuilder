@@ -34,5 +34,7 @@ void AMBPossibleGroundActor::Tick(float DeltaTime)
 void AMBPossibleGroundActor::Init(const FIntPoint& Index)
 {
 	TileIndex = Index;
+
+	BP_Init();
 }
 

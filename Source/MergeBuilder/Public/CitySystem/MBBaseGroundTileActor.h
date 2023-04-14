@@ -33,8 +33,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SetIndex(const FIntPoint& Index);
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitMeshByType(EGroundTileType Type);
+
+	FIntPoint GetIndex() const { return GroundIndex; }
 
 protected:
 
@@ -44,4 +48,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	UStaticMeshComponent* BaseMesh;
 
+	UPROPERTY(BlueprintReadOnly)
+	FIntPoint GroundIndex;
 };

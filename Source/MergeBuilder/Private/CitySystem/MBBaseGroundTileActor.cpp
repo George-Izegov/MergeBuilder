@@ -31,3 +31,8 @@ void AMBBaseGroundTileActor::Tick(float DeltaTime)
 
 }
 
+void AMBBaseGroundTileActor::SetIndex(const FIntPoint& Index)
+{
+	GroundIndex = Index;
+}
+

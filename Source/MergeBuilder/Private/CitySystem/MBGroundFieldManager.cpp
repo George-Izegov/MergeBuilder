@@ -3,6 +3,10 @@
 
 #include "CitySystem/MBGroundFieldManager.h"
 
+#include "IContentBrowserSingleton.h"
+#include "Kismet/GameplayStatics.h"
+#include "User/AccountSubsystem.h"
+
 // Sets default values
 AMBGroundFieldManager::AMBGroundFieldManager()
 {
@@ -30,23 +34,7 @@ void AMBGroundFieldManager::InitializeGround()
 			if (!GroundFieldSubsystem->GetGroundTile(FIntPoint(j, i), Tile))
 				continue;
 
-			FTransform Transform = FTransform::Identity;
-
-			FVector Location;
-			GetTileLocationForIndex(Tile.Index, Location);
-			Transform.SetLocation(Location);
-
-			TArray<FMBGroundTile> Neighbors;
-			GroundFieldSubsystem->GetNeighborTilesForIndex(Tile.Index, Neighbors);
-
-			EGroundTileType Type = GetGroundTileTypeByNeighbors(Tile.Index, Neighbors);
-			FRotator Rotation;
-			GetTileRotation(Tile.Index, Neighbors, Type, Rotation);
-			Transform.SetRotation(Rotation.Quaternion());
-			
-			auto GroundTileActor = GetWorld()->SpawnActor<AMBBaseGroundTileActor>(GroundTileClass, Transform);
-
-			GroundTileActor->InitMeshByType(Type);
+			SpawnGroundTile(Tile);
 		}
 	}
 }
@@ -200,7 +188,109 @@ void AMBGroundFieldManager::SpawnAllPossibleGroundTiles()
 		
 		PossibleTileActor->Init(GroundTile.Index);
 	}
-		
+}
+
+void AMBGroundFieldManager::RemoveAllPossibleGroundTiles()
+{
+	TArray<AActor*> PossibleGroundTiles;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMBPossibleGroundActor::StaticClass(), PossibleGroundTiles);
+
+	for (auto& PossibleTile : PossibleGroundTiles)
+	{
+		PossibleTile->Destroy();
+	}
+}
+
+AMBBaseGroundTileActor* AMBGroundFieldManager::SpawnGroundTile(const FMBGroundTile& GroundTile)
+{
+	auto GroundFieldSubsystem = GetGameInstance()->GetSubsystem<UMBGroundSubsystem>();
+	
+	FTransform Transform = FTransform::Identity;
+
+	FVector Location;
+	GetTileLocationForIndex(GroundTile.Index, Location);
+	Transform.SetLocation(Location);
+
+	TArray<FMBGroundTile> Neighbors;
+	GroundFieldSubsystem->GetNeighborTilesForIndex(GroundTile.Index, Neighbors);
+
+	EGroundTileType Type = GetGroundTileTypeByNeighbors(GroundTile.Index, Neighbors);
+	FRotator Rotation;
+	GetTileRotation(GroundTile.Index, Neighbors, Type, Rotation);
+	Transform.SetRotation(Rotation.Quaternion());
+			
+	auto GroundTileActor = GetWorld()->SpawnActor<AMBBaseGroundTileActor>(GroundTileClass, Transform);
+
+	GroundTileActor->InitMeshByType(Type);
+	GroundTileActor->SetIndex(GroundTile.Index);
+
+	return GroundTileActor;
+}
+
+AMBBaseGroundTileActor* AMBGroundFieldManager::GetTileActorByIndex(const FIntPoint& Index)
+{
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMBBaseGroundTileActor::StaticClass(), Actors);
+
+	for (auto& Actor : Actors)
+	{
+		auto Tile = Cast<AMBBaseGroundTileActor>(Actor);
+
+		if (Tile && Tile->GetIndex() == Index)
+		{
+			return Tile;
+		}
+	}
+
+	return nullptr;
+}
+
+void AMBGroundFieldManager::BuyGroundTile(const FIntPoint& Index)
+{
+	auto GroundFieldSubsystem = GetGameInstance()->GetSubsystem<UMBGroundSubsystem>();
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+	
+	FMBPossibleGroundTileInfo TileInfo;
+	GroundFieldSubsystem->GetGroundTileInfo(Index, TileInfo);
+
+	switch (TileInfo.CoinsType)
+	{
+	case EConsumableParamType::SoftCoin:
+		AccountSubsystem->SpendSoftCoins(TileInfo.CostInCoins);
+		break;
+	case EConsumableParamType::PremCoin:
+		AccountSubsystem->SpendPremCoins(TileInfo.CostInCoins);
+		break;
+	}
+
+	GroundFieldSubsystem->AddNewTile(Index);
+	
+	RemoveAllPossibleGroundTiles();
+
+	FMBGroundTile GroundTile;
+	GroundTile.Index = Index;
+	
+	SpawnGroundTile(GroundTile);
+
+	TArray<FMBGroundTile> Neighbors;
+	GroundFieldSubsystem->GetNeighborTilesForIndex(Index, Neighbors);
+
+	for (auto& Neighbor : Neighbors)
+	{
+		auto TileActor = GetTileActorByIndex(Neighbor.Index);
+
+		TArray<FMBGroundTile> TileNeighbors;
+		GroundFieldSubsystem->GetNeighborTilesForIndex(Neighbor.Index, TileNeighbors);
+
+		EGroundTileType Type = GetGroundTileTypeByNeighbors(Neighbor.Index, TileNeighbors);
+		FRotator Rotation;
+		GetTileRotation(Neighbor.Index, TileNeighbors, Type, Rotation);
+
+		TileActor->SetActorRotation(Rotation);
+		TileActor->InitMeshByType(Type);
+	}
+
+	SpawnAllPossibleGroundTiles();
 }
 
 // Called every frame

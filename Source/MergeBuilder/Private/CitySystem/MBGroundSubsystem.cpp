@@ -9,6 +9,14 @@
 UMBGroundSubsystem::UMBGroundSubsystem()
 {
 	GroundFieldSize = FIntPoint(10, 10);
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> ItemsDataTable(TEXT("DataTable'/Game/Development/DataTables/GroundTilesInfo.GroundTilesInfo'"));
+	if (ItemsDataTable.Succeeded())
+	{
+		PossibleGroundTilesDataTable = ItemsDataTable.Object;
+	}
+
+	check(PossibleGroundTilesDataTable);
 }
 
 void UMBGroundSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -135,6 +143,21 @@ bool UMBGroundSubsystem::GetGroundTile(const FIntPoint& Index, FMBGroundTile& Ou
 	OutGroundTile = GroundField[Index.Y][Index.X];
 
 	return !OutGroundTile.IsVoid;
+}
+
+void UMBGroundSubsystem::GetGroundTileInfo(const FIntPoint& Index, FMBPossibleGroundTileInfo& OutGroundTileInfo)
+{
+	FName RowName = FName(FString::FromInt(Index.X) + "_" + FString::FromInt(Index.Y));
+
+	FMBPossibleGroundTileInfo* RowStruct = PossibleGroundTilesDataTable->FindRow<FMBPossibleGroundTileInfo>(RowName, "");
+
+	if (!RowStruct)
+	{
+		RowStruct = PossibleGroundTilesDataTable->FindRow<FMBPossibleGroundTileInfo>("0_0", "");
+		check(RowStruct);
+	}
+
+	OutGroundTileInfo = *RowStruct;
 }
 
 void UMBGroundSubsystem::InitGroundField()

@@ -4,7 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "MergeSystem/MergeSubsystem.h"
 #include "MBGroundSubsystem.generated.h"
+
+USTRUCT(BlueprintType)
+struct FMBPossibleGroundTileInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 CostInCoins;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	EConsumableParamType CoinsType = EConsumableParamType::PremCoin;
+};
 
 USTRUCT(BlueprintType)
 struct FMBGroundTile
@@ -52,6 +65,9 @@ public:
 
 	bool GetGroundTile(const FIntPoint& Index, FMBGroundTile& OutGroundTile);
 
+	UFUNCTION(BlueprintCallable)
+	void GetGroundTileInfo(const FIntPoint& Index, FMBPossibleGroundTileInfo& OutGroundTileInfo);
+
 protected:
 
 	void InitGroundField();
@@ -64,4 +80,7 @@ protected:
 
 	// must be even
 	FIntPoint GroundFieldSize;
+
+	UPROPERTY()
+	UDataTable* PossibleGroundTilesDataTable = nullptr;
 };

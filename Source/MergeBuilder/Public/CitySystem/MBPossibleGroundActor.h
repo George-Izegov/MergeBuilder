@@ -25,6 +25,9 @@ public:
 
 	void Init(const FIntPoint& Index);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_Init();
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
