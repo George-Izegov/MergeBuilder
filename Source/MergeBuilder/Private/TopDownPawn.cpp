@@ -158,12 +158,10 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 			if (FingerIndex == ETouchIndex::Touch1)
 			{
 				DeltaVectorTwoFingersTouch1 = CurrentDeltaVector;
-				GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, FString::Printf(TEXT("Gesture Dist: %.1f Angle: %.3f"), DeltaDistance, DeltaAngle));
 			}
 			else if (FingerIndex == ETouchIndex::Touch2)
 			{
 				DeltaVectorTwoFingersTouch2 = CurrentDeltaVector;
-				GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Orange, FString::Printf(TEXT("Gesture Dist: %.1f Angle: %.3f"), DeltaDistance, DeltaAngle));
 			}
 		}
 	}
