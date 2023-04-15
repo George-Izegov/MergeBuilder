@@ -5,6 +5,7 @@
 #include "CitySystem/MBBaseCityObjectActor.h"
 #include "CitySystem/MBCityBuilderManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "CitySystem/MBGroundFieldManager.h"
 
 // Sets default values
 ATopDownPawn::ATopDownPawn()
@@ -65,7 +66,7 @@ void ATopDownPawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVect
 			auto CityManager = Cast<AMBCityBuilderManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBCityBuilderManager::StaticClass()));
 			CityManager->HandleDragRelease();
 		}
-		InMovement = false;
+		
 		DragItem = false;
 		TwoFingersTouch = false;
 	}
@@ -115,22 +116,9 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 				FVector DeltaLocation = Location - StartTouchLocation;
 				DeltaLocation.Z = 0.0f;
 				DeltaLocation = DeltaLocation.RotateAngleAxis(GetActorRotation().Yaw, FVector::UpVector);
-
-				switch (MovementType)
-				{
-				case 0:
-				{
-					InMovement = true;
-					LastMovementTouchLocation = Location;
-					break;
-				}
-				case 1:
-				{
-					float Force = GetSpringArmLength() / 2500.0f * MovementSpeed[MovementType];
-					RootSphere->AddForce(DeltaLocation * Force);
-					break;
-				}
-				}
+				
+				float Force = GetSpringArmLength() / 2500.0f * MovementSpeed;
+				RootSphere->AddForce(DeltaLocation * Force);
 			}
 		}
 	}
@@ -215,14 +203,24 @@ void ATopDownPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (InMovement)
-	{
-		FVector DeltaLocation = LastMovementTouchLocation - StartTouchLocation;
-		DeltaLocation.Z = 0.0f;
-		DeltaLocation = DeltaLocation.RotateAngleAxis(GetActorRotation().Yaw, FVector::UpVector);
-		RootSphere->AddForce(DeltaLocation * MovementSpeed[MovementType]);
-	}
+	auto GroundFieldSubsystem = GetGameInstance()->GetSubsystem<UMBGroundSubsystem>();
 
+	FVector MinBoundingLocation, MaxBoundingLocation;
+
+	if (GroundFieldSubsystem)
+	{
+		GroundFieldSubsystem->GetBoundingSquare(MinBoundingLocation, MaxBoundingLocation);
+
+		FVector BoundLocation = GetActorLocation();
+
+		BoundLocation.X = FMath::Clamp(BoundLocation.X, MinBoundingLocation.X, MaxBoundingLocation.X);
+		BoundLocation.Y = FMath::Clamp(BoundLocation.Y, MinBoundingLocation.Y, MaxBoundingLocation.Y);
+
+		if (!BoundLocation.Equals(GetActorLocation()))
+		{
+			SetActorLocation(BoundLocation);
+		}
+	}
 }
 
 // Called to bind functionality to input

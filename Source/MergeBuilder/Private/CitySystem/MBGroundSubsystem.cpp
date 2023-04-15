@@ -24,6 +24,8 @@ void UMBGroundSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 
 	InitGroundField();
+
+	CalculateBoundingSquare();
 }
 
 void UMBGroundSubsystem::Deinitialize()
@@ -133,6 +135,8 @@ void UMBGroundSubsystem::AddNewTile(const FIntPoint& Index)
 	GroundField[Index.Y][Index.X] = NewTile;
 
 	SaveGround();
+
+	CalculateBoundingSquare();
 }
 
 bool UMBGroundSubsystem::GetGroundTile(const FIntPoint& Index, FMBGroundTile& OutGroundTile)
@@ -158,6 +162,44 @@ void UMBGroundSubsystem::GetGroundTileInfo(const FIntPoint& Index, FMBPossibleGr
 	}
 
 	OutGroundTileInfo = *RowStruct;
+}
+
+void UMBGroundSubsystem::GetBoundingSquare(FVector& OutMinBoundingLocation, FVector& OutMaxBoundingLocation)
+{
+	OutMinBoundingLocation = MinBoundingLocation;
+	OutMaxBoundingLocation = MaxBoundingLocation;
+}
+
+void UMBGroundSubsystem::CalculateBoundingSquare()
+{
+	FIntPoint Min = FIntPoint(GroundFieldSize.X/2, GroundFieldSize.Y/2);
+	FIntPoint Max = FIntPoint(-GroundFieldSize.X/2, -GroundFieldSize.Y/2);
+
+	for (int32 i = -GroundFieldSize.Y/2; i < GroundFieldSize.Y/2; i++)
+	{
+		for (int32 j = -GroundFieldSize.X/2; j < GroundFieldSize.X/2; j++)
+		{
+			FIntPoint TileIndex = FIntPoint(j + GroundFieldSize.X/2, i + GroundFieldSize.Y/2);
+
+			FMBGroundTile Tile;
+			if (!GetGroundTile(TileIndex, Tile))
+				continue;
+
+			if (Tile.IsVoid)
+				continue;
+
+			Min.X = FMath::Min(Min.X, j);
+			Min.Y = FMath::Min(Min.Y, i);
+			Max.X = FMath::Max(Max.X, j);
+			Max.Y = FMath::Max(Max.Y, i);
+		}
+	}
+
+	MaxBoundingLocation = FVector(Max.X + 1, Max.Y + 1, 0);
+	MaxBoundingLocation *= 3000.0f;
+
+	MinBoundingLocation = FVector(Min.X - 1, Min.Y - 1, 0);
+	MinBoundingLocation *= 3000.0f;
 }
 
 void UMBGroundSubsystem::InitGroundField()

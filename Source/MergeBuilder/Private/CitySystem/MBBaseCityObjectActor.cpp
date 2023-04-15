@@ -2,7 +2,7 @@
 
 
 #include "CitySystem/MBBaseCityObjectActor.h"
-
+#include "CitySystem/MBBaseGroundTileActor.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -40,16 +40,19 @@ void AMBBaseCityObjectActor::Tick(float DeltaTime)
 
 ECityObjectLocationState AMBBaseCityObjectActor::CheckLocation()
 {
-	TArray<AActor*> OverlappingActors;
-	GetOverlappingActors(OverlappingActors, AMBBaseCityObjectActor::StaticClass());
+	TArray<AActor*> OverlappingCityObjects;
+	GetOverlappingActors(OverlappingCityObjects, AMBBaseCityObjectActor::StaticClass());
 
-	if (OverlappingActors.Num() == 0)
+	TArray<AActor*> OverlappingGroundTiles;
+	GetOverlappingActors(OverlappingGroundTiles, AMBBaseGroundTileActor::StaticClass());
+
+	if (OverlappingCityObjects.Num() == 0 && OverlappingGroundTiles.Num() != 0)
 		return ECityObjectLocationState::Acceptable;
 
 	if (CityObjectData.ObjectID == INDEX_NONE)
 		return ECityObjectLocationState::Unacceptable;
 	
-	for (auto Actor : OverlappingActors)
+	for (auto Actor : OverlappingCityObjects)
 	{
 		if (Actor->GetClass() == GetClass())
 		{

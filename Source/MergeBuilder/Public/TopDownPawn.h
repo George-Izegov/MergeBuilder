@@ -53,14 +53,8 @@ protected:
 		USphereComponent* RootSphere;
 
 	UPROPERTY(EditAnywhere)
-		int32 MovementType = 0;
-
-	UPROPERTY(EditAnywhere)
-		TArray<float> MovementSpeed;
-
-	// 0 type of movement vars
-	bool InMovement = false;
-	FVector LastMovementTouchLocation;
+		float MovementSpeed = 15;
+	
 	bool DragItem = false;
 
 	FVector PrevDragLocation;

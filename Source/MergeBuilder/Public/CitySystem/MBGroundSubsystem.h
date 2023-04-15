@@ -68,7 +68,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetGroundTileInfo(const FIntPoint& Index, FMBPossibleGroundTileInfo& OutGroundTileInfo);
 
+	void GetBoundingSquare(FVector& OutMinBoundingLocation, FVector& OutMaxBoundingLocation);
 protected:
+
+	void CalculateBoundingSquare();
 
 	void InitGroundField();
 
@@ -83,4 +86,7 @@ protected:
 
 	UPROPERTY()
 	UDataTable* PossibleGroundTilesDataTable = nullptr;
+
+	FVector MinBoundingLocation = FVector::ZeroVector;
+	FVector MaxBoundingLocation = FVector::ZeroVector;
 };
