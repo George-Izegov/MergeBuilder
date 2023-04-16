@@ -113,6 +113,8 @@ void AMBBaseMergeItemActor::AddConsumableValue()
 	}
 	}
 
+	PlayAddConsumableAnimation(TableData.AddValueType);
+
 	auto FieldManager = Cast<AMBMergeFieldManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBMergeFieldManager::StaticClass()));
 
 	FieldManager->DestroyItem(FieldIndex);
