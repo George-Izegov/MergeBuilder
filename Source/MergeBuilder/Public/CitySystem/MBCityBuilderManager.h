@@ -32,7 +32,7 @@ protected:
 	void SetEditedObject(AMBBaseCityObjectActor* Object);
 	UFUNCTION(BlueprintCallable)
 	void AcceptEditObject();
-
+	
 	UFUNCTION(BlueprintCallable)
 	void RemoveCityObject(AMBBaseCityObjectActor* ObjectToRemove);
 

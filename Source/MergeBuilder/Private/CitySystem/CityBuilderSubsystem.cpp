@@ -181,7 +181,8 @@ bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& Object
 	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(ObjectName, "");
 	check(RowStruct);
 
-	if (RowStruct->GeneratorSettings.RequiredEmployees > (Population - EmployedPopulation))
+	int32 UnemployedPopulation = FMath::Max(0, Population - EmployedPopulation);
+	if (RowStruct->GeneratorSettings.RequiredEmployees > UnemployedPopulation)
 		return false;
 
 	for (const auto& Item : RowStruct->RequiredItems)
