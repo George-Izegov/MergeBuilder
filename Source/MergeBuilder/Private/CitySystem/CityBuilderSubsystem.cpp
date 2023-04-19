@@ -173,6 +173,43 @@ float UCityBuilderSubsystem::GetAverageRating()
 	return (ComfortPercentage + GreeningPercentage + InfrastructurePercentage) / 3;
 }
 
+void UCityBuilderSubsystem::GetObjectsChain(const FName& ObjectName, TArray<FCityObjectData>& OutObjects, int32& CurrentIndex)
+{
+	FName PreviousObjectName = NAME_None;
+	FName CurrentObjectName = ObjectName;
+	do
+	{
+		TMap<FName, uint8*> RowsMap = CityObjectsDataTable->GetRowMap();
+
+		PreviousObjectName = NAME_None;
+		for (const auto& Row : RowsMap)
+		{
+			auto RowData = (FCityObjectData*)Row.Value;
+			
+			if (RowData->NextLevelObjectName == CurrentObjectName)
+			{
+				PreviousObjectName = Row.Key;
+				CurrentObjectName = Row.Key;
+				OutObjects.Insert(*RowData, 0);
+				break;
+			}
+		}
+	} while (PreviousObjectName != NAME_None);
+
+	CurrentObjectName = ObjectName;
+	CurrentIndex = OutObjects.Num();
+	while(true)
+	{
+		auto Row = CityObjectsDataTable->FindRow<FCityObjectData>(CurrentObjectName, "");
+
+		if (!Row)
+			break;
+
+		OutObjects.Add(*Row);
+		CurrentObjectName = Row->NextLevelObjectName;
+	} 
+}
+
 bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& ObjectName)
 {
 	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();

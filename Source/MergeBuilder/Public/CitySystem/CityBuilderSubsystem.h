@@ -162,6 +162,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetAverageRating();
+
+	UFUNCTION(BlueprintCallable)
+	void GetObjectsChain(const FName& ObjectName, TArray<FCityObjectData>& OutObjects, int32& CurrentIndex);
 	
 protected:
 
