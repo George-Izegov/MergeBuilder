@@ -64,6 +64,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIndexForLocation(const FVector& Location, FIntPoint& OutIndex);
 
+	bool IsLocationOnField(const FVector& Location);
+
 	AMBBaseMergeItemActor* GetItemAtIndex(const FIntPoint& Index);
 
 	bool GenerateNewItemFromAnother(AMBBaseMergeItemActor* SourceItem);

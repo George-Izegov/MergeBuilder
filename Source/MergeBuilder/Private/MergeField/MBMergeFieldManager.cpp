@@ -186,6 +186,30 @@ bool AMBMergeFieldManager::GetIndexForLocation(const FVector& Location, FIntPoin
 	return true;
 }
 
+bool AMBMergeFieldManager::IsLocationOnField(const FVector& Location)
+{
+	FVector ZeroTileLocation, LastTileLocation;
+	GetLocationForIndex(FIntPoint(0,0), ZeroTileLocation);
+	GetLocationForIndex(FIntPoint(MergeFieldSize.X - 1,MergeFieldSize.Y - 1), LastTileLocation);
+
+	ZeroTileLocation += (FVector(TileSize, TileSize, 0.0f) / 2.0f);
+	LastTileLocation -= (FVector(TileSize, TileSize, 0.0f) / 2.0f);
+
+	if (Location.X > ZeroTileLocation.X)
+		return false;
+
+	if (Location.Y > ZeroTileLocation.Y)
+		return false;
+
+	if (Location.X < LastTileLocation.X)
+		return false;
+
+	if (Location.Y < LastTileLocation.Y)
+		return false;
+
+	return true;
+}
+
 void AMBMergeFieldManager::HandleStartTouchOnIndex(const FIntPoint& Index)
 {
 	TouchStartItem = GetItemAtIndex(Index);
@@ -332,7 +356,12 @@ void AMBMergeFieldManager::HandleDrag(const FVector& FieldLocation)
 	if (!InDrag)
 		return;
 
-	TouchStartItem->SetActorLocation(FieldLocation + FVector(0.0f, 0.0f, 15.0f));
+	FVector ZeroTileLocation;
+	GetLocationForIndex(FIntPoint(0,0), ZeroTileLocation);
+	FVector NewLocation = FieldLocation;
+	NewLocation.Y = FMath::Min(NewLocation.Y, ZeroTileLocation.Y);
+
+	TouchStartItem->SetActorLocation(NewLocation + FVector(0.0f, 0.0f, 15.0f));
 }
 
 AMBBaseMergeItemActor* AMBMergeFieldManager::GetItemAtIndex(const FIntPoint& Index)

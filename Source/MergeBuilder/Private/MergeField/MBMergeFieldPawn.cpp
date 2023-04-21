@@ -31,10 +31,13 @@ void AMBMergeFieldPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FV
 	FHitResult HitResult;
 	if (GetInputHitResult(FingerIndex, HitResult))
 	{
-		FIntPoint Index;
-		FieldManager->GetIndexForLocation(HitResult.Location, Index);
+		if (FieldManager->IsLocationOnField(HitResult.Location))
+		{
+			FIntPoint Index;
+			FieldManager->GetIndexForLocation(HitResult.Location, Index);
 
-		FieldManager->HandleStartTouchOnIndex(Index);
+			FieldManager->HandleStartTouchOnIndex(Index);
+		}
 	}
 }
 
@@ -64,8 +67,15 @@ void AMBMergeFieldPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVe
 
 	AMBBasePawn::TouchMove(FingerIndex, Location);
 
+	FHitResult HitResult;
+	if (!GetInputHitResult(FingerIndex, HitResult))
+		return;
+
 	if (!InDrag)
 	{
+		if (!FieldManager->IsLocationOnField(HitResult.Location))
+			return;
+		
 		if (FVector::Distance(Location, StartTouchLocation) >= DragDeltaInputShift)
 		{
 			InDrag = true;
@@ -76,12 +86,8 @@ void AMBMergeFieldPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVe
 			return;
 		}
 	}
-
-	FHitResult HitResult;
-	if (GetInputHitResult(FingerIndex, HitResult))
-	{
-		FieldManager->HandleDrag(HitResult.Location);
-	}
+	
+	FieldManager->HandleDrag(HitResult.Location);
 }
 
 void AMBMergeFieldPawn::OnClick(const FVector Location)
@@ -97,10 +103,13 @@ void AMBMergeFieldPawn::OnClick(const FVector Location)
 		}
 		else
 		{
-			FIntPoint Index;
-			FieldManager->GetIndexForLocation(HitResult.Location, Index);
+			if (FieldManager->IsLocationOnField(HitResult.Location))
+			{
+				FIntPoint Index;
+				FieldManager->GetIndexForLocation(HitResult.Location, Index);
 
-			FieldManager->HandleClickOnIndex(Index);
+				FieldManager->HandleClickOnIndex(Index);
+			}
 		}
 	}
 }
