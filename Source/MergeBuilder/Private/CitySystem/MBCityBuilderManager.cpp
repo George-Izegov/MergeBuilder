@@ -237,7 +237,7 @@ void AMBCityBuilderManager::RotateEditedObject(int32 Direction)
 	check(EditedObject);
 
 	FRotator DeltaRotation = FRotator::ZeroRotator;
-	DeltaRotation.Yaw = Direction * 30.0f;
+	DeltaRotation.Yaw = Direction * 45.0f;
 	EditedObject->AddActorWorldRotation(DeltaRotation);
 
 	ECityObjectLocationState State = EditedObject->CheckLocation();
