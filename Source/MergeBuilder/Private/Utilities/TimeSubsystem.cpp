@@ -48,6 +48,9 @@ void UTimeSubsystem::RequestTime()
 
             OnTimeSuccessRequested.Broadcast();
 
+            if (!GetWorld())
+                return;
+
             if (GetWorld()->GetTimerManager().IsTimerActive(RecalculationTimer))
             {
                 GetWorld()->GetTimerManager().ClearTimer(RecalculationTimer);
@@ -62,6 +65,10 @@ void UTimeSubsystem::RequestTime()
             UE_LOG(LogTemp, Warning, TEXT("UTimeSubsystem::RequestTime() - Failed request: %s"), *ResponsePtr->GetContentAsString());
             FTimerHandle TimerHandle;
             FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &UTimeSubsystem::RequestTime);
+            
+            if (!GetWorld())
+                return;
+            
             GetWorld()->GetTimerManager().SetTimer(TimerHandle, Delegate, 1.0f, false);
         }
 

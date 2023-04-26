@@ -97,6 +97,8 @@ void UAccountSubsystem::InitAccount()
 	else
 	{
 		Energy = MaxEnergy;
+		SoftCoins = 200;
+		PremCoins = 50;
 	}
 
 	MaxExperience = GetMaxExperienceForLevel(Level);

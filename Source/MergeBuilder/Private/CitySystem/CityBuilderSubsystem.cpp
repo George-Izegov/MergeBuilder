@@ -91,12 +91,14 @@ void UCityBuilderSubsystem::ParseCity(const FString& JsonString)
 void UCityBuilderSubsystem::InitCity()
 {
 	FString SavedData;
-	if (UMBUtilityFunctionLibrary::ReadFromStorage("City", SavedData))
+	if (!UMBUtilityFunctionLibrary::ReadFromStorage("City", SavedData))
 	{
-		ParseCity(SavedData);
-
-		CalculateCurrentPopulationAndRatings();
+		FString StartCityJsonPath = FPaths::ProjectContentDir() + "/Jsons/StartCity.json";
+		FFileHelper::LoadFileToString(SavedData, *StartCityJsonPath);
 	}
+
+	ParseCity(SavedData);
+	CalculateCurrentPopulationAndRatings();
 }
 
 void UCityBuilderSubsystem::SaveCity()
