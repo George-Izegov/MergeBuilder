@@ -168,6 +168,8 @@ public:
 	
 protected:
 
+	void AddExperienceForNewObject(const FName& NewObjectName);
+
 	void ParseCity(const FString& JsonString);
 
 	void InitCity();

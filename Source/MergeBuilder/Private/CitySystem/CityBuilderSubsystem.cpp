@@ -34,6 +34,7 @@ void UCityBuilderSubsystem::AddNewObject(FCityObject& NewObject)
 	CityObjects[ID].ObjectID = ID;
 	NewObject.ObjectID = ID;
 
+	AddExperienceForNewObject(NewObject.ObjectName);
 	CalculateCurrentPopulationAndRatings();
 }
 
@@ -210,6 +211,31 @@ void UCityBuilderSubsystem::GetObjectsChain(const FName& ObjectName, TArray<FCit
 		OutObjects.Add(*Row);
 		CurrentObjectName = Row->NextLevelObjectName;
 	} 
+}
+
+void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName)
+{
+	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(NewObjectName, "");
+
+	if (!RowStruct)
+		return;
+
+	int32 Experience = 0;
+
+	switch (RowStruct->CoinsType)
+	{
+	case EConsumableParamType::SoftCoin:
+		Experience = RowStruct->CostInCoins / 10;
+		break;
+	case EConsumableParamType::PremCoin:
+		Experience = RowStruct->CostInCoins * 5;
+		break;
+	}
+
+	Experience = FMath::Max(1, Experience);
+
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+	AccountSubsystem->AddExperience(Experience);
 }
 
 bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& ObjectName)
