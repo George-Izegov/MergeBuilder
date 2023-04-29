@@ -9,6 +9,7 @@
 #include "MergeSystem/MergeSubsystem.h"
 #include "AccountSubsystem.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetResource, int32, ResourceAmount);
 /**
  * 
  */
@@ -113,4 +114,16 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FNoParamsSignatureDyn OnGetNewLevel;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGetResource OnGetExperience;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGetResource OnGetSoftCoins;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGetResource OnGetPremCoins;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGetResource OnGetEnergy;
 };

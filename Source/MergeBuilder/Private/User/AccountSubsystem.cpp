@@ -153,12 +153,7 @@ void UAccountSubsystem::RestoreEnergy()
 {
 	if (Energy < MaxEnergy)
 	{
-		Energy++;
-	}
-
-	if (Energy >= MaxEnergy)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(EnergyRestoreTimerHandle);
+		AddEnergy(1);
 	}
 }
 
@@ -224,6 +219,8 @@ bool UAccountSubsystem::GetRemainTimeToRestoreEnergy(int32& RemainTimeMinutes, i
 
 void UAccountSubsystem::AddExperience(int32 DeltaExperience)
 {
+	OnGetExperience.Broadcast(DeltaExperience);
+	
 	int32 RemainDeltaExp = DeltaExperience;
 	while (true)
 	{
@@ -245,6 +242,8 @@ void UAccountSubsystem::AddSoftCoins(int32 DeltaCoins)
 		return;
 
 	SoftCoins += DeltaCoins;
+
+	OnGetSoftCoins.Broadcast(DeltaCoins);
 }
 
 void UAccountSubsystem::AddPremCoins(int32 DeltaCoins)
@@ -253,6 +252,8 @@ void UAccountSubsystem::AddPremCoins(int32 DeltaCoins)
 		return;
 	
 	PremCoins += DeltaCoins;
+
+	OnGetPremCoins.Broadcast(DeltaCoins);
 }
 
 void UAccountSubsystem::AddEnergy(int32 DeltaEnergy)
@@ -263,6 +264,8 @@ void UAccountSubsystem::AddEnergy(int32 DeltaEnergy)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(EnergyRestoreTimerHandle);
 	}
+
+	OnGetEnergy.Broadcast(DeltaEnergy);
 }
 
 void UAccountSubsystem::LevelUp()
