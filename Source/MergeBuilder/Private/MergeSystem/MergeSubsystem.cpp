@@ -407,7 +407,8 @@ void UMergeSubsystem::InitItem(FMergeFieldItem& OutItem)
 	if (!RowStruct)
 		return;
 
-	OutItem.RemainItemsToSpawn = RowStruct->ItemsChain[OutItem.Level - 1].MaxItemsToSpawn;
+	if (OutItem.RemainItemsToSpawn <= 0)
+		OutItem.RemainItemsToSpawn = RowStruct->ItemsChain[OutItem.Level - 1].MaxItemsToSpawn;
 }
 
 bool UMergeSubsystem::GetFirstReward(FMergeFieldItem& OutItem)
