@@ -6,6 +6,7 @@
 #include "CitySystem/MBCityBuilderManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "CitySystem/MBGroundFieldManager.h"
+#include "GameFramework/HUD.h"
 
 // Sets default values
 ATopDownPawn::ATopDownPawn()
@@ -30,13 +31,14 @@ void ATopDownPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector
 
 	if (FingerIndex == ETouchIndex::Touch1)
 	{
-		FHitResult HitResult;
-		if (GetWorldObjectHitResult(FingerIndex, HitResult))
+		TArray<FHitResult> HitResults;
+		if (GetMultiWorldObjectHitResults(FingerIndex, HitResults))
 		{
-			if (HitResult.Actor->GetClass()->IsChildOf<AMBBaseCityObjectActor>())
+			auto CityManager = Cast<AMBCityBuilderManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBCityBuilderManager::StaticClass()));
+
+			for (auto& HitResult : HitResults)
 			{
-				auto CityManager = Cast<AMBCityBuilderManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBCityBuilderManager::StaticClass()));
-				if (HitResult.Actor.Get() == CityManager->GetEditedObject())
+				if (HitResult.GetActor() == CityManager->GetEditedObject())
 				{
 					DragItem = true;
 					GetInputHitResult(FingerIndex, HitResult);
@@ -240,7 +242,37 @@ bool ATopDownPawn::GetWorldObjectHitResult(const ETouchIndex::Type FingerIndex, 
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	// Input Object type
 	ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery8);
-
 	// get hit under finger
 	return PC->GetHitResultAtScreenPosition(FVector2D(TouchX, TouchY), ObjectTypes, false, HitResult);
+}
+
+bool ATopDownPawn::GetMultiWorldObjectHitResults(const ETouchIndex::Type FingerIndex, TArray<FHitResult>& HitResults)
+{
+	APlayerController* PC = GetGameInstance()->GetFirstLocalPlayerController();
+	float TouchX, TouchY;
+	bool OnTouch;
+
+	PC->GetInputTouchState(FingerIndex, TouchX, TouchY, OnTouch);
+
+	FVector2D ScreenPosition = FVector2D(TouchX, TouchY);
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	// Input Object type
+	ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery8);
+	
+	// Early out if we clicked on a HUD hitbox
+	if (PC->GetHUD() != NULL && PC->GetHUD()->GetHitBoxAtCoordinates(ScreenPosition, true))
+	{
+		return false;
+	}
+	
+	FVector WorldOrigin;
+	FVector WorldDirection;
+	if (UGameplayStatics::DeprojectScreenToWorld(PC, ScreenPosition, WorldOrigin, WorldDirection) == true)
+	{
+		FCollisionObjectQueryParams const ObjParam(ObjectTypes);
+		return GetWorld()->LineTraceMultiByObjectType(HitResults, WorldOrigin, WorldOrigin + WorldDirection * PC->HitResultTraceDistance, ObjParam, FCollisionQueryParams(SCENE_QUERY_STAT(ClickableTrace), false));
+	}
+
+	return false;
 }

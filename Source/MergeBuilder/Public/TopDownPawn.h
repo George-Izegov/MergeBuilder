@@ -46,6 +46,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	bool GetWorldObjectHitResult(const ETouchIndex::Type FingerIndex, FHitResult& HitResult);
+	bool GetMultiWorldObjectHitResults(const ETouchIndex::Type FingerIndex, TArray<FHitResult>& HitResults);
 
 protected:
 
