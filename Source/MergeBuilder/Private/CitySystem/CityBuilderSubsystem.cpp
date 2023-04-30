@@ -129,7 +129,7 @@ void UCityBuilderSubsystem::SaveCity()
 
 void UCityBuilderSubsystem::CalculateCurrentPopulationAndRatings()
 {
-	int32 TotalPopulation = 0;
+	int32 TotalPopulation = 1;
 	int32 TotalEmployed = 0;
 	FCityRatings NewRatings;
 

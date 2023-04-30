@@ -255,17 +255,31 @@ void AMBMergeFieldManager::HandleReleaseTouchOnIndex(const FIntPoint& Index)
 			}
 			else
 			{
-				// place current item at this location and move other on closest free place
-
-				FIntPoint ClosestFreeIndex;
-				if (!MergeSystem->GetClosestFreeIndex(Index, ClosestFreeIndex))
+				if (ItemAtIndex->BaseData.IsDusty || ItemAtIndex->BaseData.IsInBox)
 				{
-					check(nullptr);
+					// return current item closest location
+
+					FIntPoint ClosestFreeIndex;
+					if (!MergeSystem->GetClosestFreeIndex(Index, ClosestFreeIndex))
+					{
+						check(nullptr);
+					}
+
+					PlaceItemAtIndex(ClosestFreeIndex, TouchStartItem);
 				}
+				else
+				{
+					// place current item at this location and move other on closest free place
 
-				PlaceItemAtIndex(ClosestFreeIndex, ItemAtIndex);
-				PlaceItemAtIndex(Index, TouchStartItem);
+					FIntPoint ClosestFreeIndex;
+					if (!MergeSystem->GetClosestFreeIndex(Index, ClosestFreeIndex))
+					{
+						check(nullptr);
+					}
 
+					PlaceItemAtIndex(ClosestFreeIndex, ItemAtIndex);
+					PlaceItemAtIndex(Index, TouchStartItem);
+				}
 			}
 		}
 		else

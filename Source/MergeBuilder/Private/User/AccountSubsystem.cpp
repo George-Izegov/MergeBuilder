@@ -97,7 +97,7 @@ void UAccountSubsystem::InitAccount()
 	else
 	{
 		Energy = MaxEnergy;
-		SoftCoins = 200;
+		SoftCoins = 500;
 		PremCoins = 50;
 	}
 
