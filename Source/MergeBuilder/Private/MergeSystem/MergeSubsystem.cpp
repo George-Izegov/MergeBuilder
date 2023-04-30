@@ -441,6 +441,9 @@ int32 UMergeSubsystem::GetItemTotalCount(const FMergeFieldItem& Item)
 	{
 		for (const auto& RowItem : Row)
 		{
+			if (RowItem.IsDusty || RowItem.IsInBox)
+				continue;
+			
 			if (Item == RowItem)
 				Count++;
 		}
@@ -458,6 +461,9 @@ void UMergeSubsystem::SpendItems(const FMergeFieldItem& Item, int32 Count)
 	{
 		for (auto& RowItem : Row)
 		{
+			if (RowItem.IsDusty || RowItem.IsInBox)
+				continue;
+			
 			if (Item == RowItem)
 			{
 				RowItem.Type = EMergeItemType::None;
