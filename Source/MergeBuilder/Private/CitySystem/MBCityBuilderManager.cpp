@@ -106,7 +106,7 @@ void AMBCityBuilderManager::GetInitialSpawnLocation(FVector& Location)
 		UE_LOG(LogTemp, Warning, TEXT("AMBCityBuilderManager::GetInitialSpawnLocation - no hit result"));
 	}
 
-	Location.Z = 100.0f;
+	Location = FVector(FMath::TruncToInt(Location.X / BuildGrid) * BuildGrid, FMath::TruncToInt(Location.Y / BuildGrid) * BuildGrid, 100.0f);
 }
 
 void AMBCityBuilderManager::SetEditedObject(AMBBaseCityObjectActor* Object)

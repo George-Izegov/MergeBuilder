@@ -43,6 +43,7 @@ void ATopDownPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector
 					DragItem = true;
 					GetInputHitResult(FingerIndex, HitResult);
 					PrevDragLocation = HitResult.Location;
+					DragDistance = FVector::ZeroVector;
 				}
 			}
 		}
@@ -107,7 +108,12 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 			FHitResult HitResult;
 			if (GetInputHitResult(FingerIndex, HitResult))
 			{
-				CityManager->MoveEditedObject(HitResult.Location - PrevDragLocation);
+				DragDistance += HitResult.Location - PrevDragLocation;
+
+				int32 Grid = CityManager->BuildGrid;
+				FVector DeltaMovement = FVector(FMath::TruncToInt(DragDistance.X / Grid) * Grid, FMath::TruncToInt(DragDistance.Y / Grid) * Grid, 0.0f);
+				CityManager->MoveEditedObject(DeltaMovement);
+				DragDistance -= DeltaMovement;
 				PrevDragLocation = HitResult.Location;
 			}
 		}

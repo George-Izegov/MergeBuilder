@@ -58,6 +58,7 @@ protected:
 	
 	bool DragItem = false;
 
+	FVector DragDistance;
 	FVector PrevDragLocation;
 
 	UPROPERTY(BlueprintAssignable)

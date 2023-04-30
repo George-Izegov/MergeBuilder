@@ -67,4 +67,8 @@ protected:
 
 	AMBBaseCityObjectActor* MergedObject1 = nullptr;
 	AMBBaseCityObjectActor* MergedObject2 = nullptr;
+
+public:
+
+	int32 BuildGrid = 1.0f;
 };

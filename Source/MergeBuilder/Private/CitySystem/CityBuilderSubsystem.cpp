@@ -96,6 +96,10 @@ void UCityBuilderSubsystem::InitCity()
 	{
 		FString StartCityJsonPath = FPaths::ProjectContentDir() + "/Jsons/StartCity.json";
 		FFileHelper::LoadFileToString(SavedData, *StartCityJsonPath);
+		
+		//  TODO: move this logic to tutorial subsystem
+		FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(FName("Mine"), "");
+		RowStruct->RequiredItems[0].RequiredNum = 1;
 	}
 
 	ParseCity(SavedData);
