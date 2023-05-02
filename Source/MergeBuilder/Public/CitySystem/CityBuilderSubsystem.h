@@ -165,6 +165,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void GetObjectsChain(const FName& ObjectName, TArray<FCityObjectData>& OutObjects, int32& CurrentIndex);
+
+	bool HasGenerator(const FName& ObjectName);
 	
 protected:
 

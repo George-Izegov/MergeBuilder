@@ -217,6 +217,21 @@ void UCityBuilderSubsystem::GetObjectsChain(const FName& ObjectName, TArray<FCit
 	} 
 }
 
+bool UCityBuilderSubsystem::HasGenerator(const FName& ObjectName)
+{
+	for (const auto& Object : CityObjects)
+	{
+		if (Object.ObjectName == ObjectName)
+			return true;
+
+		if (Object.ObjectName == FName(ObjectName.ToString() + "2"))
+			return true;
+
+		if (Object.ObjectName == FName(ObjectName.ToString() + "3"))
+			return true;
+	}
+}
+
 void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName)
 {
 	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(NewObjectName, "");
