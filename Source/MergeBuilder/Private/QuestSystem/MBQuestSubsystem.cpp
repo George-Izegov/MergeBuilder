@@ -88,18 +88,17 @@ void UMBQuestSubsystem::ParseQuests(const FString& JsonString)
 	const TArray<TSharedPtr<FJsonValue>>* QuestsArray;
 	if (JsonObject->TryGetArrayField("Quests", QuestsArray))
 	{
-		for (const auto& QuestValue : QuestsArray)
+		for (const auto& QuestValue : *QuestsArray)
 		{
-			FQuestData* Quest = nullptr;
-			TSharedPtr<FJsonObject> JsonQuest = QuestValue->AsObject();
-			if (!FJsonObjectConverter::JsonObjectToUStruct<FQuestData>(JsonQuest.ToSharedRef(), Quest))
+			FQuestData Quest;
+			if (!FJsonObjectConverter::JsonObjectToUStruct<FQuestData>(QuestValue->AsObject().ToSharedRef(), &Quest))
 				continue;
 		
-			Quests.Add(*Quest);
+			Quests.Add(Quest);
 		}
 	}
 
-	FDateTime::ParseIso8601(*JsonObject->GetStringField("DateTo"), DateTo);
+	FDateTime::ParseIso8601(*(JsonObject->GetStringField("DateTo")), DateTo);
 }
 
 void UMBQuestSubsystem::GenerateNewQuests()
@@ -202,19 +201,81 @@ void UMBQuestSubsystem::GenerateRequiredMergeItemsForQuest(TArray<FRequiredItem>
 
 void UMBQuestSubsystem::GenerateRequiredCityObjectForQuest(FName& RequiredObjectName, int32& RequiredObjectAmount)
 {
-	
+	auto CitySubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	TMap<FName, FCityObjectData*> QuestObjects;
+	CitySubsystem->GetQuestObjects(QuestObjects);
+
+	int32 RandomIndex = UKismetMathLibrary::RandomIntegerInRange(0, QuestObjects.Num() - 1);
+
+	TArray<FName> Keys;
+	QuestObjects.GetKeys(Keys);
+
+	RequiredObjectName = Keys[RandomIndex];
+
+	if (QuestObjects[RequiredObjectName]->CoinsType != EConsumableParamType::SoftCoin)
+	{
+		RequiredObjectAmount = 1;
+		return;
+	}
+
+	int32 MaxAmount = 100 / QuestObjects[RequiredObjectName]->CostInCoins;
+	MaxAmount = FMath::Clamp(MaxAmount, 1, 5);
+	RequiredObjectAmount = UKismetMathLibrary::RandomIntegerInRange(1, MaxAmount);
 }
 
 void UMBQuestSubsystem::GenerateRewardForMergeItems(const TArray<FRequiredItem>& RequiredItems,
 	TArray<FMergeFieldItem>& RewardItems, int32& RewardExperience)
 {
-	
+	int32 QuestHardness = CalculateHardnessOfRequiredObjects(RequiredItems);
+
+	GenerateRewardForHardness(QuestHardness, RewardItems, RewardExperience);
 }
 
 void UMBQuestSubsystem::GenerateRewardForCityObject(const FName& RequiredObjectName, int32 ObjectAmount,
 	TArray<FMergeFieldItem>& RewardItems, int32& RewardExperience)
 {
-	
+	auto CitySubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	const FCityObjectData* RowStruct = CitySubsystem->CityObjectsDataTable->FindRow<FCityObjectData>(RequiredObjectName, "");
+
+	int32 QuestHardness = CalculateHardnessOfRequiredObjects(RowStruct->RequiredItems);
+
+	if (RowStruct->CoinsType != EConsumableParamType::SoftCoin)
+	{
+		QuestHardness += 100;
+	}
+	else
+	{
+		QuestHardness += RowStruct->CostInCoins;
+	}
+		
+	QuestHardness *= ObjectAmount;
+
+	GenerateRewardForHardness(QuestHardness, RewardItems, RewardExperience);
+}
+
+void UMBQuestSubsystem::GenerateRewardForHardness(int32 QuestHardness, TArray<FMergeFieldItem>& RewardItems,
+	int32& RewardExperience)
+{
+	FMergeFieldItem SoftCoins;
+	SoftCoins.Type = EMergeItemType::SoftCoinBox;
+	SoftCoins.Level = 1;
+	SoftCoins.RemainItemsToSpawn = 4 + QuestHardness / 10;
+
+	RewardItems.Add(SoftCoins);
+
+	if (QuestHardness > 50)
+	{
+		FMergeFieldItem PremCoin;
+		PremCoin.Type = EMergeItemType::PremCoins;
+		PremCoin.Level = 1 + QuestHardness / 100;
+		PremCoin.Level = FMath::Min(PremCoin.Level, 3);
+
+		RewardItems.Add(PremCoin);
+	}
+
+	RewardExperience = ((QuestHardness / 5) * 5) + 5;
 }
 
 void UMBQuestSubsystem::GenerateMergeItemForQuest(EMergeItemType ItemType, FRequiredItem& OutItem)
@@ -236,3 +297,27 @@ bool UMBQuestSubsystem::GetRecommendedQuest(FQuestData& RecommendedQuest)
 {
 	return false;
 }
+
+int32 UMBQuestSubsystem::CalculateHardnessOfRequiredObjects(const TArray<FRequiredItem>& RequiredItems)
+{
+	int32 Hardness = 0;
+
+	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+
+	for (const auto& RequiredItem : RequiredItems)
+	{
+		FString RowName = UMBUtilityFunctionLibrary::EnumToString("EMergeItemType", (int32)RequiredItem.Item.Type);
+		const FMergeItemChainRow* RowStruct = MergeSubsystem->MergeItemsDataTable->FindRow<FMergeItemChainRow>(FName(RowName), "");
+
+		int32 ItemCost = FMath::Pow(2.0f, RequiredItem.Item.Level);
+
+		ItemCost *= RequiredItem.RequiredNum;
+
+		ItemCost *= RowStruct->ItemsChain[0].SellPrice;
+
+		Hardness += ItemCost;
+	}
+
+	return Hardness;
+}
+

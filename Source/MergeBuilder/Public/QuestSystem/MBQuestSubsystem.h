@@ -78,7 +78,11 @@ protected:
 	
 	void GenerateRewardForCityObject(const FName& RequiredObjectName, int32 ObjectAmount, TArray<FMergeFieldItem>& RewardItems, int32& RewardExperience);
 
+	void GenerateRewardForHardness(int32 QuestHardness, TArray<FMergeFieldItem>& RewardItems, int32& RewardExperience);
+	
 	void GenerateMergeItemForQuest(EMergeItemType ItemType, FRequiredItem& OutItem);
+
+	int32 CalculateHardnessOfRequiredObjects(const TArray<FRequiredItem>& RequiredItems);
 	
 private:
 

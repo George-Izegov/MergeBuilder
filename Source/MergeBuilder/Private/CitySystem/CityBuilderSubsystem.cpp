@@ -230,6 +230,21 @@ bool UCityBuilderSubsystem::HasGenerator(const FName& ObjectName)
 		if (Object.ObjectName == FName(ObjectName.ToString() + "3"))
 			return true;
 	}
+
+	return false;
+}
+
+void UCityBuilderSubsystem::GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects)
+{
+	TMap<FName, uint8*> RowsMap = CityObjectsDataTable->GetRowMap();
+
+	for (const auto& Row : RowsMap)
+	{
+		auto RowData = (FCityObjectData*)Row.Value;
+
+		if (RowData->FitForQuest)
+			OutObjects.Add(Row.Key, RowData);
+	}
 }
 
 void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName)

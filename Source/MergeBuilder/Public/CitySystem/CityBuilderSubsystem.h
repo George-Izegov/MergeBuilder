@@ -93,6 +93,9 @@ struct FCityObjectData : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool IsInShop = true;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool FitForQuest = true;
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		ECityObjectCategory Category;
@@ -167,6 +170,8 @@ public:
 	void GetObjectsChain(const FName& ObjectName, TArray<FCityObjectData>& OutObjects, int32& CurrentIndex);
 
 	bool HasGenerator(const FName& ObjectName);
+
+	void GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects);
 	
 protected:
 
