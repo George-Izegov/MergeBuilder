@@ -2,6 +2,8 @@
 
 
 #include "CitySystem/CityBuilderSubsystem.h"
+
+#include "AssetViewUtils.h"
 #include "MBUtilityFunctionLibrary.h"
 #include "JsonObjectConverter.h"
 #include "TimeSubsystem.h"
@@ -28,6 +30,22 @@ void UCityBuilderSubsystem::Deinitialize()
 	SaveCity();
 }
 
+void UCityBuilderSubsystem::GetCityObjectsByType(ECityObjectCategory Type, TArray<int32>& OutObjectIDs)
+{
+	for (const auto& CityObject : CityObjects)
+	{
+		const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(CityObject.ObjectName, "");
+
+		if (!RowStruct)
+			continue;
+		
+		if (RowStruct->Category == Type)
+		{
+			OutObjectIDs.Add(CityObject.ObjectID);
+		}
+	}
+}
+
 void UCityBuilderSubsystem::AddNewObject(FCityObject& NewObject)
 {
 	int32 ID = CityObjects.Add(NewObject);
@@ -36,6 +54,8 @@ void UCityBuilderSubsystem::AddNewObject(FCityObject& NewObject)
 
 	AddExperienceForNewObject(NewObject.ObjectName);
 	CalculateCurrentPopulationAndRatings();
+
+	OnBuildNewObject.Broadcast(NewObject.ObjectName);
 }
 
 void UCityBuilderSubsystem::EditObject(const FCityObject& EditedObject)
@@ -245,6 +265,54 @@ void UCityBuilderSubsystem::GetQuestObjects(TMap<FName, FCityObjectData*>& OutOb
 		if (RowData->FitForQuest)
 			OutObjects.Add(Row.Key, RowData);
 	}
+}
+
+void UCityBuilderSubsystem::SetNewQuestsForObjects(TArray<FString> NewQuests)
+{
+	TArray<int32> UpdatedObjectIDs;
+	
+	for (auto& CityObject : CityObjects)
+	{
+		if (CityObject.QuestID.IsEmpty())
+			continue;
+
+		if (NewQuests.Contains(CityObject.QuestID))
+		{
+			NewQuests.Remove(CityObject.QuestID);
+		}
+		else
+		{
+			CityObject.QuestID = "";
+		}
+
+		UpdatedObjectIDs.Add(CityObject.ObjectID);
+	}
+
+	TArray<int32> ObjectIDs;
+	GetCityObjectsByType(ECityObjectCategory::Buildings, ObjectIDs);
+	
+	for (const auto& NewQuest : NewQuests)
+	{
+		if (ObjectIDs.Num() == 0)
+			break;
+		
+		int32 RandomObjectID = FMath::RandRange(0, ObjectIDs.Num() - 1);
+		
+		CityObjects[ObjectIDs[RandomObjectID]].QuestID = NewQuest;
+		UpdatedObjectIDs.Add(RandomObjectID);
+		ObjectIDs.RemoveAt(RandomObjectID);
+	}
+
+	OnQuestsUpdated.Broadcast(UpdatedObjectIDs);
+}
+
+bool UCityBuilderSubsystem::GetCityObjectByID(int32 ObjectID, FCityObject& OutObject)
+{
+	if (ObjectID < 0 || ObjectID >= CityObjects.Num())
+		return false;
+
+	OutObject = CityObjects[ObjectID];
+	return true;
 }
 
 void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName)

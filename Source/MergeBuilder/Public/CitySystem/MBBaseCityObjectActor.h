@@ -51,6 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TrySnapToClosestObject();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateQuest();
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)

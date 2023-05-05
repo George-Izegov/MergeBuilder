@@ -41,6 +41,9 @@ protected:
 
 	void MergeObjects(AMBBaseCityObjectActor* Object1, AMBBaseCityObjectActor* Object2);
 
+	UFUNCTION()
+	void UpdateQuestsForObjects(TArray<int32> ObjectIDs);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

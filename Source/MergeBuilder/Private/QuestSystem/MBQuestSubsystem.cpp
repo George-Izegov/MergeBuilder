@@ -8,6 +8,7 @@
 #include "TimeSubsystem.h"
 #include "CitySystem/CityBuilderSubsystem.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "CitySystem/CityBuilderSubsystem.h"
 
 UMBQuestSubsystem::UMBQuestSubsystem()
 {
@@ -58,6 +59,19 @@ void UMBQuestSubsystem::SaveQuests()
 	UMBUtilityFunctionLibrary::SaveToStorage("Quests", StringData);
 }
 
+bool UMBQuestSubsystem::GetQuestByID(const FString& QuestID, FQuestData& OutQuest)
+{
+	for (const auto& Quest : Quests)
+	{
+		if (Quest.QuestID == QuestID)
+		{
+			OutQuest = Quest;
+			return true;
+		}
+	}
+	return false;
+}
+
 void UMBQuestSubsystem::InitQuests()
 {
 	auto TimeSystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
@@ -74,6 +88,17 @@ void UMBQuestSubsystem::InitQuests()
 	}
 	
 	IsInitialized = true;
+
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	TArray<FString> QuestIDs;
+	for (const auto& Quest : Quests)
+	{
+		QuestIDs.Add(Quest.QuestID);
+	}
+	CityBuilderSubsystem->SetNewQuestsForObjects(QuestIDs);
+
+	CityBuilderSubsystem->OnBuildNewObject.AddDynamic(this, &UMBQuestSubsystem::UpdateCityObjectBuildQuests);
 }
 
 void UMBQuestSubsystem::ParseQuests(const FString& JsonString)
@@ -118,8 +143,6 @@ void UMBQuestSubsystem::GenerateNewQuests()
 	{
 		FQuestData NewQuest;
 
-		NewQuest.QuestID = GetTypeHash(&NewQuest);
-
 		NewQuest.QuestType = GenerateTypeForQuest();
 
 		switch (NewQuest.QuestType)
@@ -137,6 +160,8 @@ void UMBQuestSubsystem::GenerateNewQuests()
 					break;
 				}
 		}
+
+		MakeQuestID(NewQuest);
 
 		Quests.Add(NewQuest);
 	}
@@ -298,6 +323,34 @@ bool UMBQuestSubsystem::GetRecommendedQuest(FQuestData& RecommendedQuest)
 	return false;
 }
 
+void UMBQuestSubsystem::MakeQuestID(FQuestData& Quest)
+{
+	FString QuestID;
+
+	switch (Quest.QuestType)
+	{
+	case EQuestType::MergeItems:
+		QuestID = "Merge";
+
+		for (const auto& Item : Quest.RequiredItems)
+		{
+			QuestID += ("_" + UMBUtilityFunctionLibrary::EnumToString("EMergeItemType", (int32)Item.Item.Type));
+			QuestID += FString::FromInt(Item.Item.Level);
+			QuestID += ("_" + FString::FromInt(Item.RequiredNum));
+		}
+		
+		break;
+	case EQuestType::CityObjects:
+		QuestID = "Build_";
+		QuestID += Quest.RequiredObjectName.ToString();
+		QuestID += ("_" + FString::FromInt(Quest.RequiredObjectAmount));
+		
+		break;
+	}
+
+	Quest.QuestID = QuestID;
+}
+
 int32 UMBQuestSubsystem::CalculateHardnessOfRequiredObjects(const TArray<FRequiredItem>& RequiredItems)
 {
 	int32 Hardness = 0;
@@ -319,5 +372,17 @@ int32 UMBQuestSubsystem::CalculateHardnessOfRequiredObjects(const TArray<FRequir
 	}
 
 	return Hardness;
+}
+
+void UMBQuestSubsystem::UpdateCityObjectBuildQuests(FName NewBuildObject)
+{
+	for (auto& Quest : Quests)
+	{
+		if (Quest.QuestType != EQuestType::CityObjects)
+			continue;
+
+		if (Quest.RequiredObjectName == NewBuildObject)
+			Quest.RequiredObjectProgress++;
+	}
 }
 

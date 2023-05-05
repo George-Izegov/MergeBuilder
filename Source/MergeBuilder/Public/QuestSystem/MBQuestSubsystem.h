@@ -4,42 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "MergeSubsystem.h"
+#include "MBQuest.h"
+#include "Utilities/MBCoreTypes.h"
 #include "MBQuestSubsystem.generated.h"
 
-UENUM(BlueprintType)
-enum class EQuestType : uint8
-{
-	MergeItems,
-	CityObjects
-};
-
-USTRUCT(BlueprintType)
-struct FQuestData
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	uint32 QuestID = -1;
-
-	UPROPERTY(BlueprintReadWrite)
-	EQuestType QuestType;
-
-	UPROPERTY(BlueprintReadWrite)
-	TArray<FRequiredItem> RequiredItems;
-
-	UPROPERTY(BlueprintReadWrite)
-	FName RequiredObjectName = NAME_None;
-
-	UPROPERTY(BlueprintReadWrite)
-	int32 RequiredObjectAmount = 1;
-
-	UPROPERTY(BlueprintReadWrite)
-	int32 RewardExperience = 0;
-
-	UPROPERTY(BlueprintReadWrite)
-	TArray<FMergeFieldItem> RewardItems;
-};
 /**
  * 
  */
@@ -56,6 +24,9 @@ public:
 	virtual void Deinitialize() override;
 
 	void SaveQuests();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetQuestByID(const FString& QuestID, FQuestData& OutQuest);
 	
 protected:
 
@@ -66,6 +37,8 @@ protected:
 	void GenerateNewQuests();
 
 	bool GetRecommendedQuest(FQuestData& RecommendedQuest);
+
+	void MakeQuestID(FQuestData& Quest);
 
 	EQuestType GenerateTypeForQuest();
 
@@ -83,6 +56,9 @@ protected:
 	void GenerateMergeItemForQuest(EMergeItemType ItemType, FRequiredItem& OutItem);
 
 	int32 CalculateHardnessOfRequiredObjects(const TArray<FRequiredItem>& RequiredItems);
+
+	UFUNCTION()
+	void UpdateCityObjectBuildQuests(FName NewBuildObject);
 	
 private:
 

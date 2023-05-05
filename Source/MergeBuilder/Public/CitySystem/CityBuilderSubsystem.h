@@ -4,129 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "Engine/DataTable.h"
-#include "MergeSubsystem.h"
+#include "CityObjectsData.h"
+#include "QuestSystem/MBQuest.h"
 #include "CityBuilderSubsystem.generated.h"
 
-USTRUCT(BlueprintType)
-struct FGeneratorSettings
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		FMergeFieldItem GeneratedBox;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		int32 MinutesToRestore;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		int32 RequiredEmployees;
-};
-
-USTRUCT(BlueprintType)
-struct FCityObject
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		FName ObjectName = NAME_None;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		FVector Location = FVector::ZeroVector;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		float Rotation = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		float Scale = 1.0f;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		FDateTime RestoreTime;
-
-	int32 ObjectID = -1;
-};
-
-UENUM(BlueprintType)
-enum class ECityObjectCategory : uint8
-{
-	Other,
-	Buildings,
-	Plants,
-	Infrastructure
-};
-
-// City Rating structure
-USTRUCT(BlueprintType)
-struct FCityRatings
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 Greening = 0;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 Infrastructure = 0;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 Comfort = 0;
-
-	const FCityRatings& operator+=(const FCityRatings& Other)
-	{
-		Greening += Other.Greening;
-		Infrastructure += Other.Infrastructure;
-		Comfort += Other.Comfort;
-		return *this;
-	}
-};
-
-
-USTRUCT(BlueprintType)
-struct FCityObjectData : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		TSoftClassPtr<class AMBBaseCityObjectActor> ObjectClass;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FName NextLevelObjectName;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	bool IsInShop = true;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	bool FitForQuest = true;
-	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		ECityObjectCategory Category;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		TSoftObjectPtr<UTexture2D> Icon;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		FText LocalizedName;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TArray<FRequiredItem> RequiredItems;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 CostInCoins;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	EConsumableParamType CoinsType = EConsumableParamType::SoftCoin;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		bool IsGenerator = false;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FGeneratorSettings GeneratorSettings;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FCityRatings AdditionalRatings;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	int32 AdditionalPopulation = 0;
-};
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateObjects, TArray<int32>, ObjectIDs);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildNewObject, FName, ObjectName);
 /**
  * 
  */
@@ -144,6 +27,8 @@ public:
 	virtual void Deinitialize() override;
 
 	void GetCityObjects(TArray<FCityObject>& OutObjects) { OutObjects = CityObjects; }
+
+	void GetCityObjectsByType(ECityObjectCategory Type, TArray<int32>& OutObjectIDs);
 
 	void AddNewObject(FCityObject& NewObject);
 	void EditObject(const FCityObject& EditedObject);
@@ -172,6 +57,11 @@ public:
 	bool HasGenerator(const FName& ObjectName);
 
 	void GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects);
+
+	void SetNewQuestsForObjects(TArray<FString> NewQuests);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetCityObjectByID(int32 ObjectID, FCityObject& OutObject);
 	
 protected:
 
@@ -197,4 +87,10 @@ public:
 
 	UPROPERTY()
 	UDataTable* CityObjectsDataTable;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUpdateObjects OnQuestsUpdated;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnBuildNewObject OnBuildNewObject;
 };

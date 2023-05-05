@@ -21,6 +21,10 @@ void AMBCityBuilderManager::BeginPlay()
 	Super::BeginPlay();
 	
 	InitializeCity();
+
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	CityBuilderSubsystem->OnQuestsUpdated.AddDynamic(this, &AMBCityBuilderManager::UpdateQuestsForObjects);
 }
 
 void AMBCityBuilderManager::InitializeCity()
@@ -185,6 +189,24 @@ void AMBCityBuilderManager::MergeObjects(AMBBaseCityObjectActor* Object1, AMBBas
 	auto NextLevelObject = SpawnNewObject(NextLevelObjectName);
 	NextLevelObject->SetActorLocation(Object2->GetActorLocation());
 	NextLevelObject->SetActorRotation(Object2->GetActorRotation());
+}
+
+void AMBCityBuilderManager::UpdateQuestsForObjects(TArray<int32> ObjectIDs)
+{
+	TArray<AActor*> ObjectsToUpdate;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMBBaseCityObjectActor::StaticClass(), ObjectsToUpdate);
+
+	for (auto Actor : ObjectsToUpdate)
+	{
+		AMBBaseCityObjectActor* CityObject = Cast<AMBBaseCityObjectActor>(Actor);
+
+		if (!ObjectIDs.Contains(CityObject->CityObjectData.ObjectID))
+		{
+			continue;
+		}
+
+		CityObject->UpdateQuest();
+	}
 }
 
 // Called every frame
