@@ -9,6 +9,7 @@
 #include "CitySystem/CityBuilderSubsystem.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "CitySystem/CityBuilderSubsystem.h"
+#include "User/AccountSubsystem.h"
 
 UMBQuestSubsystem::UMBQuestSubsystem()
 {
@@ -72,33 +73,92 @@ bool UMBQuestSubsystem::GetQuestByID(const FString& QuestID, FQuestData& OutQues
 	return false;
 }
 
+bool UMBQuestSubsystem::CheckQuestRequirements(const FQuestData& Quest)
+{
+	switch (Quest.QuestType)
+	{
+	case EQuestType::CityObjects:
+		return Quest.RequiredObjectProgress >= Quest.RequiredObjectAmount;
+	case EQuestType::MergeItems:
+		for (const auto& Item : Quest.RequiredItems)
+		{
+			auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+			int32 ItemsCount = MergeSubsystem->GetItemTotalCount(Item.Item);
+
+			if (ItemsCount < Item.RequiredNum)
+				return false;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void UMBQuestSubsystem::CompleteQuest(const FString& QuestID)
+{
+	FQuestData Quest;
+	if (!GetQuestByID(QuestID, Quest))
+	{
+		check(nullptr);
+	}
+
+	if (!CheckQuestRequirements(Quest))
+		return;
+
+	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+
+	if (Quest.QuestType == EQuestType::MergeItems)
+	{
+		for (const auto& Item : Quest.RequiredItems)
+		{
+			MergeSubsystem->SpendItems(Item.Item, Item.RequiredNum);
+		}
+	}
+	
+	for (const auto& RewardItem : Quest.RewardItems)
+	{
+		MergeSubsystem->AddNewReward(RewardItem);
+	}
+
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+
+	AccountSubsystem->AddExperience(Quest.RewardExperience);
+
+	Quests.Remove(Quest);
+
+	UpdateQuests();
+}
+
+TArray<FString> UMBQuestSubsystem::GetAllQuestIDs()
+{
+	TArray<FString> QuestIDs;
+	for (const auto& Quest : Quests)
+	{
+		QuestIDs.Add(Quest.QuestID);
+	}
+	return QuestIDs;
+}
+
 void UMBQuestSubsystem::InitQuests()
 {
-	auto TimeSystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
-	
 	FString SavedData;
 	if (UMBUtilityFunctionLibrary::ReadFromStorage("Quests", SavedData))
 	{
 		ParseQuests(SavedData);
 	}
 
-	if (TimeSystem->GetUTCNow() > DateTo)
-	{
-		GenerateNewQuests();
-	}
+	CheckRefreshQuestsTimer();
 	
 	IsInitialized = true;
 
 	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
-
-	TArray<FString> QuestIDs;
-	for (const auto& Quest : Quests)
-	{
-		QuestIDs.Add(Quest.QuestID);
-	}
-	CityBuilderSubsystem->SetNewQuestsForObjects(QuestIDs);
+	
+	CityBuilderSubsystem->SetNewQuestsForObjects(GetAllQuestIDs());
 
 	CityBuilderSubsystem->OnBuildNewObject.AddDynamic(this, &UMBQuestSubsystem::UpdateCityObjectBuildQuests);
+
+	GetWorld()->GetTimerManager().SetTimer(QuestRefreshTimerHandle, this, &UMBQuestSubsystem::CheckRefreshQuestsTimer, 1.0f, true);
 }
 
 void UMBQuestSubsystem::ParseQuests(const FString& JsonString)
@@ -384,5 +444,38 @@ void UMBQuestSubsystem::UpdateCityObjectBuildQuests(FName NewBuildObject)
 		if (Quest.RequiredObjectName == NewBuildObject)
 			Quest.RequiredObjectProgress++;
 	}
+	
+	UpdateQuests();
 }
 
+void UMBQuestSubsystem::CheckRefreshQuestsTimer()
+{
+	auto TimeSystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
+	
+	if (TimeSystem->GetUTCNow() > DateTo)
+	{
+		GenerateNewQuests();
+
+		UpdateQuests();
+	}
+}
+
+void UMBQuestSubsystem::UpdateQuests()
+{
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+	CityBuilderSubsystem->SetNewQuestsForObjects(GetAllQuestIDs());
+}
+
+void UMBQuestSubsystem::GenerateNewQuestsForPrem()
+{
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+
+	if (AccountSubsystem->GetPremCoins() < QuestRefreshPremPrice)
+		return;
+
+	AccountSubsystem->SpendPremCoins(QuestRefreshPremPrice);
+
+	GenerateNewQuests();
+
+	UpdateQuests();
+}

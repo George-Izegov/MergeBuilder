@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "MBQuest.h"
-#include "Utilities/MBCoreTypes.h"
 #include "MBQuestSubsystem.generated.h"
 
 /**
@@ -27,13 +26,27 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool GetQuestByID(const FString& QuestID, FQuestData& OutQuest);
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckQuestRequirements(const FQuestData& Quest);
+
+	UFUNCTION(BlueprintCallable)
+	void CompleteQuest(const FString& QuestID);
+
+	TArray<FString> GetAllQuestIDs();
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateQuests();
+
+	UFUNCTION(BlueprintCallable)
+	void GenerateNewQuestsForPrem();
 	
 protected:
 
 	void InitQuests();
 
 	void ParseQuests(const FString& JsonString);
-
+	
 	void GenerateNewQuests();
 
 	bool GetRecommendedQuest(FQuestData& RecommendedQuest);
@@ -59,6 +72,8 @@ protected:
 
 	UFUNCTION()
 	void UpdateCityObjectBuildQuests(FName NewBuildObject);
+
+	void CheckRefreshQuestsTimer();
 	
 private:
 
@@ -76,4 +91,7 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	FDateTime DateTo;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 QuestRefreshPremPrice = 15;
 };

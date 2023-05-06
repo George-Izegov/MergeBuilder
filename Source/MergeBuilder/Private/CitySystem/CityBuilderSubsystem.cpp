@@ -2,8 +2,6 @@
 
 
 #include "CitySystem/CityBuilderSubsystem.h"
-
-#include "AssetViewUtils.h"
 #include "MBUtilityFunctionLibrary.h"
 #include "JsonObjectConverter.h"
 #include "TimeSubsystem.h"
@@ -296,11 +294,12 @@ void UCityBuilderSubsystem::SetNewQuestsForObjects(TArray<FString> NewQuests)
 		if (ObjectIDs.Num() == 0)
 			break;
 		
-		int32 RandomObjectID = FMath::RandRange(0, ObjectIDs.Num() - 1);
-		
-		CityObjects[ObjectIDs[RandomObjectID]].QuestID = NewQuest;
-		UpdatedObjectIDs.Add(RandomObjectID);
-		ObjectIDs.RemoveAt(RandomObjectID);
+		int32 RandomID = FMath::RandRange(0, ObjectIDs.Num() - 1);
+
+		int32 ObjectID = ObjectIDs[RandomID];
+		CityObjects[ObjectID].QuestID = NewQuest;
+		UpdatedObjectIDs.Add(ObjectID);
+		ObjectIDs.RemoveAt(RandomID);
 	}
 
 	OnQuestsUpdated.Broadcast(UpdatedObjectIDs);
