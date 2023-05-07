@@ -252,19 +252,6 @@ bool UCityBuilderSubsystem::HasGenerator(const FName& ObjectName)
 	return false;
 }
 
-void UCityBuilderSubsystem::GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects)
-{
-	TMap<FName, uint8*> RowsMap = CityObjectsDataTable->GetRowMap();
-
-	for (const auto& Row : RowsMap)
-	{
-		auto RowData = (FCityObjectData*)Row.Value;
-
-		if (RowData->FitForQuest)
-			OutObjects.Add(Row.Key, RowData);
-	}
-}
-
 void UCityBuilderSubsystem::SetNewQuestsForObjects(TArray<FString> NewQuests)
 {
 	TArray<int32> UpdatedObjectIDs;
@@ -312,6 +299,27 @@ bool UCityBuilderSubsystem::GetCityObjectByID(int32 ObjectID, FCityObject& OutOb
 
 	OutObject = CityObjects[ObjectID];
 	return true;
+}
+
+void UCityBuilderSubsystem::SkipTimerForObject(int32 ObjectID)
+{
+	if (ObjectID < 0 || ObjectID >= CityObjects.Num())
+		return;
+
+	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+	auto TimeSubsystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
+
+	FTimespan TotalTime = FTimespan::FromHours(TimerBaseDurationInHours);
+	FTimespan RemainTime = CityObjects[ObjectID].RestoreTime - TimeSubsystem->GetUTCNow();
+	
+	int32 Price = UMBUtilityFunctionLibrary::GetSkipTimerPrice(TotalTime, RemainTime, SkipTimerPrice);
+
+	if (AccountSubsystem->GetPremCoins() < Price)
+		return;
+
+	AccountSubsystem->SpendPremCoins(Price);
+
+	CityObjects[ObjectID].RestoreTime = TimeSubsystem->GetUTCNow();
 }
 
 void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName)

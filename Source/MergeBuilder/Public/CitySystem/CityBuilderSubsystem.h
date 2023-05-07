@@ -56,12 +56,13 @@ public:
 
 	bool HasGenerator(const FName& ObjectName);
 
-	void GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects);
-
 	void SetNewQuestsForObjects(TArray<FString> NewQuests);
 
 	UFUNCTION(BlueprintCallable)
 	bool GetCityObjectByID(int32 ObjectID, FCityObject& OutObject);
+
+	UFUNCTION(BlueprintCallable)
+	void SkipTimerForObject(int32 ObjectID);
 	
 protected:
 
@@ -82,6 +83,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	FCityRatings CityRating;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 SkipTimerPrice = 15;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 TimerBaseDurationInHours = 1;
 
 public:
 

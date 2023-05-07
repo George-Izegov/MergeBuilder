@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "MBQuest.h"
+#include "CitySystem/CityObjectsData.h"
 #include "MBQuestSubsystem.generated.h"
 
 /**
@@ -74,6 +75,10 @@ protected:
 	void UpdateCityObjectBuildQuests(FName NewBuildObject);
 
 	void CheckRefreshQuestsTimer();
+
+	void GetPossibleItemTypes(TArray<EMergeItemType>& OutItemTypes);
+
+	void GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects);
 	
 private:
 
@@ -87,11 +92,12 @@ protected:
 
 	TArray<FQuestData> Quests;
 
+	UPROPERTY(BlueprintReadOnly)
 	int32 RefreshHours = 4;
 	
 	UPROPERTY(BlueprintReadOnly)
 	FDateTime DateTo;
 
 	UPROPERTY(BlueprintReadOnly)
-	int32 QuestRefreshPremPrice = 15;
+	int32 QuestRefreshPremPrice = 30;
 };

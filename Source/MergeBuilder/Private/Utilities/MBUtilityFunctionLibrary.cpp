@@ -83,3 +83,15 @@ bool UMBUtilityFunctionLibrary::IsMergeItemMaxLevel(const FMergeFieldItem& Item)
 
 	return Row->ItemsChain.Num() == Item.Level;
 }
+
+int32 UMBUtilityFunctionLibrary::GetSkipTimerPrice(const FTimespan& TotalTime, const FTimespan& RemainTime,
+	int32 TotalPrice)
+{
+	int32 TotalSeconds = TotalTime.GetTotalSeconds();
+	int32 RemainSeconds = RemainTime.GetTotalSeconds();
+
+	int32 Price = TotalPrice * RemainSeconds / TotalSeconds;
+	Price = FMath::Max(1, Price);
+
+	return Price;
+}

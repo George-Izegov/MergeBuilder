@@ -211,8 +211,9 @@ bool UAccountSubsystem::GetRemainTimeToRestoreEnergy(int32& RemainTimeMinutes, i
 
 	float TotalRemainSeconds = GetWorld()->GetTimerManager().GetTimerRemaining(EnergyRestoreTimerHandle);
 
-	RemainTimeMinutes = TotalRemainSeconds / 60;
-	RemainTimeSeconds = FMath::CeilToInt(TotalRemainSeconds - RemainTimeMinutes * 60);
+	FTimespan RemainTimespan = FTimespan::FromSeconds(TotalRemainSeconds);
+	RemainTimeMinutes = RemainTimespan.GetMinutes();
+	RemainTimeSeconds = RemainTimespan.GetSeconds();
 
 	return true;
 }

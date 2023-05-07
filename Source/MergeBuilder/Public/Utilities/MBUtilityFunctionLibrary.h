@@ -35,4 +35,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static bool IsMergeItemMaxLevel(const FMergeFieldItem& Item);
+
+	UFUNCTION(BlueprintCallable)
+	static int32 GetSkipTimerPrice(const FTimespan& TotalTime, const FTimespan& RemainTime, int32 TotalPrice);
 };

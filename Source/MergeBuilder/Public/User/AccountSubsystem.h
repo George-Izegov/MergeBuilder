@@ -50,7 +50,7 @@ protected:
 	int32 MaxEnergy = 100;
 
 	UPROPERTY(BlueprintReadOnly)
-	int32 SecondsToRestoreEnergy = 90;
+	int32 SecondsToRestoreEnergy = 120;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool InfiniteEnergy = false;

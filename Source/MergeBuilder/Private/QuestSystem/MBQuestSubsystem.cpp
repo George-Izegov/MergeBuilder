@@ -248,20 +248,9 @@ int32 UMBQuestSubsystem::GenerateQuestCount()
 
 void UMBQuestSubsystem::GenerateRequiredMergeItemsForQuest(TArray<FRequiredItem>& RequiredItems)
 {
-	auto CitySubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
-
 	TArray<EMergeItemType> PossibleItemTypes;
 
-	PossibleItemTypes.Add(EMergeItemType::Tools);
-	
-	if (CitySubsystem->HasGenerator(FName("Mine")))
-		PossibleItemTypes.Add(EMergeItemType::Stones);
-
-	if (CitySubsystem->HasGenerator(FName("LumberFactory")))
-		PossibleItemTypes.Add(EMergeItemType::Lumber);
-
-	if (CitySubsystem->HasGenerator(FName("MetalFactory")))
-		PossibleItemTypes.Add(EMergeItemType::Metal);
+	GetPossibleItemTypes(PossibleItemTypes);
 
 	int32 RandomIndex = UKismetMathLibrary::RandomIntegerInRange(0, PossibleItemTypes.Num() - 1);
 	FRequiredItem FirstItem;
@@ -286,10 +275,8 @@ void UMBQuestSubsystem::GenerateRequiredMergeItemsForQuest(TArray<FRequiredItem>
 
 void UMBQuestSubsystem::GenerateRequiredCityObjectForQuest(FName& RequiredObjectName, int32& RequiredObjectAmount)
 {
-	auto CitySubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
-
 	TMap<FName, FCityObjectData*> QuestObjects;
-	CitySubsystem->GetQuestObjects(QuestObjects);
+	GetQuestObjects(QuestObjects);
 
 	int32 RandomIndex = UKismetMathLibrary::RandomIntegerInRange(0, QuestObjects.Num() - 1);
 
@@ -460,6 +447,22 @@ void UMBQuestSubsystem::CheckRefreshQuestsTimer()
 	}
 }
 
+void UMBQuestSubsystem::GetPossibleItemTypes(TArray<EMergeItemType>& OutItemTypes)
+{
+	auto CitySubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	OutItemTypes.Add(EMergeItemType::Tools);
+	
+	if (CitySubsystem->HasGenerator(FName("Mine")))
+		OutItemTypes.Add(EMergeItemType::Stones);
+
+	if (CitySubsystem->HasGenerator(FName("LumberFactory")))
+		OutItemTypes.Add(EMergeItemType::Lumber);
+
+	if (CitySubsystem->HasGenerator(FName("MetalFactory")))
+		OutItemTypes.Add(EMergeItemType::Metal);
+}
+
 void UMBQuestSubsystem::UpdateQuests()
 {
 	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
@@ -469,13 +472,52 @@ void UMBQuestSubsystem::UpdateQuests()
 void UMBQuestSubsystem::GenerateNewQuestsForPrem()
 {
 	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
+	auto TimeSubsystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
 
-	if (AccountSubsystem->GetPremCoins() < QuestRefreshPremPrice)
+	FTimespan TotalTime = FTimespan::FromHours(RefreshHours);
+	FTimespan RemainTime = DateTo - TimeSubsystem->GetUTCNow();
+	
+	int32 Price = UMBUtilityFunctionLibrary::GetSkipTimerPrice(TotalTime, RemainTime, QuestRefreshPremPrice);
+
+	if (AccountSubsystem->GetPremCoins() < Price)
 		return;
 
-	AccountSubsystem->SpendPremCoins(QuestRefreshPremPrice);
+	AccountSubsystem->SpendPremCoins(Price);
 
 	GenerateNewQuests();
 
 	UpdateQuests();
+}
+
+void UMBQuestSubsystem::GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects)
+{
+	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+	
+	TMap<FName, uint8*> RowsMap = CityBuilderSubsystem->CityObjectsDataTable->GetRowMap();
+
+	TArray<EMergeItemType> PossibleItemTypes;
+	GetPossibleItemTypes(PossibleItemTypes);
+
+	for (const auto& Row : RowsMap)
+	{
+		auto RowData = (FCityObjectData*)Row.Value;
+
+		if (!RowData->FitForQuest)
+			continue;
+
+		bool IsPossible = true;
+		for (const auto& Item : RowData->RequiredItems)
+		{
+			if (!PossibleItemTypes.Contains(Item.Item.Type))
+			{
+				IsPossible = false;
+				break;
+			}
+		}
+
+		if (!IsPossible)
+			continue;
+		
+		OutObjects.Add(Row.Key, RowData);
+	}
 }
