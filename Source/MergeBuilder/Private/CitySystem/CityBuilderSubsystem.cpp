@@ -319,7 +319,7 @@ void UCityBuilderSubsystem::SkipTimerForObject(int32 ObjectID)
 
 	AccountSubsystem->SpendPremCoins(Price);
 
-	CityObjects[ObjectID].RestoreTime = TimeSubsystem->GetUTCNow();
+	CityObjects[ObjectID].RestoreTime = TimeSubsystem->GetUTCNow() - FTimespan::FromSeconds(1);
 }
 
 void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName)

@@ -58,7 +58,7 @@ public:
 
 	void SetNewQuestsForObjects(TArray<FString> NewQuests);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	bool GetCityObjectByID(int32 ObjectID, FCityObject& OutObject);
 
 	UFUNCTION(BlueprintCallable)
