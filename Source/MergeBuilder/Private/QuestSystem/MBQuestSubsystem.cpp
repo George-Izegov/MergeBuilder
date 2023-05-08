@@ -159,6 +159,9 @@ void UMBQuestSubsystem::InitQuests()
 	CityBuilderSubsystem->OnBuildNewObject.AddDynamic(this, &UMBQuestSubsystem::UpdateCityObjectBuildQuests);
 
 	GetWorld()->GetTimerManager().SetTimer(QuestRefreshTimerHandle, this, &UMBQuestSubsystem::CheckRefreshQuestsTimer, 1.0f, true);
+
+	auto TimeSubsystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
+	TimeSubsystem->OnTimeSuccessRequested.Remove(OnGetTimeDelegateHandle);
 }
 
 void UMBQuestSubsystem::ParseQuests(const FString& JsonString)
@@ -367,6 +370,83 @@ void UMBQuestSubsystem::GenerateMergeItemForQuest(EMergeItemType ItemType, FRequ
 
 bool UMBQuestSubsystem::GetRecommendedQuest(FQuestData& RecommendedQuest)
 {
+	auto CitySubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+
+	if (!CitySubsystem->HasGenerator("Mine"))
+	{
+		RecommendedQuest.QuestType = EQuestType::CityObjects;
+		RecommendedQuest.RequiredObjectName = FName("Mine");
+		RecommendedQuest.RequiredObjectAmount = 1;
+
+		RecommendedQuest.RewardExperience = 150;
+
+		FMergeFieldItem SoftCoins;
+		SoftCoins.Type = EMergeItemType::SoftCoinBox;
+		SoftCoins.Level = 1;
+		SoftCoins.RemainItemsToSpawn = 20;
+		
+		RecommendedQuest.RewardItems.Add(SoftCoins);
+
+		FMergeFieldItem PremCoins;
+		PremCoins.Type = EMergeItemType::PremCoins;
+		PremCoins.Level = 2;
+
+		RecommendedQuest.RewardItems.Add(PremCoins);
+		MakeQuestID(RecommendedQuest);
+		
+		return true;
+	}
+
+	if (!CitySubsystem->HasGenerator("LumberPlant"))
+	{
+		RecommendedQuest.QuestType = EQuestType::CityObjects;
+		RecommendedQuest.RequiredObjectName = FName("LumberPlant");
+		RecommendedQuest.RequiredObjectAmount = 1;
+
+		RecommendedQuest.RewardExperience = 200;
+
+		FMergeFieldItem SoftCoins;
+		SoftCoins.Type = EMergeItemType::SoftCoinBox;
+		SoftCoins.Level = 1;
+		SoftCoins.RemainItemsToSpawn = 20;
+		
+		RecommendedQuest.RewardItems.Add(SoftCoins);
+
+		FMergeFieldItem PremCoins;
+		PremCoins.Type = EMergeItemType::PremCoins;
+		PremCoins.Level = 2;
+
+		RecommendedQuest.RewardItems.Add(PremCoins);
+		MakeQuestID(RecommendedQuest);
+		
+		return true;
+	}
+
+	if (!CitySubsystem->HasGenerator("MetalPlant"))
+	{
+		RecommendedQuest.QuestType = EQuestType::CityObjects;
+		RecommendedQuest.RequiredObjectName = FName("MetalPlant");
+		RecommendedQuest.RequiredObjectAmount = 1;
+
+		RecommendedQuest.RewardExperience = 250;
+
+		FMergeFieldItem SoftCoins;
+		SoftCoins.Type = EMergeItemType::SoftCoinBox;
+		SoftCoins.Level = 1;
+		SoftCoins.RemainItemsToSpawn = 20;
+		
+		RecommendedQuest.RewardItems.Add(SoftCoins);
+
+		FMergeFieldItem PremCoins;
+		PremCoins.Type = EMergeItemType::PremCoins;
+		PremCoins.Level = 3;
+
+		RecommendedQuest.RewardItems.Add(PremCoins);
+		MakeQuestID(RecommendedQuest);
+		
+		return true;
+	}
+	
 	return false;
 }
 
@@ -467,6 +547,8 @@ void UMBQuestSubsystem::UpdateQuests()
 {
 	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
 	CityBuilderSubsystem->SetNewQuestsForObjects(GetAllQuestIDs());
+
+	SaveQuests();
 }
 
 void UMBQuestSubsystem::GenerateNewQuestsForPrem()

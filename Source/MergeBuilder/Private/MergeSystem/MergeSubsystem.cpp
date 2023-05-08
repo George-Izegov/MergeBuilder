@@ -430,6 +430,8 @@ void UMergeSubsystem::AddNewReward(const FMergeFieldItem& NewRewardItem)
 {
 	RewardsQueue.Add(NewRewardItem);
 
+	SaveField();
+
 	OnGetReward.Broadcast();
 }
 

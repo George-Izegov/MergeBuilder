@@ -181,6 +181,8 @@ bool UAccountSubsystem::SpendEnergy(int32 EnergyToSpend)
 	if (!GetWorld()->GetTimerManager().IsTimerActive(EnergyRestoreTimerHandle))
 		StartRestoreEnergy();
 
+	SaveAccount();
+
 	return true;
 }
 
@@ -192,6 +194,8 @@ void UAccountSubsystem::SpendSoftCoins(int32 CoinsToSpend)
 	CoinsToSpend = FMath::Min(CoinsToSpend, SoftCoins);
 
 	SoftCoins -= CoinsToSpend;
+
+	SaveAccount();
 }
 
 void UAccountSubsystem::SpendPremCoins(int32 CoinsToSpend)
@@ -202,6 +206,8 @@ void UAccountSubsystem::SpendPremCoins(int32 CoinsToSpend)
 	CoinsToSpend = FMath::Min(CoinsToSpend, PremCoins);
 
 	PremCoins -= CoinsToSpend;
+
+	SaveAccount();
 }
 
 bool UAccountSubsystem::GetRemainTimeToRestoreEnergy(int32& RemainTimeMinutes, int32& RemainTimeSeconds)
@@ -235,6 +241,8 @@ void UAccountSubsystem::AddExperience(int32 DeltaExperience)
 		LevelUp();
 		RemainDeltaExp -= RemainExperienceToLvlUp;
 	}
+
+	SaveAccount();
 }
 
 void UAccountSubsystem::AddSoftCoins(int32 DeltaCoins)
@@ -245,6 +253,8 @@ void UAccountSubsystem::AddSoftCoins(int32 DeltaCoins)
 	SoftCoins += DeltaCoins;
 
 	OnGetSoftCoins.Broadcast(DeltaCoins);
+
+	SaveAccount();
 }
 
 void UAccountSubsystem::AddPremCoins(int32 DeltaCoins)
@@ -255,6 +265,8 @@ void UAccountSubsystem::AddPremCoins(int32 DeltaCoins)
 	PremCoins += DeltaCoins;
 
 	OnGetPremCoins.Broadcast(DeltaCoins);
+
+	SaveAccount();
 }
 
 void UAccountSubsystem::AddEnergy(int32 DeltaEnergy)
@@ -267,6 +279,8 @@ void UAccountSubsystem::AddEnergy(int32 DeltaEnergy)
 	}
 
 	OnGetEnergy.Broadcast(DeltaEnergy);
+
+	SaveAccount();
 }
 
 void UAccountSubsystem::LevelUp()
@@ -282,4 +296,6 @@ void UAccountSubsystem::LevelUp()
 	}
 
 	OnGetNewLevel.Broadcast();
+
+	SaveAccount();
 }

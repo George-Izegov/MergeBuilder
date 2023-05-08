@@ -152,6 +152,8 @@ void AMBCityBuilderManager::AcceptEditObject()
 
 	EditedObject->Deselect();
 	EditedObject = nullptr;
+
+	CityBuilderSubsystem->SaveCity();
 }
 
 void AMBCityBuilderManager::RemoveCityObject(AMBBaseCityObjectActor* ObjectToRemove)
@@ -166,6 +168,8 @@ void AMBCityBuilderManager::CollectRewardFromCityObject(AMBBaseCityObjectActor* 
 {
 	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
 	CityBuilderSubsystem->CollectFromObject(CityObject->CityObjectData);
+
+	CityBuilderSubsystem->SaveCity();
 }
 
 void AMBCityBuilderManager::MergeObjects(AMBBaseCityObjectActor* Object1, AMBBaseCityObjectActor* Object2)

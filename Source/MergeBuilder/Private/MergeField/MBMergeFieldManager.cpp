@@ -103,6 +103,9 @@ void AMBMergeFieldManager::SellItem(AMBBaseMergeItemActor* ItemToSell)
 	
 	DestroyItem(ItemToSell->FieldIndex);
 	DeselectCurrentIndex();
+
+	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+	MergeSubsystem->SaveField();
 }
 
 AMBBaseMergeItemActor* AMBMergeFieldManager::SpawnItemAtIndex(const FMergeFieldItem& Item, const FIntPoint& Index)
@@ -308,6 +311,9 @@ void AMBMergeFieldManager::HandleClickOnIndex(const FIntPoint& Index)
 		if (ItemAtIndex)
 		{
 			ItemAtIndex->HandleInteraction();
+
+			auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
+			MergeSubsystem->SaveField();
 		}
 		else
 		{
@@ -339,6 +345,8 @@ void AMBMergeFieldManager::HandleClickOnReward()
 	MergeSystem->RemoveFirstReward();
 
 	InitRewardItem();
+
+	MergeSystem->SaveField();
 }
 
 void AMBMergeFieldManager::StartDrag()
