@@ -12,12 +12,21 @@
 
 UMBGameInstance::UMBGameInstance()
 {
+	static ConstructorHelpers::FClassFinder<UShopSubsystem> ShopSubsystemClass(TEXT("DataTable'/Game/Development/Logic/Utilities/BP_ShopSubsystem.BP_ShopSubsystem_C'"));
+	if (ShopSubsystemClass.Succeeded())
+	{
+		ShopSubsystem = NewObject<UShopSubsystem>(this, ShopSubsystemClass.Class, FName("ShopSubsystem"));
+	}
+	
+	check(ShopSubsystem);
 }
 
 void UMBGameInstance::Init()
 {
 	Super::Init();
 
+	ShopSubsystem->Init();
+	
 	ApplicationWillEnterBackgroundDelegate.AddDynamic(this, &UMBGameInstance::SaveAllData);
 	
 	auto TimeSubsystem = GetSubsystem<UTimeSubsystem>();
