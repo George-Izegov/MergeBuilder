@@ -65,6 +65,10 @@ public:
 
 	void Init();
 
+	UFUNCTION(BlueprintCallable)
+	void GetStorePriceText(const FString& ProductID, FText& PriceText);
+
+	bool GetGooglePlayOfferInfo(const FString& ProductID, FOnlineProxyStoreOffer& OfferInfo);
 protected:
 
 	UFUNCTION(BlueprintImplementableEvent)

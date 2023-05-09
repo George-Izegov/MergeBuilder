@@ -21,6 +21,38 @@ void UShopSubsystem::Init()
 	RequestStoreProductsInfo();
 }
 
+void UShopSubsystem::GetStorePriceText(const FString& ProductID, FText& PriceText)
+{
+	PriceText = FText::FromString("---");
+
+#if PLATFORM_IOS
+
+#endif
+
+#if PLATFORM_ANDROID
+	FOnlineProxyStoreOffer GooglePlayOffer;
+	if (!GetGooglePlayOfferInfo(ProductID, GooglePlayOffer))
+		return;
+
+	PriceText = GooglePlayOffer.PriceText;
+#endif
+	
+}
+
+bool UShopSubsystem::GetGooglePlayOfferInfo(const FString& ProductID, FOnlineProxyStoreOffer& OfferInfo)
+{
+	for (const FOnlineProxyStoreOffer& Offer : GooglePlayOffers)
+	{
+		if (Offer.OfferId == ProductID)
+		{
+			OfferInfo = Offer;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool UShopSubsystem::MakeInternalPurchase(const FString& ProductID)
 {
 	auto Row = ProductsDataTable->FindRow<FProduct>(FName(ProductID),"");
