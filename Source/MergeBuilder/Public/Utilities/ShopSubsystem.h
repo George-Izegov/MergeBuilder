@@ -33,6 +33,10 @@ struct FProduct : public FTableRowBase
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	bool IsFreeForAd = false;
 
+	// -1 means unlimited
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	int32 PurchaseLimit = -1;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TSoftObjectPtr<UTexture2D> Icon;
 
@@ -47,6 +51,26 @@ struct FProduct : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int32 RewardAmount = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FPurchaseHistory
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	FString ProductID;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 PurchaseLimit = -1;
+
+	UPROPERTY(BlueprintReadOnly)
+	FDateTime LastPurchaseDate;
+
+	bool operator==(const FPurchaseHistory& Other) const
+	{
+		return ProductID.Equals(Other.ProductID);
+	}
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPurchaseResult, const FString&, ProductID);
@@ -69,7 +93,19 @@ public:
 	void GetStorePriceText(const FString& ProductID, FText& PriceText);
 
 	bool GetGooglePlayOfferInfo(const FString& ProductID, FOnlineProxyStoreOffer& OfferInfo);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsProductAvailable(const FString& ProductID);
+
+	bool GetProductHistory(const FString& ProductID, FPurchaseHistory& History);
+
+	void DecrementPurchaseLimit(const FString& ProductID);
+	
 protected:
+
+	void ParseHistory();
+
+	void SaveHistory();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void RequestStoreProductsInfo();
@@ -113,4 +149,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FOnlineProxyStoreOffer> GooglePlayOffers;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FPurchaseHistory> ProductsHistory;
 };
