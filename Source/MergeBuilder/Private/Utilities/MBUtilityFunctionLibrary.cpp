@@ -2,9 +2,16 @@
 
 
 #include "Utilities/MBUtilityFunctionLibrary.h"
-
 #include "Kismet/GameplayStatics.h"
 #include "Misc/FileHelper.h"
+
+#if PLATFORM_ANDROID
+#include "Android/AndroidPlatformMisc.h"
+#endif
+
+#if PLATFORM_IOS
+#include "IOS/IOSPlatformMisc.h"
+#endif
 
 bool UMBUtilityFunctionLibrary::ReadFromStorage(const FString& StorageName, FString& OutData)
 {
@@ -94,4 +101,17 @@ int32 UMBUtilityFunctionLibrary::GetSkipTimerPrice(const FTimespan& TotalTime, c
 	Price = FMath::Max(1, Price);
 
 	return Price;
+}
+
+FString UMBUtilityFunctionLibrary::GetDeviceID()
+{
+#if PLATFORM_ANDROID
+	return FAndroidMisc::GetDeviceId();
+#endif
+
+#if PLATFORM_IOS
+	return FIOSPlatformMisc::GetDeviceId();
+#endif
+
+	return "DefaultID";
 }

@@ -210,6 +210,10 @@
 		{
 			"Name": "Niagara",
 			"Enabled": true
+		},
+		{
+			"Name": "PsIronSource",
+			"Enabled": true
 		}
 	]
 }

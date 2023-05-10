@@ -1,0 +1,322 @@
+// Copyright 2015-2022 MY.GAMES. All Rights Reserved.
+
+#include "PsIronSource_iOS.h"
+
+UPsIronSource_iOS::UPsIronSource_iOS(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+#if WITH_IRONSOURCE && PLATFORM_IOS
+
+#include "PsIronSourceDefines.h"
+#include "PsIronSourceSettings.h"
+
+@implementation PSISDelegate
+// This method lets you know whether or not there is a video
+// ready to be presented. It is only after this method is invoked
+// with 'hasAvailableAds' set to 'YES' that you can should 'showRV'.
+- (void)rewardedVideoHasChangedAvailability:(BOOL)available
+{
+	NSLog(@"%s %d", __PRETTY_FUNCTION__, available);
+
+	AsyncTask(ENamedThreads::GameThread, [self, available]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			if (available)
+			{
+				self.PluginDelegate->Broadcast(7);
+			}
+			else
+			{
+				self.PluginDelegate->Broadcast(8);
+			}
+		}
+	});
+}
+
+// This method gets invoked after the user has been rewarded.
+- (void)didReceiveRewardForPlacement:(ISPlacementInfo*)placementInfo
+{
+	NSLog(@"%s", __PRETTY_FUNCTION__);
+
+	AsyncTask(ENamedThreads::GameThread, [self]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			self.PluginDelegate->Broadcast(0);
+		}
+	});
+}
+
+// This method gets invoked when there is a problem playing the video.
+// If it does happen, check out 'error' for more information and consult
+// our knowledge center for help.
+- (void)rewardedVideoDidFailToShowWithError:(NSError*)error
+{
+	NSLog(@"%s %@", __PRETTY_FUNCTION__, error.localizedDescription);
+
+	AsyncTask(ENamedThreads::GameThread, [self]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			self.PluginDelegate->Broadcast(1);
+		}
+	});
+}
+
+// This method gets invoked when we take control, but before
+// the video has started playing.
+- (void)rewardedVideoDidOpen
+{
+	NSLog(@"%s", __PRETTY_FUNCTION__);
+
+	AsyncTask(ENamedThreads::GameThread, [self]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			self.PluginDelegate->Broadcast(2);
+		}
+	});
+}
+
+// This method gets invoked when we return control back to your hands.
+- (void)rewardedVideoDidClose
+{
+	NSLog(@"%s", __PRETTY_FUNCTION__);
+
+	AsyncTask(ENamedThreads::GameThread, [self]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			self.PluginDelegate->Broadcast(3);
+		}
+	});
+}
+
+// This method gets invoked when the video has started playing.
+// Note: the events DidStart & DidEnd below are not available for all supported rewarded video ad networks. Check which events are available per ad network you choose
+// to include in your build.
+// We recommend only using events which register to ALL ad networks you //include in your build.
+- (void)rewardedVideoDidStart
+{
+	NSLog(@"%s", __PRETTY_FUNCTION__);
+
+	AsyncTask(ENamedThreads::GameThread, [self]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			self.PluginDelegate->Broadcast(4);
+		}
+	});
+}
+
+// This method gets invoked when the video has stopped playing.
+- (void)rewardedVideoDidEnd
+{
+	NSLog(@"%s", __PRETTY_FUNCTION__);
+
+	AsyncTask(ENamedThreads::GameThread, [self]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			self.PluginDelegate->Broadcast(5);
+		}
+	});
+}
+
+// Called after a video has been clicked.
+- (void)didClickRewardedVideo:(ISPlacementInfo*)placementInfo
+{
+	NSLog(@"%s", __PRETTY_FUNCTION__);
+
+	AsyncTask(ENamedThreads::GameThread, [self]() {
+		if (self.PluginDelegate != nullptr)
+		{
+			self.PluginDelegate->Broadcast(6);
+		}
+	});
+}
+
+@end
+
+@implementation PSISLogDelegate
+
+- (void)sendLog:(NSString*)log level:(ISLogLevel)level tag:(LogTag)tag
+{
+	NSLog(@"%@", log);
+}
+
+@end
+
+@implementation PSISImpressionDataDelegate
+
+// Called after an impression
+- (void)impressionDataDidSucceed:(ISImpressionData*)impressionData
+{
+	NSLog(@"%s", __PRETTY_FUNCTION__);
+
+	FPsIronSourceImpressionData Data;
+	if (impressionData != nil)
+	{
+		Data.AuctionId = FString(impressionData.auction_id);
+		Data.AdUnit = FString(impressionData.ad_unit);
+		Data.AdNetwork = FString(impressionData.ad_network);
+		Data.InstanceName = FString(impressionData.instance_name);
+		Data.InstanceId = FString(impressionData.instance_id);
+		Data.Country = FString(impressionData.country);
+		Data.Placement = FString(impressionData.placement);
+		Data.Revenue = [impressionData.revenue floatValue];
+		Data.Precision = FString(impressionData.precision);
+		Data.Ab = FString(impressionData.ab);
+		Data.SegmentName = FString(impressionData.segment_name);
+		Data.LifetimeRevenue = [impressionData.lifetime_revenue floatValue];
+		Data.EncryptedCpm = FString(impressionData.encrypted_cpm);
+		Data.ConversionValue = [impressionData.conversion_value floatValue];
+	}
+
+	AsyncTask(ENamedThreads::GameThread, [self, Data]() {
+		if (self.Proxy != nullptr)
+		{
+			self.Proxy->SetImpressionData(Data);
+			self.Proxy->VideoStateDelegate.Broadcast(9);
+		}
+	});
+}
+
+@end
+
+void UPsIronSource_iOS::InitIronSource(const FString& UserId)
+{
+	UE_LOG(LogPsIronSource, Log, TEXT("%s: Initialize IronSource with iOS SDK"), *PS_FUNC_LINE);
+
+	if (bIronSourceInitialized)
+	{
+		UE_LOG(LogPsIronSource, Warning, TEXT("%s: Trying to initialize IronSource when it's already been initialized!"), *PS_FUNC_LINE);
+		return;
+	}
+
+	NSString* UserIdNativeString = UserId.GetNSString();
+	NSString* AppKeyNativeString = GetDefault<UPsIronSourceSettings>()->IronSourceIOSAppKey.GetNSString();
+
+	dispatch_async(dispatch_get_main_queue(), ^{
+	  Delegate = [[PSISDelegate alloc] init];
+	  Delegate.PluginDelegate = &VideoStateDelegate;
+
+	  LogDelegate = [[PSISLogDelegate alloc] init];
+
+	  ImpressionDelegate = [[PSISImpressionDataDelegate alloc] init];
+	  ImpressionDelegate.Proxy = this;
+
+	  [IronSource setLogDelegate:LogDelegate];
+	  [IronSource setRewardedVideoDelegate:Delegate];
+	  [IronSource addImpressionDataDelegate:ImpressionDelegate];
+	  [IronSource setUserId:UserIdNativeString];
+	  [IronSource initWithAppKey:AppKeyNativeString];
+	  [ISIntegrationHelper validateIntegration];
+	});
+
+	bIronSourceInitialized = true;
+}
+
+void UPsIronSource_iOS::ForceUpdateIronSourceUser(const FString& UserId)
+{
+	UE_LOG(LogPsIronSource, Log, TEXT("%s: set new userid for Ironscouce"), *PS_FUNC_LINE);
+
+	if (!bIronSourceInitialized)
+	{
+		UE_LOG(LogPsIronSource, Error, TEXT("%s: Trying to update IronSource userid when it's not yet initialized!"), *PS_FUNC_LINE);
+		return;
+	}
+
+	NSString* UserIdNativeString = UserId.GetNSString();
+
+	dispatch_async(dispatch_get_main_queue(), ^{
+	  [IronSource setDynamicUserId:UserIdNativeString];
+	});
+}
+
+bool UPsIronSource_iOS::HasRewardedVideo() const
+{
+	UE_LOG(LogPsIronSource, Log, TEXT("%s"), *PS_FUNC_LINE);
+	return [IronSource hasRewardedVideo];
+}
+
+FString UPsIronSource_iOS::GetPlacementRewardName(const FString& PlacementName) const
+{
+	UE_LOG(LogPsIronSource, Log, TEXT("%s"), *PS_FUNC_LINE);
+	NSString* PlacementNameNativeString = PlacementName.GetNSString();
+	ISPlacementInfo* Info = [IronSource rewardedVideoPlacementInfo:PlacementNameNativeString];
+	if (Info != nil)
+	{
+		return FString(Info.rewardName);
+	}
+
+	return FString();
+}
+
+FString UPsIronSource_iOS::GetPlacementRewardAmount(const FString& PlacementName) const
+{
+	UE_LOG(LogPsIronSource, Log, TEXT("%s"), *PS_FUNC_LINE);
+	NSString* PlacementNameNativeString = PlacementName.GetNSString();
+	ISPlacementInfo* Info = [IronSource rewardedVideoPlacementInfo:PlacementNameNativeString];
+	if (Info != nil)
+	{
+		return FString(Info.rewardAmount.stringValue);
+	}
+
+	return FString();
+}
+
+bool UPsIronSource_iOS::IsRewardedVideoCappedForPlacement(const FString& PlacementName) const
+{
+	UE_LOG(LogPsIronSource, Log, TEXT("%s"), *PS_FUNC_LINE);
+	NSString* PlacementNameNativeString = PlacementName.GetNSString();
+	return [IronSource isRewardedVideoCappedForPlacement:PlacementNameNativeString];
+}
+
+void UPsIronSource_iOS::ShowRewardedVideo(const FString& PlacementName, const FString& ParamKey, const FString& ParamValue) const
+{
+
+	UWorld* World = GEngine->GameViewport->GetWorld();
+	if (World)
+	{
+		FString LevName = World->GetMapName();
+		LevName.RemoveFromStart(World->StreamingLevelsPrefix);
+
+		UE_LOG(LogPsIronSource, Display, TEXT("Level Name Is %s"), *LevName);
+
+		if (LevName != "Test_HangarMap")
+		{
+			UE_LOG(LogPsIronSource, Error, TEXT("WRONG LEVEL NAME"));
+
+			AsyncTask(ENamedThreads::GameThread, [this]() {
+				if (this != nullptr)
+				{
+					this->VideoStateDelegate.Broadcast(3);
+				}
+			});
+
+			return;
+		}
+	}
+	
+
+	UE_LOG(LogPsIronSource, Log, TEXT("%s"), *PS_FUNC_LINE);
+	NSString* PlacementNameNativeString = PlacementName.GetNSString();
+	NSString* ParamKeyNativeString = ParamKey.GetNSString();
+	NSString* ParamValueNativeString = ParamValue.GetNSString();
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSMutableDictionary * owDic = [[NSMutableDictionary alloc] init];
+		owDic[@"type"] = PlacementNameNativeString;
+	    owDic[ParamKeyNativeString] = ParamValueNativeString;
+		[IronSource clearRewardedVideoServerParameters];
+	    [IronSource setRewardedVideoServerParameters : owDic];
+	    [IronSource showRewardedVideoWithViewController:UIApplication.sharedApplication.delegate.window.rootViewController placement:PlacementNameNativeString];
+	});
+}
+
+void UPsIronSource_iOS::SetGDPRConsent(bool bConsent) const
+{
+	UE_LOG(LogPsIronSource, Log, TEXT("%s"), *PS_FUNC_LINE);
+	dispatch_async(dispatch_get_main_queue(), ^{
+	  [IronSource setConsent:bConsent];
+	});
+}
+
+#endif // WITH_IRONSOURCE && PLATFORM_IOS

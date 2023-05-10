@@ -8,7 +8,7 @@ public class MergeBuilder : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystemUtils" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystemUtils", "PsIronSource" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "Http", "Json", "JsonUtilities", "Paper2D" });
 
