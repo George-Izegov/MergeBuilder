@@ -11,19 +11,22 @@ void UAdProxy::Init(const FString& UserId, bool bAgreeGDPR)
 void UAdProxy::ShowRewardedVideoSkipTimer(const FString UniqueId)
 {
 	AdStarted = true;
-	AnalyticAdPlacement = "TimerSkip";
+	CurrentAdPlacement = EAdPlacementType::SkipTimer;
+	CurrentParam = UniqueId;
 }
 
 void UAdProxy::ShowRewardedVideoPurchaseItem(const FString& ProductId)
 {
 	AdStarted = true;
-	AnalyticAdPlacement = "ProductPurchase";
+	CurrentAdPlacement = EAdPlacementType::PurchaseProduct;
+	CurrentParam = ProductId;
 }
 
 void UAdProxy::ShowRewardedVideoCallback(int32 EventType)
 {
 	if (EventType == 0)
 	{
+		OnRewardedAdSuccessWatched.Broadcast(CurrentAdPlacement, CurrentParam);
 		// TODO: Send analytic
 	}
 	

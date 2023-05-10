@@ -7,6 +7,14 @@
 #include "UObject/NoExportTypes.h"
 #include "AdProxy.generated.h"
 
+UENUM(BlueprintType)
+enum class EAdPlacementType : uint8
+{
+	PurchaseProduct,
+	SkipTimer
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetAdResult, EAdPlacementType, AdPlacementType, const FString&, Param);
 /**
  * 
  */
@@ -30,14 +38,16 @@ public:
 	bool IsAdStarted() const { return AdStarted; }
 
 	UPROPERTY(BlueprintAssignable)
-	FNoParamsSignatureDyn OnRewardedAdSuccessWatched;
+	FOnGetAdResult OnRewardedAdSuccessWatched;
 
 	UPROPERTY(BlueprintAssignable)
 	FNoParamsSignatureDyn OnRewardedAdClosed;
 
 protected:
 
-	FString AnalyticAdPlacement;
+	EAdPlacementType CurrentAdPlacement;
+	FString CurrentParam;
+	
 	FString NetworkName;
 
 	bool AdStarted = false;

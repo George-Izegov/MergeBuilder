@@ -254,3 +254,10 @@ void UShopSubsystem::DecrementPurchaseLimit(const FString& ProductID)
 	SaveHistory();
 }
 
+void UShopSubsystem::HandleSuccessAdWatchForProduct(const FString& ProductID)
+{
+	GiveRewardOfProduct(ProductID);
+
+	DecrementPurchaseLimit(ProductID);
+}
+

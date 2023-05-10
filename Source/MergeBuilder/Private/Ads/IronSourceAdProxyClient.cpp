@@ -60,6 +60,5 @@ void UIronSourceAdProxyClient::ShowRewardedVideoCallback(int32 EventType)
 	if (EventType == 0)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, "IronSource Success watched");
-		OnRewardedAdSuccessWatched.Broadcast();
 	}
 }

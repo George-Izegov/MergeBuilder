@@ -34,8 +34,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FNoParamsSignatureDyn OnGameLoaded;
-
-protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	UShopSubsystem* ShopSubsystem;

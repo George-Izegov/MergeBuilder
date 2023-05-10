@@ -100,6 +100,8 @@ public:
 	bool GetProductHistory(const FString& ProductID, FPurchaseHistory& History);
 
 	void DecrementPurchaseLimit(const FString& ProductID);
+
+	void HandleSuccessAdWatchForProduct(const FString& ProductID);
 	
 protected:
 

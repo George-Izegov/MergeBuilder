@@ -22,13 +22,28 @@ public:
 
 	virtual void Deinitialize() override;
 	
-	void Init(const FString& UserID, bool bAgreeGDPR = true);
-	
 	UFUNCTION(BlueprintCallable)
 	void ShowRewardedVideoSkipTimer(const int32 SlotId);
 
 	UFUNCTION(BlueprintCallable)
 	void ShowRewardedVideoPurchaseItem(const FString& ProductId);
+
+protected:
+
+	void Init(const FString& UserID, bool bAgreeGDPR = true);
+
+	UFUNCTION()
+	void HandleSuccessAdWatched(EAdPlacementType PlacementType, const FString& Param);
+	UFUNCTION()
+	void HandleAdClosed();
+
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnRewardedAdSuccessHandled;
+
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnRewardedAdClosed;
 
 protected:
 
