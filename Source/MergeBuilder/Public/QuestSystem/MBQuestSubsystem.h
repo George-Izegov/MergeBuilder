@@ -41,6 +41,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void GenerateNewQuestsForPrem();
+
+	void HandleSuccessWatchVideoForQuests();
 	
 protected:
 
@@ -100,4 +102,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 QuestRefreshPremPrice = 30;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 AdSkipMinutes = 60;
 };

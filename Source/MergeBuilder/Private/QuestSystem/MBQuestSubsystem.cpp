@@ -571,6 +571,17 @@ void UMBQuestSubsystem::GenerateNewQuestsForPrem()
 	UpdateQuests();
 }
 
+void UMBQuestSubsystem::HandleSuccessWatchVideoForQuests()
+{
+	FTimespan SkipTime = FTimespan::FromMinutes(AdSkipMinutes);
+
+	DateTo -= SkipTime;
+
+	CheckRefreshQuestsTimer();
+
+	SaveQuests();
+}
+
 void UMBQuestSubsystem::GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects)
 {
 	auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();

@@ -11,7 +11,8 @@ UENUM(BlueprintType)
 enum class EAdPlacementType : uint8
 {
 	PurchaseProduct,
-	SkipTimer
+	SkipTimerGenerator,
+	SkipTimerQuests
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetAdResult, EAdPlacementType, AdPlacementType, const FString&, Param);
@@ -27,9 +28,7 @@ public:
 	
 	virtual void Init(const FString& UserId, bool bAgreeGDPR =  true);
 	
-	virtual void ShowRewardedVideoSkipTimer(const FString UniqueId);
-	
-	virtual void ShowRewardedVideoPurchaseItem(const FString& ProductId);
+	virtual void ShowRewardedVideo(const FString& RewardedVideoParam, EAdPlacementType PlacementType);
 
 	UFUNCTION()
 	virtual void ShowRewardedVideoCallback(int32 EventType);

@@ -6,6 +6,8 @@
 #include "MBGameInstance.h"
 #include "MBUtilityFunctionLibrary.h"
 #include "ShopSubsystem.h"
+#include "CitySystem/CityBuilderSubsystem.h"
+#include "QuestSystem/MBQuestSubsystem.h"
 
 void UAdSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -35,12 +37,24 @@ void UAdSubsystem::HandleSuccessAdWatched(EAdPlacementType PlacementType, const 
 {
 	switch (PlacementType)
 	{
-	case EAdPlacementType::SkipTimer:
-		
+	case EAdPlacementType::SkipTimerGenerator:
+		{
+			auto CityBuilderSubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
+			int32 ObjectID = FCString::Atoi(*Param);
+			CityBuilderSubsystem->HandleSuccessWatchVideoForObject(ObjectID);
+		}
+		break;
+	case EAdPlacementType::SkipTimerQuests:
+		{
+			auto QuestSubsystem = GetGameInstance()->GetSubsystem<UMBQuestSubsystem>();
+			QuestSubsystem->HandleSuccessWatchVideoForQuests();
+		}
 		break;
 	case EAdPlacementType::PurchaseProduct:
-		auto ShopSubsystem = Cast<UMBGameInstance>(GetGameInstance())->ShopSubsystem;
-		ShopSubsystem->HandleSuccessAdWatchForProduct(Param);
+		{
+			auto ShopSubsystem = Cast<UMBGameInstance>(GetGameInstance())->ShopSubsystem;
+			ShopSubsystem->HandleSuccessAdWatchForProduct(Param);
+		}
 		break;
 	}
 
@@ -52,14 +66,19 @@ void UAdSubsystem::HandleAdClosed()
 	OnRewardedAdClosed.Broadcast();
 }
 
-void UAdSubsystem::ShowRewardedVideoSkipTimer(const int32 SlotId)
+void UAdSubsystem::ShowRewardedVideoSkipTimerGenerator(int32 CityObjectId)
 {
-	FString UniqueId = "";
-	AdProxy->ShowRewardedVideoSkipTimer(UniqueId);
+	FString StringId = FString::FromInt(CityObjectId);
+	AdProxy->ShowRewardedVideo(StringId, EAdPlacementType::SkipTimerGenerator);
+}
+
+void UAdSubsystem::ShowRewardedVideoSkipTimerQuests()
+{
+	AdProxy->ShowRewardedVideo("", EAdPlacementType::SkipTimerQuests);
 }
 
 void UAdSubsystem::ShowRewardedVideoPurchaseItem(const FString& ProductId)
 {
-	AdProxy->ShowRewardedVideoPurchaseItem(ProductId);
+	AdProxy->ShowRewardedVideo(ProductId, EAdPlacementType::PurchaseProduct);
 }
 

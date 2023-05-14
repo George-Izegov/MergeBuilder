@@ -23,7 +23,10 @@ public:
 	virtual void Deinitialize() override;
 	
 	UFUNCTION(BlueprintCallable)
-	void ShowRewardedVideoSkipTimer(const int32 SlotId);
+	void ShowRewardedVideoSkipTimerGenerator(int32 CityObjectId);
+
+	UFUNCTION(BlueprintCallable)
+	void ShowRewardedVideoSkipTimerQuests();
 
 	UFUNCTION(BlueprintCallable)
 	void ShowRewardedVideoPurchaseItem(const FString& ProductId);

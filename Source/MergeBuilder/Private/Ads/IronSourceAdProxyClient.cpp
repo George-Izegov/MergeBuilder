@@ -2,6 +2,8 @@
 
 
 #include "Ads/IronSourceAdProxyClient.h"
+
+#include "MBUtilityFunctionLibrary.h"
 #include "PsIronSourceLibrary.h"
 
 UIronSourceAdProxyClient::UIronSourceAdProxyClient()
@@ -32,22 +34,27 @@ void UIronSourceAdProxyClient::Init(const FString& UserId, bool bAgreeGDPR)
 	}
 }
 
-void UIronSourceAdProxyClient::ShowRewardedVideoSkipTimer(const FString UniqueId)
+void UIronSourceAdProxyClient::ShowRewardedVideo(const FString& RewardedVideoParam, EAdPlacementType PlacementType)
 {
 	if (IsAdStarted())
 		return;
 
-	Super::ShowRewardedVideoSkipTimer(UniqueId);
-	IronSourceSDKProxy->ShowRewardedVideo("decreaseTimer", "unique_id", UniqueId);
-}
+	Super::ShowRewardedVideo(RewardedVideoParam, PlacementType);
 
-void UIronSourceAdProxyClient::ShowRewardedVideoPurchaseItem(const FString& ProductId)
-{
-	if (IsAdStarted())
-		return;
+	FString PlacementName = UMBUtilityFunctionLibrary::EnumToString("EAdPlacementType", (int32) PlacementType);
+	
+	IronSourceSDKProxy->ShowRewardedVideo(PlacementName, "param_1", RewardedVideoParam);
 
-	Super::ShowRewardedVideoPurchaseItem(ProductId);
-	IronSourceSDKProxy->ShowRewardedVideo("shopItem", "product_id", ProductId);
+#if WITH_EDITOR
+	// TEST EDITOR ONLY LOGIC
+	
+	FTimerDelegate EditorSuccessWatchDelegate = FTimerDelegate::CreateLambda([this]()
+	{
+		ShowRewardedVideoCallback(0);
+	});
+	FTimerHandle DelegateHandle;
+	GetWorld()->GetTimerManager().SetTimer(DelegateHandle, EditorSuccessWatchDelegate, 3.0f, false);
+#endif
 }
 
 void UIronSourceAdProxyClient::ShowRewardedVideoCallback(int32 EventType)

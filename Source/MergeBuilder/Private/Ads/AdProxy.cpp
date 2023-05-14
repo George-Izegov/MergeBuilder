@@ -8,18 +8,11 @@ void UAdProxy::Init(const FString& UserId, bool bAgreeGDPR)
 {
 }
 
-void UAdProxy::ShowRewardedVideoSkipTimer(const FString UniqueId)
+void UAdProxy::ShowRewardedVideo(const FString& RewardedVideoParam, EAdPlacementType PlacementType)
 {
 	AdStarted = true;
-	CurrentAdPlacement = EAdPlacementType::SkipTimer;
-	CurrentParam = UniqueId;
-}
-
-void UAdProxy::ShowRewardedVideoPurchaseItem(const FString& ProductId)
-{
-	AdStarted = true;
-	CurrentAdPlacement = EAdPlacementType::PurchaseProduct;
-	CurrentParam = ProductId;
+	CurrentAdPlacement = PlacementType;
+	CurrentParam = RewardedVideoParam;
 }
 
 void UAdProxy::ShowRewardedVideoCallback(int32 EventType)

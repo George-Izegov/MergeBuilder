@@ -63,6 +63,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SkipTimerForObject(int32 ObjectID);
+
+	void HandleSuccessWatchVideoForObject(int32 ObjectID);
 	
 protected:
 
@@ -86,6 +88,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 SkipTimerPrice = 15;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 AdSkipTimeSeconds = 45;
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 TimerBaseDurationInHours = 1;

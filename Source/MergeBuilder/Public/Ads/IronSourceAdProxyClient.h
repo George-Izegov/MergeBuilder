@@ -21,9 +21,7 @@ public:
 
 	virtual void Init(const FString& UserId, bool bAgreeGDPR = true) override;
 
-	virtual void ShowRewardedVideoSkipTimer(const FString UniqueId) override;
-
-	virtual void ShowRewardedVideoPurchaseItem(const FString& ProductId) override;
+	virtual void ShowRewardedVideo(const FString& RewardedVideoParam, EAdPlacementType PlacementType) override;
 
 	virtual void ShowRewardedVideoCallback(int32 EventType) override;
 

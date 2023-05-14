@@ -322,6 +322,12 @@ void UCityBuilderSubsystem::SkipTimerForObject(int32 ObjectID)
 	CityObjects[ObjectID].RestoreTime = TimeSubsystem->GetUTCNow() - FTimespan::FromSeconds(1);
 }
 
+void UCityBuilderSubsystem::HandleSuccessWatchVideoForObject(int32 ObjectID)
+{
+	FTimespan SkipTime = FTimespan::FromMinutes(AdSkipTimeSeconds);
+	CityObjects[ObjectID].RestoreTime -= SkipTime;
+}
+
 void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName)
 {
 	const FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(NewObjectName, "");
