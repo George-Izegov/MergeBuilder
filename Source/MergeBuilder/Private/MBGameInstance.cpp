@@ -12,13 +12,21 @@
 
 UMBGameInstance::UMBGameInstance()
 {
-	static ConstructorHelpers::FClassFinder<UShopSubsystem> ShopSubsystemClass(TEXT("DataTable'/Game/Development/Logic/Utilities/BP_ShopSubsystem.BP_ShopSubsystem_C'"));
+	static ConstructorHelpers::FClassFinder<UShopSubsystem> ShopSubsystemClass(TEXT("/Game/Development/Logic/Utilities/BP_ShopSubsystem.BP_ShopSubsystem_C"));
 	if (ShopSubsystemClass.Succeeded())
 	{
 		ShopSubsystem = NewObject<UShopSubsystem>(this, ShopSubsystemClass.Class, FName("ShopSubsystem"));
 	}
 	
 	check(ShopSubsystem);
+
+	static ConstructorHelpers::FClassFinder<UMBTutorialSubsystem> TutorialSubsystemClass(TEXT("/Game/Development/Logic/BP_TutorialSubsystem.BP_TutorialSubsystem_C"));
+	if (TutorialSubsystemClass.Succeeded())
+	{
+		TutorialSubsystem = NewObject<UMBTutorialSubsystem>(this, TutorialSubsystemClass.Class, FName("TutorialSubsystem"));
+	}
+	
+	check(TutorialSubsystem);
 }
 
 void UMBGameInstance::Init()
@@ -26,6 +34,8 @@ void UMBGameInstance::Init()
 	Super::Init();
 
 	ShopSubsystem->Init();
+
+	TutorialSubsystem->Init();
 	
 	ApplicationWillEnterBackgroundDelegate.AddDynamic(this, &UMBGameInstance::SaveAllData);
 	

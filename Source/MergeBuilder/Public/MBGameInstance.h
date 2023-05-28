@@ -6,6 +6,7 @@
 #include "MBCoreTypes.h"
 #include "Kismet/BlueprintPlatformLibrary.h"
 #include "Utilities/ShopSubsystem.h"
+#include "Tutorial/MBTutorialSubsystem.h"
 #include "MBGameInstance.generated.h"
 
 /**
@@ -37,4 +38,7 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly)
 	UShopSubsystem* ShopSubsystem;
+
+	UPROPERTY(BlueprintReadOnly)
+	UMBTutorialSubsystem* TutorialSubsystem;
 };
