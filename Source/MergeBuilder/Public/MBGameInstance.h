@@ -31,6 +31,8 @@ protected:
 	UFUNCTION()
 	void CheckAllDataLoaded();
 
+	virtual void Shutdown() override;
+
 public:
 
 	UPROPERTY(BlueprintAssignable)

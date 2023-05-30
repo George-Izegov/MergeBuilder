@@ -87,3 +87,7 @@ void UMBTutorialSubsystem::FinishTutorial()
 	bIsTutorialFinished = true;
 }
 
+APlayerController* UMBTutorialSubsystem::GetPlayerController()
+{
+	return UGameplayStatics::GetPlayerController(GetWorld(), 0);
+}

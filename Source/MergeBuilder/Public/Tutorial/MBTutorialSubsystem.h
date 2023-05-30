@@ -42,6 +42,9 @@ protected:
 
 	void FinishTutorial();
 
+	UFUNCTION(BlueprintPure)
+	APlayerController* GetPlayerController();
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)

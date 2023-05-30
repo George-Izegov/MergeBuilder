@@ -47,3 +47,13 @@ void AMBBasePlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 }
+
+UUserWidget* AMBBasePlayerController::CreateUserWidget(TSubclassOf<UUserWidget> WidgetClass)
+{
+	if (!WidgetClass.Get())
+		return nullptr;
+
+	UUserWidget* Widget = CreateWidget<UUserWidget>(this, WidgetClass);
+
+	return Widget;
+}

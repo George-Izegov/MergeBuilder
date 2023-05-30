@@ -3,6 +3,7 @@
 
 #include "MBGameInstance.h"
 
+#include "BaseButtonWidget.h"
 #include "MBBasePlayerController.h"
 #include "User/AccountSubsystem.h"
 #include "MergeSubsystem.h"
@@ -76,4 +77,11 @@ void UMBGameInstance::CheckAllDataLoaded()
 	PC->LoadingScreen->RemoveFromParent();
 
 	OnGameLoaded.Broadcast();
+}
+
+void UMBGameInstance::Shutdown()
+{
+	UBaseButtonWidget::SetTutorialButton(nullptr);
+	
+	Super::Shutdown();
 }

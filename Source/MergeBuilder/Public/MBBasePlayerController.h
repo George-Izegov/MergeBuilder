@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SwitchToCity();
 
+	UFUNCTION(BlueprintCallable)
+	UUserWidget* CreateUserWidget(TSubclassOf<UUserWidget> WidgetClass);
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)
