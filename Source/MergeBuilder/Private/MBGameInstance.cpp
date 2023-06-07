@@ -2,8 +2,6 @@
 
 
 #include "MBGameInstance.h"
-
-#include "BaseButtonWidget.h"
 #include "MBBasePlayerController.h"
 #include "User/AccountSubsystem.h"
 #include "MergeSubsystem.h"
@@ -81,7 +79,5 @@ void UMBGameInstance::CheckAllDataLoaded()
 
 void UMBGameInstance::Shutdown()
 {
-	UBaseButtonWidget::SetTutorialButton(nullptr);
-	
 	Super::Shutdown();
 }

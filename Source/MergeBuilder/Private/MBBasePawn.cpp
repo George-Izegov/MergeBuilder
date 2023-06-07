@@ -2,13 +2,17 @@
 
 
 #include "MBBasePawn.h"
+#include "Tutorial/MBTutorialSubsystem.h"
 
 // Sets default values
 AMBBasePawn::AMBBasePawn()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+}
 
+AMBBasePawn::~AMBBasePawn()
+{
 }
 
 // Called when the game starts or when spawned
@@ -49,7 +53,7 @@ void AMBBasePawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVecto
 	if (FingerIndex != ETouchIndex::Touch1)
 		return;
 
-	if ((FDateTime::Now() - OnPressedTime).GetTotalMilliseconds() <= 100)
+	if ((FDateTime::Now() - OnPressedTime).GetTotalMilliseconds() <= 200)
 		OnClick(StartTouchLocation);
 }
 
@@ -77,3 +81,13 @@ bool AMBBasePawn::GetInputHitResult(const ETouchIndex::Type FingerIndex, FHitRes
 	return PC->GetHitResultAtScreenPosition(FVector2D(TouchX, TouchY), ObjectTypes, false, HitResult);
 }
 
+bool AMBBasePawn::IsActorClickable(AActor* ActorToClick)
+{
+	if (!ActorToClick)
+		return false;
+	
+	if (!UMBTutorialSubsystem::GetTutorialObject())
+		return true;
+
+	return ActorToClick == UMBTutorialSubsystem::GetTutorialObject();
+}

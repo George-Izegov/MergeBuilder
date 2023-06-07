@@ -14,6 +14,7 @@ class MERGEBUILDER_API AMBBasePawn : public APawn
 public:
 	// Sets default values for this pawn's properties
 	AMBBasePawn();
+	~AMBBasePawn();
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,6 +34,7 @@ public:
 
 	bool GetInputHitResult(const ETouchIndex::Type FingerIndex, FHitResult& HitResult);
 
+	static bool IsActorClickable(AActor* ActorToClick);
 protected:
 
 	FVector StartTouchLocation;

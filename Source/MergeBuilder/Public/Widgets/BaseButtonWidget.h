@@ -18,7 +18,4 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsButtonInteractable() const;
-
-	UFUNCTION(BlueprintCallable)
-	static void SetTutorialButton(UBaseButtonWidget* NewTutorialButton);
 };

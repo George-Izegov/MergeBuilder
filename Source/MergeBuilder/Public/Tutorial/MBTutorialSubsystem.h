@@ -19,11 +19,19 @@ class MERGEBUILDER_API UMBTutorialSubsystem : public UObject
 public:
 
 	UMBTutorialSubsystem();
+
+	~UMBTutorialSubsystem();
 	
 	void Init();
 
 	UFUNCTION(BlueprintPure)
 	bool IsTutorialFinished() const;
+
+	UFUNCTION(BlueprintCallable)
+	static void SetTutorialObject(UObject* NewTutorialObject);
+
+	UFUNCTION(BlueprintPure)
+	static UObject* GetTutorialObject();
 
 protected:
 

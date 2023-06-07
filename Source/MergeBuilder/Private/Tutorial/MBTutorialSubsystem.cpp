@@ -11,6 +11,11 @@ UMBTutorialSubsystem::UMBTutorialSubsystem()
 {
 }
 
+UMBTutorialSubsystem::~UMBTutorialSubsystem()
+{
+	SetTutorialObject(nullptr);
+}
+
 void UMBTutorialSubsystem::Init()
 {
 	FString SavedData;
@@ -90,4 +95,16 @@ void UMBTutorialSubsystem::FinishTutorial()
 APlayerController* UMBTutorialSubsystem::GetPlayerController()
 {
 	return UGameplayStatics::GetPlayerController(GetWorld(), 0);
+}
+
+static UObject* TutorialObject;
+
+void UMBTutorialSubsystem::SetTutorialObject(UObject* NewTutorialObject)
+{
+	TutorialObject = NewTutorialObject;
+}
+
+UObject* UMBTutorialSubsystem::GetTutorialObject()
+{
+	return TutorialObject;
 }

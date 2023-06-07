@@ -347,6 +347,8 @@ void AMBMergeFieldManager::HandleClickOnReward()
 	InitRewardItem();
 
 	MergeSystem->SaveField();
+
+	OnRewardCollected.Broadcast();
 }
 
 void AMBMergeFieldManager::StartDrag()

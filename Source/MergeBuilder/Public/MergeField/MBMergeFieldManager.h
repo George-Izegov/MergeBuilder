@@ -112,4 +112,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnItemActorAction OnItemUpdated;
+
+	UPROPERTY(BlueprintAssignable)
+	FNoParamsSignatureDyn OnRewardCollected;
 };

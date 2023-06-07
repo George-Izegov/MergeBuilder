@@ -193,7 +193,7 @@ void ATopDownPawn::OnClick(const FVector Location)
 	if (GetWorldObjectHitResult(ETouchIndex::Touch1, HitResult))
 	{
 		auto CityObject = Cast<AMBBaseCityObjectActor>(HitResult.Actor);
-		if (CityObject)
+		if (IsActorClickable(CityObject))
 		{
 			CityManager->HandleObjectClick(CityObject);
 		}
