@@ -264,6 +264,8 @@ bool UMergeSubsystem::TryMergeItems(const FMergeFieldItem& Item, const FIntPoint
 
 	MergeField[MergeIndex.Y][MergeIndex.X] = MergedItem;
 
+	OnMergeNewItem.Broadcast(MergedItem);
+
 	return true;
 }
 

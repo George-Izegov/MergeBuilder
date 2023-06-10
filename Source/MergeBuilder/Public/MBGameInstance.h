@@ -23,6 +23,12 @@ public:
 	
 	virtual void Init() override;
 
+	UFUNCTION(BlueprintPure)
+	static UMBTutorialSubsystem* GetTutorialSubsystem();
+
+	UFUNCTION(BlueprintPure)
+	static UShopSubsystem* GetShopSubsystem();
+
 protected:
 
 	UFUNCTION()

@@ -8,6 +8,7 @@
 #include "TimeSubsystem.h"
 #include "CitySystem/CityBuilderSubsystem.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 UMBGameInstance::UMBGameInstance()
 {
@@ -43,6 +44,26 @@ void UMBGameInstance::Init()
 
 	FTimerHandle TimerHandle;
 	GetTimerManager().SetTimer(TimerHandle, this, &UMBGameInstance::CheckAllDataLoaded, 3.0f, false);
+}
+
+UMBTutorialSubsystem* UMBGameInstance::GetTutorialSubsystem()
+{
+	auto GI = Cast<UMBGameInstance>(UGameplayStatics::GetGameInstance(GEngine->GameViewport->GetWorld()));
+
+	if (!GI)
+		return nullptr;
+	
+	return GI->TutorialSubsystem;
+}
+
+UShopSubsystem* UMBGameInstance::GetShopSubsystem()
+{
+	auto GI = Cast<UMBGameInstance>(UGameplayStatics::GetGameInstance(GEngine->GameViewport->GetWorld()));
+
+	if (!GI)
+		return nullptr;
+	
+	return GI->ShopSubsystem;
 }
 
 void UMBGameInstance::SaveAllData()

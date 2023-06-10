@@ -10,6 +10,7 @@
 
 const FIntPoint MergeFieldSize = FIntPoint(7, 9);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FItemAction, const FMergeFieldItem&, FieldItem);
 /**
  * 
  */
@@ -84,4 +85,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FNoParamsSignatureDyn OnGetReward;
+
+	UPROPERTY(BlueprintAssignable)
+	FItemAction OnMergeNewItem;
 };

@@ -22,6 +22,11 @@ void UMBTutorialSubsystem::Init()
 	if (UMBUtilityFunctionLibrary::ReadFromStorage("TutorialProgress", SavedData))
 	{
 		ParseProgress(SavedData);
+		if (TutorialStep > 0 && !bIsTutorialFinished)
+		{
+			bIsTutorialFinished = true;
+			// TODO:: Add analytic of this
+		}
 	}
 	else
 	{
@@ -29,8 +34,11 @@ void UMBTutorialSubsystem::Init()
 		bIsTutorialFinished = false;
 	}
 
-	auto GI = Cast<UMBGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	GI->OnGameLoaded.AddDynamic(this, &UMBTutorialSubsystem::StartTutorial);
+	if (!bIsTutorialFinished)
+	{
+		auto GI = Cast<UMBGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		GI->OnGameLoaded.AddDynamic(this, &UMBTutorialSubsystem::StartTutorial);
+	}
 }
 
 bool UMBTutorialSubsystem::IsTutorialFinished() const
@@ -74,22 +82,36 @@ void UMBTutorialSubsystem::StartTutorial()
 
 void UMBTutorialSubsystem::NextTutorialStep()
 {
-	TutorialStep++;
-
-	if (TutorialStep > 5)
+	if (TutorialStep > 3)
 	{
 		FinishTutorial();
 		return;
 	}
 
-	SaveProgress();
-
 	StartTutorialStep();
+}
+
+void UMBTutorialSubsystem::IncrementTutorialStep()
+{
+	TutorialStep++;
+
+	SaveProgress();
 }
 
 void UMBTutorialSubsystem::FinishTutorial()
 {
 	bIsTutorialFinished = true;
+
+	SaveProgress();
+
+	SetTutorialObject(nullptr);
+
+	FTimerHandle TimerHandle;
+	FTimerDelegate Delegate = FTimerDelegate::CreateLambda([]()
+	{
+		CollectGarbage(RF_NoFlags);
+	});
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, Delegate, 0.1f, false);
 }
 
 APlayerController* UMBTutorialSubsystem::GetPlayerController()

@@ -118,6 +118,7 @@ void UCityBuilderSubsystem::InitCity()
 		//  TODO: move this logic to tutorial subsystem
 		FCityObjectData* RowStruct = CityObjectsDataTable->FindRow<FCityObjectData>(FName("Mine"), "");
 		RowStruct->RequiredItems[0].RequiredNum = 1;
+		RowStruct->RequiredItems[0].Item.Level = 3;
 	}
 
 	ParseCity(SavedData);

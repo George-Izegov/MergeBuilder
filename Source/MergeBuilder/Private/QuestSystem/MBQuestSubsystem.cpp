@@ -372,31 +372,6 @@ bool UMBQuestSubsystem::GetRecommendedQuest(FQuestData& RecommendedQuest)
 {
 	auto CitySubsystem = GetGameInstance()->GetSubsystem<UCityBuilderSubsystem>();
 
-	if (!CitySubsystem->HasGenerator("Mine"))
-	{
-		RecommendedQuest.QuestType = EQuestType::CityObjects;
-		RecommendedQuest.RequiredObjectName = FName("Mine");
-		RecommendedQuest.RequiredObjectAmount = 1;
-
-		RecommendedQuest.RewardExperience = 150;
-
-		FMergeFieldItem SoftCoins;
-		SoftCoins.Type = EMergeItemType::SoftCoinBox;
-		SoftCoins.Level = 1;
-		SoftCoins.RemainItemsToSpawn = 20;
-		
-		RecommendedQuest.RewardItems.Add(SoftCoins);
-
-		FMergeFieldItem PremCoins;
-		PremCoins.Type = EMergeItemType::PremCoins;
-		PremCoins.Level = 2;
-
-		RecommendedQuest.RewardItems.Add(PremCoins);
-		MakeQuestID(RecommendedQuest);
-		
-		return true;
-	}
-
 	if (!CitySubsystem->HasGenerator("LumberPlant"))
 	{
 		RecommendedQuest.QuestType = EQuestType::CityObjects;

@@ -48,6 +48,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void NextTutorialStep();
 
+	UFUNCTION(BlueprintCallable)
+	void IncrementTutorialStep();
+	
 	void FinishTutorial();
 
 	UFUNCTION(BlueprintPure)
