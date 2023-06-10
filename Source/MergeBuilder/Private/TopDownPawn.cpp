@@ -2,6 +2,8 @@
 
 
 #include "TopDownPawn.h"
+
+#include "MBGameInstance.h"
 #include "CitySystem/MBBaseCityObjectActor.h"
 #include "CitySystem/MBCityBuilderManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -29,6 +31,9 @@ void ATopDownPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector
 {
 	AMBBasePawn::TouchPress(FingerIndex, Location);
 
+	if (!UMBGameInstance::GetTutorialSubsystem()->IsTutorialFinished())
+		return;
+	
 	if (FingerIndex == ETouchIndex::Touch1)
 	{
 		TArray<FHitResult> HitResults;
@@ -100,6 +105,9 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 {
 	AMBBasePawn::TouchMove(FingerIndex, Location);
 
+	if (!UMBGameInstance::GetTutorialSubsystem()->IsTutorialFinished())
+		return;
+	
 	if (FingerIndex == ETouchIndex::Touch1)
 	{
 		if (DragItem)
@@ -200,7 +208,10 @@ void ATopDownPawn::OnClick(const FVector Location)
 	}
 	else
 	{
-		OnVoidClick.Broadcast();
+		if (UMBGameInstance::GetTutorialSubsystem()->IsTutorialFinished())
+		{
+			OnVoidClick.Broadcast();
+		}
 	}
 }
 

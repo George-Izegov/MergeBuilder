@@ -56,6 +56,9 @@ protected:
 	UFUNCTION(BlueprintPure)
 	APlayerController* GetPlayerController();
 
+	void MakeTutorialPrices();
+	void RevertTutorialPrices();
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly)

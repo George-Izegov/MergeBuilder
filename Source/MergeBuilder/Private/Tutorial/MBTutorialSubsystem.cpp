@@ -5,6 +5,8 @@
 
 #include "MBGameInstance.h"
 #include "MBUtilityFunctionLibrary.h"
+#include "CitySystem/CityBuilderSubsystem.h"
+#include "CitySystem/CityObjectsData.h"
 #include "Kismet/GameplayStatics.h"
 
 UMBTutorialSubsystem::UMBTutorialSubsystem()
@@ -78,6 +80,8 @@ void UMBTutorialSubsystem::StartTutorial()
 		return;
 
 	StartTutorialStep();
+
+	MakeTutorialPrices();
 }
 
 void UMBTutorialSubsystem::NextTutorialStep()
@@ -106,6 +110,8 @@ void UMBTutorialSubsystem::FinishTutorial()
 
 	SetTutorialObject(nullptr);
 
+	RevertTutorialPrices();
+
 	FTimerHandle TimerHandle;
 	FTimerDelegate Delegate = FTimerDelegate::CreateLambda([]()
 	{
@@ -117,6 +123,28 @@ void UMBTutorialSubsystem::FinishTutorial()
 APlayerController* UMBTutorialSubsystem::GetPlayerController()
 {
 	return UGameplayStatics::GetPlayerController(GetWorld(), 0);
+}
+
+void UMBTutorialSubsystem::MakeTutorialPrices()
+{
+	auto GI = Cast<UMBGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	auto CityBuilderSubsystem = GI->GetSubsystem<UCityBuilderSubsystem>();
+
+	// Mine price
+	FCityObjectData* RowStruct = CityBuilderSubsystem->CityObjectsDataTable->FindRow<FCityObjectData>(FName("Mine"), "");
+	RowStruct->RequiredItems[0].RequiredNum = 1;
+	RowStruct->RequiredItems[0].Item.Level = 3;
+}
+
+void UMBTutorialSubsystem::RevertTutorialPrices()
+{
+	auto GI = Cast<UMBGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	auto CityBuilderSubsystem = GI->GetSubsystem<UCityBuilderSubsystem>();
+
+	// Mine price
+	FCityObjectData* RowStruct = CityBuilderSubsystem->CityObjectsDataTable->FindRow<FCityObjectData>(FName("Mine"), "");
+	RowStruct->RequiredItems[0].RequiredNum = 3;
+	RowStruct->RequiredItems[0].Item.Level = 6;
 }
 
 static UObject* TutorialObject;
