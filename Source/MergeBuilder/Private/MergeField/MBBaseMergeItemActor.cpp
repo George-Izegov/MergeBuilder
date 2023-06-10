@@ -60,6 +60,10 @@ void AMBBaseMergeItemActor::HandleInteraction()
 	case EItemInteractType::SpawnItem:
 	{
 		Result = GenerateNewItem();
+			
+		if (Result)
+			PlaySpawningAnimation();
+			
 		break;
 	}
 	case EItemInteractType::AddValue:

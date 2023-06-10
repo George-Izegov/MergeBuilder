@@ -40,6 +40,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayAddConsumableAnimation(EConsumableParamType Type);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlaySpawningAnimation();
+
 public:	
 
 	// Called every frame
