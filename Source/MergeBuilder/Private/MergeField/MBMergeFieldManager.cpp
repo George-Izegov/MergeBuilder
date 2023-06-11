@@ -4,6 +4,7 @@
 #include "MergeField/MBMergeFieldManager.h"
 #include "MergeSubsystem.h"
 #include "MBUtilityFunctionLibrary.h"
+#include "Kismet/KismetArrayLibrary.h"
 #include "User/AccountSubsystem.h"
 
 // Sets default values
@@ -58,6 +59,8 @@ void AMBMergeFieldManager::InitializeField()
 
 	InitRewardItem();
 
+	GetWorld()->GetTimerManager().SetTimer(PossibleMergeAnimTimerHandle, this,
+		&AMBMergeFieldManager::TryShowPossibleMergeAnimation, 5.0f, true);
 }
 
 void AMBMergeFieldManager::InitRewardItem()
@@ -106,6 +109,62 @@ void AMBMergeFieldManager::SellItem(AMBBaseMergeItemActor* ItemToSell)
 
 	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
 	MergeSubsystem->SaveField();
+}
+
+void AMBMergeFieldManager::TryShowPossibleMergeAnimation()
+{
+	TArray<AMBBaseMergeItemActor*> AllItems;
+
+	for (auto& Row : FieldItems)
+	{
+		for (auto& Item : Row)
+		{
+			if (!IsValid(Item))
+				continue;
+
+			AllItems.Add(Item);
+		}
+	}
+
+	Shuffle(AllItems);
+
+	TArray<FMergeFieldItem> CheckedItems;
+	for (auto FirstItem : AllItems)
+	{
+		if (FirstItem->BaseData.IsInBox || FirstItem->BaseData.IsDusty)
+			continue;
+		
+		if (CheckedItems.Contains(FirstItem->BaseData))
+			continue;
+
+		CheckedItems.Add(FirstItem->BaseData);
+
+		FString RowName = UMBUtilityFunctionLibrary::EnumToString("EMergeItemType", (int32)FirstItem->BaseData.Type);
+		const FMergeItemChainRow* RowStruct = MergeItemsDataTable->FindRow<FMergeItemChainRow>(FName(RowName), "");
+		if (!RowStruct)
+			continue;
+
+		// if this is a last level item
+		if (RowStruct->ItemsChain.Num() <= FirstItem->BaseData.Level)
+			continue;
+		
+		for (auto SecondItem : AllItems)
+		{
+			if (FirstItem == SecondItem)
+				continue;
+
+			if (SecondItem->BaseData.IsInBox)
+				continue;
+
+			if (FirstItem->BaseData == SecondItem->BaseData)
+			{
+				FVector Direction = (SecondItem->GetActorLocation() - FirstItem->GetActorLocation()).GetSafeNormal();
+				FirstItem->PlayPossibleMergeAnimation(Direction);
+				SecondItem->PlayPossibleMergeAnimation(-1*Direction);
+				return;
+			}
+		}
+	}
 }
 
 AMBBaseMergeItemActor* AMBMergeFieldManager::SpawnItemAtIndex(const FMergeFieldItem& Item, const FIntPoint& Index)
@@ -162,6 +221,8 @@ void AMBMergeFieldManager::DestroyAllItems()
 		SelectionActor->Destroy();
 		SelectionActor = nullptr;
 	}
+
+	PossibleMergeAnimTimerHandle.Invalidate();
 }
 
 bool AMBMergeFieldManager::GetLocationForIndex(const FIntPoint& Index, FVector& OutLocation)

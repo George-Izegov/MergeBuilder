@@ -6,6 +6,7 @@
 #include "MergeField/MBMergeFieldPawn.h"
 #include "TopDownPawn.h"
 #include "Blueprint/UserWidget.h"
+#include "MergeField/MBMergeFieldManager.h"
 
 AMBBasePlayerController::AMBBasePlayerController()
 {
@@ -41,6 +42,12 @@ void AMBBasePlayerController::SwitchToMergeField()
 void AMBBasePlayerController::SwitchToCity()
 {
 	Possess(TopDownPawn);
+
+	auto MergeFieldManager = Cast<AMBMergeFieldManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AMBMergeFieldManager::StaticClass()));
+	if (MergeFieldManager)
+	{
+		MergeFieldManager->DestroyAllItems();
+	}
 }
 
 void AMBBasePlayerController::SetupInputComponent()

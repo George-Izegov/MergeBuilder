@@ -43,6 +43,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySpawningAnimation();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayPossibleMergeAnimation(const FVector& Direction);
+
 public:	
 
 	// Called every frame

@@ -42,3 +42,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static FString GetDeviceID();
 };
+
+template <typename T>
+void Shuffle(TArray<T> &arr)
+{
+	for (int i = arr.Num() - 1; i >= 0; --i)
+	{
+		int j = FMath::Rand() % (i + 1);
+		if (i != j) arr.Swap(i, j);
+	}
+}

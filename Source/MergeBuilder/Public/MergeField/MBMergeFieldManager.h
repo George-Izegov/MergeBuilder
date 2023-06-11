@@ -15,6 +15,7 @@ class MERGEBUILDER_API AMBMergeFieldManager : public AActor
 	GENERATED_BODY()
 
 	friend class AMBMergeFieldPawn;
+	friend class AMBBasePlayerController;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -49,6 +50,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void SellItem(AMBBaseMergeItemActor* ItemToSell);
+
+	UFUNCTION(BlueprintCallable)
+	void TryShowPossibleMergeAnimation();
 
 public:	
 	// Called every frame
@@ -103,6 +107,7 @@ protected:
 
 	bool InDrag = false;
 
+	FTimerHandle PossibleMergeAnimTimerHandle;
 public:
 
 	UPROPERTY(BlueprintAssignable)
