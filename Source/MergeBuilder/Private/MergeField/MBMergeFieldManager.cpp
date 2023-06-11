@@ -222,7 +222,7 @@ void AMBMergeFieldManager::DestroyAllItems()
 		SelectionActor = nullptr;
 	}
 
-	PossibleMergeAnimTimerHandle.Invalidate();
+	GetWorld()->GetTimerManager().ClearTimer(PossibleMergeAnimTimerHandle);
 }
 
 bool AMBMergeFieldManager::GetLocationForIndex(const FIntPoint& Index, FVector& OutLocation)
