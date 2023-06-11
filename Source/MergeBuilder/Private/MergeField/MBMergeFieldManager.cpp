@@ -60,7 +60,7 @@ void AMBMergeFieldManager::InitializeField()
 	InitRewardItem();
 
 	GetWorld()->GetTimerManager().SetTimer(PossibleMergeAnimTimerHandle, this,
-		&AMBMergeFieldManager::TryShowPossibleMergeAnimation, 5.0f, true);
+		&AMBMergeFieldManager::TryShowPossibleMergeAnimation, 7.0f, true);
 }
 
 void AMBMergeFieldManager::InitRewardItem()
