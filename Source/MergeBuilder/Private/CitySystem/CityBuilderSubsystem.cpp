@@ -283,6 +283,18 @@ void UCityBuilderSubsystem::SetNewQuestsForObjects(TArray<FString> NewQuests)
 
 	TArray<int32> ObjectIDs;
 	GetCityObjectsByType(ECityObjectCategory::Buildings, ObjectIDs);
+	for (int32 i = 0; i < ObjectIDs.Num(); i++)
+	{
+		if (ObjectIDs.Num() <= i)
+			break;
+
+		int32 ObjectID = ObjectIDs[i];
+		if (CityObjects[ObjectID].QuestID.IsEmpty())
+			continue;
+
+		ObjectIDs.RemoveAt(i);
+		i--;
+	}
 	
 	for (const auto& NewQuest : NewQuests)
 	{

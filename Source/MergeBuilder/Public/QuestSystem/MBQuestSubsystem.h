@@ -81,6 +81,10 @@ protected:
 	void GetPossibleItemTypes(TArray<EMergeItemType>& OutItemTypes);
 
 	void GetQuestObjects(TMap<FName, FCityObjectData*>& OutObjects);
+
+	void GenerateNewQuest(FQuestData& Quest);
+
+	bool HasQuestWithSuchRequirements(const FQuestData& Quest);
 	
 private:
 
@@ -105,4 +109,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 AdSkipMinutes = 60;
+
+	bool GenerateNewQuestAfterComplete = true;
 };

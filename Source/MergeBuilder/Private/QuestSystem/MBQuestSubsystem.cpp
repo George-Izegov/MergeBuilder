@@ -125,6 +125,13 @@ void UMBQuestSubsystem::CompleteQuest(const FString& QuestID)
 
 	AccountSubsystem->AddExperience(Quest.RewardExperience);
 
+	if (GenerateNewQuestAfterComplete)
+	{
+		FQuestData NewQuest;
+		GenerateNewQuest(NewQuest);
+		Quests.Add(NewQuest);
+	}
+	
 	Quests.Remove(Quest);
 
 	UpdateQuests();
@@ -205,33 +212,79 @@ void UMBQuestSubsystem::GenerateNewQuests()
 	for (int32 i = 0; i < QuestsNum; ++i)
 	{
 		FQuestData NewQuest;
-
-		NewQuest.QuestType = GenerateTypeForQuest();
-
-		switch (NewQuest.QuestType)
-		{
-			case EQuestType::MergeItems:
-				{
-					GenerateRequiredMergeItemsForQuest(NewQuest.RequiredItems);
-					GenerateRewardForMergeItems(NewQuest.RequiredItems, NewQuest.RewardItems, NewQuest.RewardExperience);
-					break;
-				}
-			case EQuestType::CityObjects:
-				{
-					GenerateRequiredCityObjectForQuest(NewQuest.RequiredObjectName, NewQuest.RequiredObjectAmount);
-					GenerateRewardForCityObject(NewQuest.RequiredObjectName, NewQuest.RequiredObjectAmount, NewQuest.RewardItems, NewQuest.RewardExperience);
-					break;
-				}
-		}
-
-		MakeQuestID(NewQuest);
-
+		GenerateNewQuest(NewQuest);
+		
 		Quests.Add(NewQuest);
 	}
 
 	auto TimeSystem = GetGameInstance()->GetSubsystem<UTimeSubsystem>();
 	
 	DateTo = TimeSystem->GetUTCNow() + FTimespan::FromHours(RefreshHours);
+}
+
+void UMBQuestSubsystem::GenerateNewQuest(FQuestData& NewQuest)
+{
+	bool Success = false;
+	int32 Attempts = 0;
+	while (!Success || Attempts < 10)
+	{
+		++Attempts;
+		
+		NewQuest = FQuestData();
+		
+		NewQuest.QuestType = GenerateTypeForQuest();
+
+		switch (NewQuest.QuestType)
+		{
+		case EQuestType::MergeItems:
+			{
+				GenerateRequiredMergeItemsForQuest(NewQuest.RequiredItems);
+				GenerateRewardForMergeItems(NewQuest.RequiredItems, NewQuest.RewardItems, NewQuest.RewardExperience);
+				break;
+			}
+		case EQuestType::CityObjects:
+			{
+				GenerateRequiredCityObjectForQuest(NewQuest.RequiredObjectName, NewQuest.RequiredObjectAmount);
+				GenerateRewardForCityObject(NewQuest.RequiredObjectName, NewQuest.RequiredObjectAmount, NewQuest.RewardItems, NewQuest.RewardExperience);
+				break;
+			}
+		}
+
+		MakeQuestID(NewQuest);
+
+		Success = !HasQuestWithSuchRequirements(NewQuest);
+	}
+}
+
+bool UMBQuestSubsystem::HasQuestWithSuchRequirements(const FQuestData& Quest)
+{
+	for (const auto& QuestData : Quests)
+	{
+		switch (QuestData.QuestType)
+		{
+		case EQuestType::MergeItems:
+			{
+				if (Quest.RequiredItems.Num() == 0)
+					return true;
+				
+				for (const auto& Item : QuestData.RequiredItems)
+				{
+					if (Item.Item == Quest.RequiredItems[0].Item)
+						return true;
+				}
+				break;
+			}
+		case EQuestType::CityObjects:
+			{
+				if (QuestData.RequiredObjectName == Quest.RequiredObjectName)
+					return true;
+				
+				break;
+			}
+		}
+	}
+
+	return false;
 }
 
 EQuestType UMBQuestSubsystem::GenerateTypeForQuest()
@@ -251,6 +304,8 @@ int32 UMBQuestSubsystem::GenerateQuestCount()
 
 void UMBQuestSubsystem::GenerateRequiredMergeItemsForQuest(TArray<FRequiredItem>& RequiredItems)
 {
+	RequiredItems.Empty();
+	
 	TArray<EMergeItemType> PossibleItemTypes;
 
 	GetPossibleItemTypes(PossibleItemTypes);
