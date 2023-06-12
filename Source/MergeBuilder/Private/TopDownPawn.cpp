@@ -36,6 +36,8 @@ void ATopDownPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector
 	
 	if (FingerIndex == ETouchIndex::Touch1)
 	{
+		PrevMoveLocation1 = Location;
+		
 		TArray<FHitResult> HitResults;
 		if (GetMultiWorldObjectHitResults(FingerIndex, HitResults))
 		{
@@ -57,8 +59,9 @@ void ATopDownPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector
 	if (FingerIndex == ETouchIndex::Touch2)
 	{
 		StartTouch2Location = Location;
-		DeltaVectorTwoFingersTouch2 = StartTouch2Location - StartTouchLocation;
-		DeltaVectorTwoFingersTouch1 = StartTouchLocation - StartTouch2Location;
+		PrevMoveLocation2 = Location;
+		DeltaVectorTwoFingersTouch2 = PrevMoveLocation2 - PrevMoveLocation1;
+		DeltaVectorTwoFingersTouch1 = PrevMoveLocation1 - PrevMoveLocation2;
 		TwoFingersTouch = true;
 	}
 }
@@ -66,7 +69,7 @@ void ATopDownPawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector
 void ATopDownPawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	AMBBasePawn::TouchRelease(FingerIndex, Location);
-
+	
 	if (FingerIndex == ETouchIndex::Touch1)
 	{
 		if (DragItem)
@@ -104,11 +107,11 @@ void ATopDownPawn::HandleGesture(float DeltaDistance, float DeltaAngle)
 void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
 	AMBBasePawn::TouchMove(FingerIndex, Location);
-
+	
 	if (!UMBGameInstance::GetTutorialSubsystem()->IsTutorialFinished())
 		return;
 	
-	if (FingerIndex == ETouchIndex::Touch1)
+	if (FingerIndex == ETouchIndex::Touch1 && FirstTouchStarted)
 	{
 		if (DragItem)
 		{
@@ -129,7 +132,7 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 		{
 			if (!TwoFingersTouch)
 			{
-				FVector DeltaLocation = Location - StartTouchLocation;
+				FVector DeltaLocation = Location - PrevMoveLocation1;
 				DeltaLocation.Z = 0.0f;
 				DeltaLocation = DeltaLocation.RotateAngleAxis(GetActorRotation().Yaw, FVector::UpVector);
 				
@@ -148,12 +151,12 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 			
 			if (FingerIndex == ETouchIndex::Touch1)
 			{
-				CurrentDeltaVector = Location - StartTouch2Location;
+				CurrentDeltaVector = Location - PrevMoveLocation2;
 				PrevDeltaVector = DeltaVectorTwoFingersTouch1;
 			}
 			else if (FingerIndex == ETouchIndex::Touch2)
 			{
-				CurrentDeltaVector = Location - StartTouchLocation;
+				CurrentDeltaVector = Location - PrevMoveLocation1;
 				PrevDeltaVector = DeltaVectorTwoFingersTouch2;
 			}
 
@@ -184,11 +187,11 @@ void ATopDownPawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector 
 
 	if (FingerIndex == ETouchIndex::Touch1)
 	{
-		StartTouchLocation = Location;
+		PrevMoveLocation1 = Location;
 	}
 	else if (FingerIndex == ETouchIndex::Touch2)
 	{
-		StartTouch2Location = Location;
+		PrevMoveLocation2 = Location;
 	}
 }
 

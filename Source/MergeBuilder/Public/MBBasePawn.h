@@ -39,4 +39,5 @@ protected:
 
 	FVector StartTouchLocation;
 	FDateTime OnPressedTime;
+	bool FirstTouchStarted = false;
 };

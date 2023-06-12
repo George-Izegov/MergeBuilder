@@ -74,6 +74,8 @@ protected:
 
 	void InitCity();
 
+	void CreateConsoleVariables();
+
 	UPROPERTY()
 	TArray<FCityObject> CityObjects;
 

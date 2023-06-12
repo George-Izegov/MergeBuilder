@@ -21,6 +21,7 @@ UCityBuilderSubsystem::UCityBuilderSubsystem()
 void UCityBuilderSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	InitCity();
+	CreateConsoleVariables();
 }
 
 void UCityBuilderSubsystem::Deinitialize()
@@ -118,6 +119,17 @@ void UCityBuilderSubsystem::InitCity()
 
 	ParseCity(SavedData);
 	CalculateCurrentPopulationAndRatings();
+}
+
+void UCityBuilderSubsystem::CreateConsoleVariables()
+{
+#if WITH_EDITOR
+	IConsoleManager::Get().RegisterConsoleVariable(TEXT("mb.FreeBuild"),
+   0,
+   TEXT("Skip resources spend for building.\n")
+	TEXT("	0: off\n")
+	TEXT("  1: on"));
+#endif
 }
 
 void UCityBuilderSubsystem::SaveCity()
@@ -351,6 +363,14 @@ void UCityBuilderSubsystem::AddExperienceForNewObject(const FName& NewObjectName
 
 bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& ObjectName)
 {
+#if WITH_EDITOR
+	static const auto CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("mb.FreeBuild")); 
+	int32 Value = CVar->GetInt();
+
+	if (Value == 1)
+		return true;
+#endif
+	
 	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
 	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
 
@@ -387,6 +407,14 @@ bool UCityBuilderSubsystem::CheckRequierementsForBuildObject(const FName& Object
 
 void UCityBuilderSubsystem::SpendResourcesForBuildObject(const FName& ObjectName)
 {
+#if WITH_EDITOR
+	static const auto CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("mb.FreeBuild")); 
+	int32 Value = CVar->GetInt();
+
+	if (Value == 1)
+		return;
+#endif
+	
 	auto MergeSubsystem = GetGameInstance()->GetSubsystem<UMergeSubsystem>();
 	auto AccountSubsystem = GetGameInstance()->GetSubsystem<UAccountSubsystem>();
 

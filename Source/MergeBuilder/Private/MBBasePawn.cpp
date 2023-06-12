@@ -45,6 +45,7 @@ void AMBBasePawn::TouchPress(const ETouchIndex::Type FingerIndex, const FVector 
 	{
 		StartTouchLocation = Location;
 		OnPressedTime = FDateTime::Now();
+		FirstTouchStarted = true;
 	}
 }
 
@@ -53,8 +54,14 @@ void AMBBasePawn::TouchRelease(const ETouchIndex::Type FingerIndex, const FVecto
 	if (FingerIndex != ETouchIndex::Touch1)
 		return;
 
-	if ((FDateTime::Now() - OnPressedTime).GetTotalMilliseconds() <= 200)
+	FirstTouchStarted = false;
+	FVector DeltaClick = Location - StartTouchLocation;
+	if ((FDateTime::Now() - OnPressedTime).GetTotalMilliseconds() <= 200 &&
+		DeltaClick.Size() < 10.0f)
+	{
 		OnClick(StartTouchLocation);
+	}
+		
 }
 
 void AMBBasePawn::TouchMove(const ETouchIndex::Type FingerIndex, const FVector Location)

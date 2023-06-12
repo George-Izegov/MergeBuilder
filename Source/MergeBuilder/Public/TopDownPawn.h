@@ -67,5 +67,9 @@ protected:
 	FVector StartTouch2Location;
 	FVector DeltaVectorTwoFingersTouch2;
 	FVector DeltaVectorTwoFingersTouch1;
+
+	FVector PrevMoveLocation2;
+	FVector PrevMoveLocation1;
+	
 	bool TwoFingersTouch = false;
 };
