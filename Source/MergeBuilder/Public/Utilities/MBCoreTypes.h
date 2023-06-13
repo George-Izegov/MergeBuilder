@@ -8,6 +8,14 @@
 DECLARE_MULTICAST_DELEGATE(FNoParamsSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FNoParamsSignatureDyn);
 
+UENUM(BlueprintType)
+enum class EUIColor : uint8
+{
+	Orange,
+	Green,
+	Grey
+};
+
 UCLASS()
 class MERGEBUILDER_API UMBCoreTypes : public UObject
 {
