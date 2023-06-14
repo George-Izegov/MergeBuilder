@@ -35,7 +35,7 @@ void UTimeSubsystem::RequestTime()
     FHttpRequestCompleteDelegate& CompleteDelegate = WebRequestSystem->CallWebScript(URL, Headers, true);
 
     CompleteDelegate.BindLambda([this](FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bSuccessful) {
-
+        
         if (bSuccessful)
         {
             TSharedPtr<FJsonObject> JsonResponse;
