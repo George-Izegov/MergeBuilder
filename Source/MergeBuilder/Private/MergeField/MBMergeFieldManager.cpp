@@ -489,7 +489,7 @@ void AMBMergeFieldManager::SelectIndex(const FIntPoint& Index)
 
 	FVector IndexLocation;
 	GetLocationForIndex(Index, IndexLocation);
-	IndexLocation.Z -= 0.5f;
+	IndexLocation.Z -= 1.0f;
 	FTransform SpawnTransform = FTransform::Identity;
 	SpawnTransform.SetLocation(IndexLocation);
 	SelectionActor = GetWorld()->SpawnActor<AActor>(SelectionActorClass, SpawnTransform);
