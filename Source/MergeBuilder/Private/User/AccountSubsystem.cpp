@@ -4,6 +4,7 @@
 #include "User/AccountSubsystem.h"
 #include "MBUtilityFunctionLibrary.h"
 #include "TimeSubsystem.h"
+#include "Analytics/FGAnalytics.h"
 
 UAccountSubsystem::UAccountSubsystem()
 {
@@ -296,6 +297,8 @@ void UAccountSubsystem::LevelUp()
 	}
 
 	OnGetNewLevel.Broadcast();
+
+	UFGAnalytics::LogEvent("new_level" + FString::FromInt(Level));
 
 	SaveAccount();
 }

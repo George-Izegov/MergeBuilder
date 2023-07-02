@@ -6,6 +6,7 @@
 #include "JsonObjectConverter.h"
 #include "MBUtilityFunctionLibrary.h"
 #include "TimeSubsystem.h"
+#include "Analytics/FGAnalytics.h"
 #include "CitySystem/CityBuilderSubsystem.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "CitySystem/CityBuilderSubsystem.h"
@@ -133,6 +134,8 @@ void UMBQuestSubsystem::CompleteQuest(const FString& QuestID)
 	}
 	
 	Quests.Remove(Quest);
+
+	UFGAnalytics::LogEvent("quest_completed");
 
 	UpdateQuests();
 }

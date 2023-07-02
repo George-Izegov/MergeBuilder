@@ -10,7 +10,7 @@ public class MergeBuilder : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystemUtils", "PsIronSource" });
 
-        PrivateDependencyModuleNames.AddRange(new string[] { "Http", "Json", "JsonUtilities", "Paper2D" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Http", "Json", "JsonUtilities", "Paper2D", "FirebaseGoodies" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "UMG" });
         

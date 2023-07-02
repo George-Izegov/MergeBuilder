@@ -3,6 +3,8 @@
 
 #include "Ads/AdProxy.h"
 #include "AudioMixerDevice.h"
+#include "Analytics/FGAnalytics.h"
+#include "Analytics/FGAnalyticsParameter.h"
 
 void UAdProxy::Init(const FString& UserId, bool bAgreeGDPR)
 {
@@ -20,7 +22,11 @@ void UAdProxy::ShowRewardedVideoCallback(int32 EventType)
 	if (EventType == 0)
 	{
 		OnRewardedAdSuccessWatched.Broadcast(CurrentAdPlacement, CurrentParam);
-		// TODO: Send analytic
+
+		UFGAnalyticsParameter* Parameter = NewObject<UFGAnalyticsParameter>();
+		Parameter->SetName("type");
+		Parameter->SetInt((int32)CurrentAdPlacement);
+		UFGAnalytics::LogEventWithParameter("ad_watched", Parameter);
 	}
 	
 	// video started

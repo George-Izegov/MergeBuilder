@@ -2,6 +2,8 @@
 
 
 #include "CitySystem/MBGroundFieldManager.h"
+
+#include "Analytics/FGAnalytics.h"
 #include "Kismet/GameplayStatics.h"
 #include "User/AccountSubsystem.h"
 
@@ -289,6 +291,8 @@ void AMBGroundFieldManager::BuyGroundTile(const FIntPoint& Index)
 	}
 
 	SpawnAllPossibleGroundTiles();
+
+	UFGAnalytics::LogEvent("buy_ground_tile");
 }
 
 // Called every frame

@@ -3,9 +3,11 @@
 
 #include "MBGameInstance.h"
 #include "MBBasePlayerController.h"
+#include "MBUtilityFunctionLibrary.h"
 #include "User/AccountSubsystem.h"
 #include "MergeSubsystem.h"
 #include "TimeSubsystem.h"
+#include "Analytics/FGAnalytics.h"
 #include "CitySystem/CityBuilderSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -44,6 +46,8 @@ void UMBGameInstance::Init()
 
 	FTimerHandle TimerHandle;
 	GetTimerManager().SetTimer(TimerHandle, this, &UMBGameInstance::CheckAllDataLoaded, 3.0f, false);
+
+	UFGAnalytics::SetUserId(UMBUtilityFunctionLibrary::GetDeviceID());
 }
 
 UMBTutorialSubsystem* UMBGameInstance::GetTutorialSubsystem()

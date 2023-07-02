@@ -5,6 +5,8 @@
 #include "MBUtilityFunctionLibrary.h"
 #include "JsonObjectConverter.h"
 #include "TimeSubsystem.h"
+#include "Analytics/FGAnalytics.h"
+#include "Analytics/FGAnalyticsParameter.h"
 #include "User/AccountSubsystem.h"
 
 UCityBuilderSubsystem::UCityBuilderSubsystem()
@@ -45,16 +47,21 @@ void UCityBuilderSubsystem::GetCityObjectsByType(ECityObjectCategory Type, TArra
 	}
 }
 
-void UCityBuilderSubsystem::AddNewObject(FCityObject& NewObject)
+void UCityBuilderSubsystem::AddNewObject(FCityObject& NewCityObject)
 {
-	int32 ID = CityObjects.Add(NewObject);
+	int32 ID = CityObjects.Add(NewCityObject);
 	CityObjects[ID].ObjectID = ID;
-	NewObject.ObjectID = ID;
+	NewCityObject.ObjectID = ID;
 
-	AddExperienceForNewObject(NewObject.ObjectName);
+	AddExperienceForNewObject(NewCityObject.ObjectName);
 	CalculateCurrentPopulationAndRatings();
 
-	OnBuildNewObject.Broadcast(NewObject.ObjectName);
+	UFGAnalyticsParameter* Param = NewObject<UFGAnalyticsParameter>();
+	Param->SetName("object_name");
+	Param->SetString(NewCityObject.ObjectName.ToString());
+	UFGAnalytics::LogEventWithParameter("build_object", Param);
+
+	OnBuildNewObject.Broadcast(NewCityObject.ObjectName);
 }
 
 void UCityBuilderSubsystem::EditObject(const FCityObject& EditedObject)

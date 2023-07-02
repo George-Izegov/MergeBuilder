@@ -6,6 +6,8 @@
 #include "JsonObjectConverter.h"
 #include "MBUtilityFunctionLibrary.h"
 #include "TimeSubsystem.h"
+#include "Analytics/FGAnalytics.h"
+#include "Analytics/FGAnalyticsParameter.h"
 #include "Kismet/GameplayStatics.h"
 #include "User/AccountSubsystem.h"
 
@@ -142,6 +144,11 @@ bool UShopSubsystem::MakeInternalPurchase(const FString& ProductID)
 	GiveRewardOfProduct(ProductID);
 
 	DecrementPurchaseLimit(ProductID);
+
+	UFGAnalyticsParameter* Param = NewObject<UFGAnalyticsParameter>();
+	Param->SetName("product_id");
+	Param->SetString(ProductID);
+	UFGAnalytics::LogEventWithParameter("internal_purchase", Param);
 	
 	return true;
 }

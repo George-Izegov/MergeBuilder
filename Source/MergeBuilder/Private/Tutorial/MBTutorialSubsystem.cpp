@@ -5,6 +5,7 @@
 
 #include "MBGameInstance.h"
 #include "MBUtilityFunctionLibrary.h"
+#include "Analytics/FGAnalytics.h"
 #include "CitySystem/CityBuilderSubsystem.h"
 #include "CitySystem/CityObjectsData.h"
 #include "Kismet/GameplayStatics.h"
@@ -27,13 +28,14 @@ void UMBTutorialSubsystem::Init()
 		if (TutorialStep > 0 && !bIsTutorialFinished)
 		{
 			bIsTutorialFinished = true;
-			// TODO:: Add analytic of this
+			UFGAnalytics::LogEvent("tutorial_skip");
 		}
 	}
 	else
 	{
 		TutorialStep = 0;
 		bIsTutorialFinished = false;
+		UFGAnalytics::LogEvent("tutorial_begin");
 	}
 
 	if (!bIsTutorialFinished)
@@ -97,6 +99,7 @@ void UMBTutorialSubsystem::NextTutorialStep()
 
 void UMBTutorialSubsystem::IncrementTutorialStep()
 {
+	UFGAnalytics::LogEvent("tutorial_step_" + FString::FromInt(TutorialStep));
 	TutorialStep++;
 
 	SaveProgress();
@@ -111,6 +114,8 @@ void UMBTutorialSubsystem::FinishTutorial()
 	SetTutorialObject(nullptr);
 
 	RevertTutorialPrices();
+
+	UFGAnalytics::LogEvent("tutorial_complete");
 
 	FTimerHandle TimerHandle;
 	FTimerDelegate Delegate = FTimerDelegate::CreateLambda([]()
