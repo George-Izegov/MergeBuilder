@@ -40,7 +40,7 @@ struct FCityObject
 		float Scale = 1.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		FDateTime RestoreTime;
+		FDateTime RestoreTime = FDateTime(0);
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		FString QuestID;
