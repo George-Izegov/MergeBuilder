@@ -46,6 +46,10 @@ protected:
 
 	FTimerHandle RecalculationTimer;
 
+	TMap<FString, FString> TimeAPI_URLs;
+	
+	TMap<FString, FString> RemainURLs;
+
 public:
 
 	bool IsTimeValid() { return TimeValid; };

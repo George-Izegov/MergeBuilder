@@ -8,6 +8,8 @@
 
 UTimeSubsystem::UTimeSubsystem()
 {
+    TimeAPI_URLs.Add("timeapi.io/api/Time/current/zone?timeZone=Etc/UTC", "dateTime");
+    TimeAPI_URLs.Add("worldtimeapi.org/api/timezone/Etc/UTC", "datetime");
 }
 
 void UTimeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -25,23 +27,32 @@ void UTimeSubsystem::Deinitialize()
 
 void UTimeSubsystem::RequestTime()
 {
+
+    if (RemainURLs.Num() == 0)
+    {
+        RemainURLs = TimeAPI_URLs;
+    }
+    
     auto WebRequestSystem = GetGameInstance()->GetSubsystem<UWebRequestSubsystem>();
 
-    FString URL = "timeapi.io/api/Time/current/zone?timeZone=";
-    FString TimeZone = "Etc/UTC";
-    URL += TimeZone;
+    FString URL;
+    FString ParamName;
+    TArray<FString> Keys;
+    RemainURLs.GetKeys(Keys);
+    URL = Keys[0];
+    RemainURLs.RemoveAndCopyValue(Keys[0], ParamName);
 
     TArray<TPair<FString, FString>> Headers;
     FHttpRequestCompleteDelegate& CompleteDelegate = WebRequestSystem->CallWebScript(URL, Headers, true);
 
-    CompleteDelegate.BindLambda([this](FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bSuccessful) {
+    CompleteDelegate.BindLambda([this, ParamName](FHttpRequestPtr RequestPtr, FHttpResponsePtr ResponsePtr, bool bSuccessful) {
         
         if (bSuccessful)
         {
             TSharedPtr<FJsonObject> JsonResponse;
             UMBUtilityFunctionLibrary::StringToJsonObject(ResponsePtr->GetContentAsString(), JsonResponse);
 
-            FString StringDate = JsonResponse->GetStringField("dateTime");
+            FString StringDate = JsonResponse->GetStringField(ParamName);
             FDateTime::ParseIso8601(*StringDate, TimeUTC);
 
             TimeValid = true;
