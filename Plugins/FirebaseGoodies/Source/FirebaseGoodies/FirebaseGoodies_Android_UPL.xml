@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2022 Nineva Studios
+-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <init>
+    <log text="[FirebaseGoodies] Android UPL initialization"/>
+
+    <setStringFromProperty result="GoogleServicesJsonPathToEdit" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="GoogleServicesJsonPath"/>
+    <setBoolFromProperty result="IsGoogleServicesJsonInThePluginRootFolder" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bIsGoogleServicesJsonInThePluginRootFolder"
+                         default="false"/>
+    <setStringReplace result="HalfwayEditedGoogleServicesJsonPath" source="$S(GoogleServicesJsonPathToEdit)" find="(FilePath=&quot;" with=""/>
+    <setStringReplace result="GoogleServicesJsonPath" source="$S(HalfwayEditedGoogleServicesJsonPath)" find="&quot;)" with=""/>
+
+    <setBoolFromProperty result="EnableCrashlyticsUploadDebug" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bUploadSymbolsDebugAndroid" default="false"/>
+    <setBoolFromProperty result="EnableCrashlyticsUploadRelease" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bUploadSymbolsReleaseAndroid" default="false"/>
+
+    <!-- https://firebase.google.com/docs/analytics/configure-data-collection?platform=android  -->
+    <setBoolFromProperty result="AnalyticsCollectionEnabled" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bAnalyticsCollectionEnabled" default="true"/>
+    <setBoolFromProperty result="AnalyticsCollectionDeactivated" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bAnalyticsCollectionDeactivated" default="false"/>
+    <setBoolFromProperty result="AdvertisingIdCollectionEnabled" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bAdvertisingIdCollectionEnabled" default="true"/>
+    <setBoolFromProperty result="SSAIDCollectionEnabled" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bSSAIDCollectionEnabled" default="true"/>
+    <setBoolFromProperty result="AllowAdPersonalizationSignals" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bAllowAdPersonalizationSignals" default="true"/>
+
+    <!-- TODO add programmatic access -->
+    <log text="[FirebaseGoodies] AnalyticsCollectionEnabled: $B(AnalyticsCollectionEnabled)"/>
+    <log text="[FirebaseGoodies] AnalyticsCollectionDeactivated: $B(AnalyticsCollectionDeactivated)"/>
+    <log text="[FirebaseGoodies] AdvertisingIdCollectionEnabled: $B(AdvertisingIdCollectionEnabled)"/>
+    <log text="[FirebaseGoodies] SSAIDCollectionEnabled: $B(SSAIDCollectionEnabled)"/>
+    <log text="[FirebaseGoodies] AllowAdPersonalizationSignals: $B(AllowAdPersonalizationSignals)"/>
+
+    <setBoolNot result="notDistribution" source="$B(Distribution)"/>
+    <setBoolAnd result="UploadDebugSymbols" arg1="$B(EnableCrashlyticsUploadDebug)" arg2="$B(notDistribution)"/>
+    <setBoolAnd result="UploadReleaseSymbols" arg1="$B(EnableCrashlyticsUploadRelease)" arg2="$B(Distribution)"/>
+
+    <!--  Is it UE5 ? -->
+    <log text="[FirebaseGoodies] Engine location: $S(EngineDir)"/>
+    <setBoolContains result="bIsUnrealEngine5" source="$S(EngineDir)" find="UE_5"/>
+
+    <log text="[FirebaseGoodies] Google Services Json Path: $S(GoogleServicesJsonPath)"/>
+  </init>
+
+  <prebuildCopies>
+    <if condition="IsGoogleServicesJsonInThePluginRootFolder">
+      <true>
+        <log text="[FirebaseGoodies] google-services.json will be taken from your plugin directory. Ensure it exists right next to the FirebaseGoodies_Android_UPL.xml file."/>
+        <copyFile src="$S(PluginDir)/google-services.json" dst="$S(BuildDir)/gradle/app/google-services.json" force="true"/>
+      </true>
+      <false>
+        <copyFile src="$S(PluginDir)/$S(GoogleServicesJsonPath)/google-services.json" dst="$S(BuildDir)/gradle/app/google-services.json" force="true"/>
+      </false>
+    </if>
+
+    <!--    Copy java and gradle files-->
+    <copyDir src="$S(PluginDir)/Private/Java" dst="$S(BuildDir)/src/com/ninevastudios/unrealfirebase"/>
+    <if condition="bIsUnrealEngine5">
+      <true>
+        <log text="[FirebaseGoodies] We are in UE5..."/>
+        <copyDir src="$S(PluginDir)/Private/Java_UE5" dst="$S(BuildDir)/src/com/ninevastudios/unrealfirebase"/>
+      </true>
+      <false>
+        <log text="[FirebaseGoodies] We are in UE4..."/>
+        <copyDir src="$S(PluginDir)/Private/Java_UE4" dst="$S(BuildDir)/src/com/ninevastudios/unrealfirebase"/>
+      </false>
+    </if>
+    <copyDir src="$S(PluginDir)/Private/Gradle" dst="$S(BuildDir)/gradle/gradle"/>
+  </prebuildCopies>
+
+  <gradleProperties>
+    <insert>
+      android.useAndroidX=true
+      android.enableJetifier=true
+    </insert>
+  </gradleProperties>
+
+  <!-- optional additions to proguard -->
+  <proguardAdditions>
+    <insert>
+      -dontwarn com.ninevastudios.**
+      -keep class com.ninevastudios.** { *; }
+      -keep interface com.ninevastudios.** { *; }
+
+      -dontwarn com.google.firebase.**
+      -keep class com.google.firebase.** { *; }
+      -keep interface com.google.firebase.** { *; }
+
+      -dontwarn com.google.android.gms.**
+      -keep class com.google.android.gms.** { *; }
+      -keep interface com.google.android.gms.** { *; }
+    </insert>
+  </proguardAdditions>
+
+  <!-- optional updates applied to AndroidManifest.xml -->
+  <androidManifestUpdates>
+    <if condition="AnalyticsCollectionEnabled">
+      <true>
+        <addElements tag="application">
+          <meta-data android:name="firebase_analytics_collection_enabled" android:value="true"/>
+        </addElements>
+      </true>
+      <false>
+        <addElements tag="application">
+          <meta-data android:name="firebase_analytics_collection_enabled" android:value="false"/>
+        </addElements>
+      </false>
+    </if>
+
+    <addElements tag="application">
+      <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
+                 android:resource="@drawable/notification_icon" />
+    </addElements>
+    
+    <if condition="AnalyticsCollectionDeactivated">
+      <true>
+        <addElements tag="application">
+          <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true"/>
+        </addElements>
+      </true>
+      <false>
+        <addElements tag="application">
+          <meta-data android:name="firebase_analytics_collection_deactivated" android:value="false"/>
+        </addElements>
+      </false>
+    </if>
+
+    <if condition="AdvertisingIdCollectionEnabled">
+      <true>
+        <addElements tag="application">
+          <meta-data android:name="google_analytics_adid_collection_enabled" android:value="true"/>
+        </addElements>
+      </true>
+      <false>
+        <addElements tag="application">
+          <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false"/>
+        </addElements>
+      </false>
+    </if>
+
+    <if condition="SSAIDCollectionEnabled">
+      <true>
+        <addElements tag="application">
+          <meta-data android:name="google_analytics_ssaid_collection_enabled" android:value="true"/>
+        </addElements>
+      </true>
+      <false>
+        <addElements tag="application">
+          <meta-data android:name="google_analytics_ssaid_collection_enabled" android:value="false"/>
+        </addElements>
+      </false>
+    </if>
+
+    <if condition="AllowAdPersonalizationSignals">
+      <true>
+        <addElements tag="application">
+          <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="true"/>
+        </addElements>
+      </true>
+      <false>
+        <addElements tag="application">
+          <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false"/>
+        </addElements>
+      </false>
+    </if>
+
+    <addElements tag="application">
+      <activity android:name="com.ninevastudios.unrealfirebase.FGAuthIntermediateActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" android:exported="false"/>
+      <service android:name="com.ninevastudios.unrealfirebase.FGMessageReceiver" android:exported="false">
+        <intent-filter>
+          <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+        </intent-filter>
+      </service>
+    </addElements>
+
+    <!-- See https://firebase.google.com/docs/crashlytics/ndk-reports -->
+    <addAttribute tag="application" name="android:allowNativeHeapPointerTagging" value="false"/>
+  </androidManifestUpdates>
+
+  <buildscriptGradleAdditions>
+    <insert>
+      dependencies {
+      classpath 'com.google.gms:google-services:4.3.10'
+      classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
+      }
+    </insert>
+  </buildscriptGradleAdditions>
+
+  <buildGradleAdditions>
+    <insert>
+      android {
+      compileOptions {
+      targetCompatibility JavaVersion.VERSION_1_8
+      sourceCompatibility JavaVersion.VERSION_1_8
+      }
+      }
+
+      dependencies {
+      implementation platform('com.google.firebase:firebase-bom:30.3.1')
+
+      implementation 'com.google.firebase:firebase-core'
+      implementation 'com.google.firebase:firebase-config'
+      implementation 'com.google.firebase:firebase-database'
+      implementation 'com.google.firebase:firebase-storage:'
+      implementation 'com.google.firebase:firebase-auth'
+      implementation 'com.google.firebase:firebase-crashlytics-ndk'
+      implementation 'com.google.firebase:firebase-messaging'
+      implementation 'com.google.firebase:firebase-functions'
+      implementation 'com.google.firebase:firebase-firestore'
+      implementation 'com.google.firebase:firebase-dynamic-links'
+      implementation 'com.google.android.gms:play-services-nearby:17.0.0'
+      implementation 'com.google.android.gms:play-services-plus:17.0.0'
+      implementation 'com.google.android.gms:play-services-auth:18.1.0'
+      implementation 'com.google.android.gms:play-services-games:22.0.1'
+      }
+
+      repositories {
+      maven { url 'https://maven.google.com' }
+      google()
+      }
+      apply plugin: 'com.google.gms.google-services'
+      apply plugin: 'com.google.firebase.crashlytics'
+    </insert>
+
+    <if condition="UploadDebugSymbols">
+      <true>
+        <log text="[FirebaseGoodies] Crashlytics debug symbols upload enabled. Adding native libraries..."/>
+        <insert>
+          android {
+          buildTypes {
+          debug {
+          firebaseCrashlytics {
+          nativeSymbolUploadEnabled true
+          unstrippedNativeLibsDir "$projectDir/build/intermediates/merged_native_libs/debug/out/lib"
+          symbolGenerator {
+          breakpad()
+          }
+          }
+          }
+          }
+          }
+
+          tasks.whenTaskAdded { task ->
+          if (task.name == 'mergeDebugNativeLibs') {
+          task.finalizedBy 'uploadCrashlyticsSymbolFileDebug'
+          }
+          }
+        </insert>
+      </true>
+    </if>
+
+    <if condition="UploadReleaseSymbols">
+      <true>
+        <log text="[FirebaseGoodies] Crashlytics release symbols upload enabled. Adding native libraries..."/>
+        <insert>
+          android {
+          buildTypes {
+          release {
+          firebaseCrashlytics {
+          nativeSymbolUploadEnabled true
+          unstrippedNativeLibsDir "$projectDir/build/intermediates/merged_native_libs/release/out/lib"
+          symbolGenerator {
+          breakpad()
+          }
+          }
+          }
+          }
+          }
+
+          tasks.whenTaskAdded { task ->
+          if (task.name == 'mergeReleaseNativeLibs') {
+          task.finalizedBy 'uploadCrashlyticsSymbolFileRelease'
+          }
+          }
+        </insert>
+      </true>
+    </if>
+  </buildGradleAdditions>
+
+
+  <baseBuildGradleAdditions>
+    <insert>
+      allprojects {
+      def mappings = [
+      'android.arch.lifecycle.Lifecycle': 'androidx.lifecycle.Lifecycle',
+      'android.arch.lifecycle.LifecycleObserver': 'androidx.lifecycle.LifecycleObserver',
+      'android.arch.lifecycle.OnLifecycleEvent': 'androidx.lifecycle.OnLifecycleEvent',
+      'android.arch.lifecycle.ProcessLifecycleOwner': 'androidx.lifecycle.ProcessLifecycleOwner',
+      'android.arch.lifecycle': 'androidx.lifecycle',
+      'android.support.annotation': 'androidx.annotation',
+      'android.support.v13.app.FragmentCompat': 'androidx.legacy.app.FragmentCompat',
+      'android.support.v4.app.ActivityCompat': 'androidx.core.app.ActivityCompat',
+      'android.support.v4.app.NotificationCompat': 'androidx.core.app.NotificationCompat',
+      'android.support.v4.app.NotificationManagerCompat': 'androidx.core.app.NotificationManagerCompat',
+      'android.support.v4.content.ContextCompat': 'androidx.core.content.ContextCompat',
+      'android.support.v4.content.FileProvider': 'androidx.core.content.FileProvider',
+      ]
+
+      beforeEvaluate { project ->
+      project.rootProject.projectDir.traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.*\.java$/) { f ->
+      mappings.each { entry ->
+      if (f.getText('UTF-8').contains(entry.key)) {
+      println "Updating ${entry.key} to ${entry.value} in file ${f}"
+      ant.replace(file: f, token: entry.key, value: entry.value)
+      }
+      }
+      }
+      }
+      }
+    </insert>
+  </baseBuildGradleAdditions>
+
+  <buildscriptGradleAdditions>
+    <insert>
+      dependencies {
+      <!-- classpath 'com.android.tools.build:gradle:4.1.0' -->
+      }
+    </insert>
+  </buildscriptGradleAdditions>
+
+  <!-- Fixees for onNewToken() crash, sometimes the method is invoked before the C++ part is initialized -->
+  <gameActivityClassAdditions>
+    <insert>
+      private boolean _ninevaIsResumed;
+
+      public boolean ninevaIsResumed() {
+      return _ninevaIsResumed;
+      }
+    </insert>
+  </gameActivityClassAdditions>
+
+  <gameActivityOnPauseAdditions>
+    <insert>
+      _ninevaIsResumed = false;
+    </insert>
+  </gameActivityOnPauseAdditions>
+
+  <gameActivityOnResumeAdditions>
+    <insert>
+      _ninevaIsResumed = true;
+    </insert>
+  </gameActivityOnResumeAdditions>
+</root>

@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"Version": 2010500,
+	"VersionName": "2.1.5",
+	"FriendlyName": "Firebase Goodies",
+	"Description": "Firebase plugin for Unreal Engine",
+	"Category": "Code Plugins",
+	"CreatedBy": "Nineva Studios",
+	"CreatedByURL": "https://ninevastudios.com/",
+	"DocsURL": "https://docs.ninevastudios.com/#/ue-plugins/firebase-unreal",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/a972a30efb2747ce98fce6b92cc35377",
+	"SupportURL": "mailto:support@ninevastudios.com",
+	"EngineVersion": "4.27.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "FirebaseGoodies",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Mac",
+				"Android",
+				"IOS"
+			]
+		}
+	]
+}

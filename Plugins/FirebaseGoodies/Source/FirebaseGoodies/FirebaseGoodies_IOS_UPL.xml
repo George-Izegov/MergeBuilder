@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Copyright (c) 2022 Nineva Studios
+ -->
+<root xmlns:android="http://schemas.android.com/apk/res/ios">
+  <init>
+    <log text="[FirebaseGoodies] iOS UPL initialization"/>
+    <setStringFromProperty result="ReversedClientId" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="ReversedClientId"/>
+    <setStringFromProperty result="GoogleServicesPlistPath" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="GoogleServicesPlistPath"/>
+    <log text ="[FirebaseGoodies] Google Services Plist Path: $S(GoogleServicesPlistPath)"/>
+
+    <!-- https://firebase.google.com/docs/analytics/configure-data-collection?platform=ios -->
+    <setBoolFromProperty result="AnalyticsCollectionEnabled" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bAnalyticsCollectionEnabled" default="true" />
+    <setBoolFromProperty result="AnalyticsCollectionDeactivated" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bAnalyticsCollectionDeactivated" default="false" />
+    <setBoolFromProperty result="AdvertisingIdCollectionEnabled" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bAdvertisingIdCollectionEnabled" default="true" />
+    <setBoolFromProperty result="IDFVCollectionEnabled" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="bIDFVCollectionEnabled" default="true" />
+
+    <setStringFromProperty result="URLSchemesString" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="URLSchemesString" default=""/>
+    <setStringFromProperty result="FirebaseDynamicLinksCustomDomainsString" ini="Engine" section="/Script/FirebaseGoodies.FirebaseGoodiesSettings" property="FirebaseDynamicLinksCustomDomainsString" default=""/>
+    <setIntLength result="URLSchemesStringLength" source="$S(URLSchemesString)"/>
+  </init>
+
+  <iosPListUpdates>
+      <!-- CFBundleURLTypes -->
+      <!-- Example: https://github.com/EpicGames/UnrealEngine/blob/2bf1a5b83a7076a0fd275887b373f8ec9e99d431/Engine/Plugins/Runtime/AR/AppleAR/AppleARKit/Source/AppleARKit/AppleARKit_IOS_UPL.xml -->
+
+      <setBool result="bIsCFBundleURLTypesKeyExists" value="false"/>
+
+      <loopElements tag="dict">
+        <setBool result="bIsCFBundleURLTypesKey" value="false"/>
+        <loopElements tag="$">
+          <setStringFromTag result="TagName" tag="$"/>
+      
+          <setBoolIsEqual result="bIsKey" arg1="$S(TagName)" arg2="key"/>
+          <if condition="bIsKey">
+            <true>
+              <setStringFromTagText result="TagValue" tag="$"/>
+              <setBoolIsEqual result="bIsCFBundleURLTypesKey" arg1="$S(TagValue)" arg2="CFBundleURLTypes"/>
+              <if condition="bIsCFBundleURLTypesKey">
+                <true>
+                  <setBool result="bIsCFBundleURLTypesKeyExists" value="true"/>
+                  <log text="[FirebaseGoodies] CFBundleURLTypes already existed in plist file and it will be updated."/>
+                </true>
+              </if>
+            </true>
+          </if>
+      
+          <setBoolIsEqual result="bIsArray" arg1="$S(TagName)" arg2="array"/>
+          <if condition="bIsArray">
+            <true>
+              <if condition="bIsCFBundleURLTypesKey">
+                <true>
+                  <setBoolIsGreater result="URLSchemesStringNotEmpty" arg1="$I(URLSchemesStringLength)" arg2="0"/>
+                  <if condition="URLSchemesStringNotEmpty">
+                    <true>
+                      <log text="[FirebaseGoodies] UrlSchemes: $S(URLSchemesString)"/>
+                      <setElement result="UrlSchemes" xml="$S(URLSchemesString)"/>
+                      <addElement tag="$" name="UrlSchemes"/>
+                    </true>
+                  </if>
+                </true>
+                <false>
+                  <log text="[FirebaseGoodies] URLSchemesString is empty."/>
+                </false>
+              </if>
+            </true>
+          </if>
+        </loopElements>
+      </loopElements>
+      
+      <if condition="bIsCFBundleURLTypesKeyExists">
+        <false>
+          <log text="[FirebaseGoodies] CFBundleURLTypes does not exist exist, adding it..."/>
+          <setElement result="CFBundleURLTypesKey" value="key" text="CFBundleURLTypes"/>
+          <addElement tag="dict" name="CFBundleURLTypesKey" once="true"/>
+          <setElement result="UrlSchemes" xml="&lt;array&gt;$S(URLSchemesString)&lt;/array&gt;"/>
+          <addElement tag="dict" name="UrlSchemes" once="true"/>
+        </false>
+      </if>
+
+      <!-- FirebaseDynamicLinksCustomDomains -->
+      <setBool result="bIsFirebaseDynamicLinksCustomDomainsKeyExists" value="false"/>
+
+      <loopElements tag="dict">
+        <setBool result="bIsFirebaseDynamicLinksCustomDomainsKey" value="false"/>
+        <loopElements tag="$">
+          <setStringFromTag result="TagName" tag="$"/>
+
+          <setBoolIsEqual result="bIsKey" arg1="$S(TagName)" arg2="key"/>
+          <if condition="bIsKey">
+            <true>
+              <setStringFromTagText result="TagValue" tag="$"/>
+              <setBoolIsEqual result="bIsFirebaseDynamicLinksCustomDomainsKey" arg1="$S(TagValue)" arg2="FirebaseDynamicLinksCustomDomains"/>
+              <if condition="bIsFirebaseDynamicLinksCustomDomainsKey">
+                <true>
+                  <setBool result="bIsFirebaseDynamicLinksCustomDomainsKeyExists" value="true"/>
+                  <log text="[FirebaseGoodies] FirebaseDynamicLinksCustomDomains already existed in plist file and it will be updated."/>
+                </true>
+              </if>
+            </true>
+          </if>
+
+          <setBoolIsEqual result="bIsArray" arg1="$S(TagName)" arg2="array"/>
+          <if condition="bIsArray">
+            <true>
+              <if condition="bIsFirebaseDynamicLinksCustomDomainsKey">
+                <true>
+                  <log text="[FirebaseGoodies] $S(FirebaseDynamicLinksCustomDomainsString)"/>
+                  <setElement result="FirebaseDynamicLinksCustomDomains" xml="$S(FirebaseDynamicLinksCustomDomainsString)"/>
+                  <addElement tag="$" name="FirebaseDynamicLinksCustomDomains"/>
+                </true>
+              </if>
+            </true>
+          </if>
+        </loopElements>
+      </loopElements>
+
+      <if condition="bIsFirebaseDynamicLinksCustomDomainsKeyExists">
+        <false>
+          <log text="[FirebaseGoodies] FirebaseDynamicLinksCustomDomains does not exist exist, adding it..."/>
+          <setElement result="FirebaseDynamicLinksCustomDomainsKey" value="key" text="FirebaseDynamicLinksCustomDomains"/>
+          <addElement tag="dict" name="FirebaseDynamicLinksCustomDomainsKey" once="true"/>
+          <setElement result="FirebaseDynamicLinksCustomDomains" xml="&lt;array&gt;$S(FirebaseDynamicLinksCustomDomainsString)&lt;/array&gt;"/>
+          <addElement tag="dict" name="FirebaseDynamicLinksCustomDomains" once="true"/>
+        </false>
+      </if>
+
+      <!-- Analytics data collection: https://firebase.google.com/docs/analytics/configure-data-collection?platform=ios -->
+
+      <!-- FIREBASE_ANALYTICS_COLLECTION_ENABLED -->
+      <setElement result="AnalyticsCollectionEnabledKey" value="key" text="FIREBASE_ANALYTICS_COLLECTION_ENABLED"/>
+      <addElement tag="dict" name="AnalyticsCollectionEnabledKey" once="true"/>
+      <setElement result="AnalyticsCollectionEnabledBool" value="$B(AnalyticsCollectionEnabled)"/>
+      <addElement tag="dict" name="AnalyticsCollectionEnabledBool" once="true"/>
+
+      <!-- AnalyticsCollectionDeactivated -> FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED -->
+      <setElement result="AnalyticsCollectionDeactivatedKey" value="key" text="FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED"/>
+      <addElement tag="dict" name="AnalyticsCollectionDeactivatedKey" once="true"/>
+      <setElement result="AnalyticsCollectionDeactivatedBool" value="$B(AnalyticsCollectionDeactivated)"/>
+      <addElement tag="dict" name="AnalyticsCollectionDeactivatedBool" once="true"/>
+
+      <!-- AdvertisingIdCollectionEnabled -> GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS -->
+      <setElement result="AdvertisingIdCollectionEnabledKey" value="key" text="GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS"/>
+      <addElement tag="dict" name="AdvertisingIdCollectionEnabledKey" once="true"/>
+      <setElement result="AdvertisingIdCollectionEnabledBool" value="$B(AdvertisingIdCollectionEnabled)"/>
+      <addElement tag="dict" name="AdvertisingIdCollectionEnabledBool" once="true"/>
+
+      <!-- IDFVCollectionEnabled -> GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED -->
+      <setElement result="IDFVCollectionEnabledKey" value="key" text="GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED"/>
+      <addElement tag="dict" name="IDFVCollectionEnabledKey" once="true"/>
+      <setElement result="IDFVCollectionEnabledBool" value="$B(IDFVCollectionEnabled)"/>
+      <addElement tag="dict" name="IDFVCollectionEnabledBool" once="true"/>
+  </iosPListUpdates>
+</root>
