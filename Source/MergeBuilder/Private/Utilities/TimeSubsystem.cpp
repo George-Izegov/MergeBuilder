@@ -49,6 +49,7 @@ void UTimeSubsystem::RequestTime()
         
         if (bSuccessful)
         {
+            RemainURLs.Empty();
             TSharedPtr<FJsonObject> JsonResponse;
             UMBUtilityFunctionLibrary::StringToJsonObject(ResponsePtr->GetContentAsString(), JsonResponse);
 
