@@ -208,6 +208,11 @@
 		{
 			"Name": "PsIronSource",
 			"Enabled": true
+		},
+		{
+			"Name": "FirebaseGoodies",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/a972a30efb2747ce98fce6b92cc35377"
 		}
 	]
 }
