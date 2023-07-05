@@ -394,7 +394,7 @@ void UMBQuestSubsystem::GenerateRewardForHardness(int32 QuestHardness, TArray<FM
 	FMergeFieldItem SoftCoins;
 	SoftCoins.Type = EMergeItemType::SoftCoinBox;
 	SoftCoins.Level = 1;
-	SoftCoins.RemainItemsToSpawn = 4 + QuestHardness / 10;
+	SoftCoins.RemainItemsToSpawn = 2 + QuestHardness / 25;
 
 	RewardItems.Add(SoftCoins);
 
@@ -441,7 +441,7 @@ bool UMBQuestSubsystem::GetRecommendedQuest(FQuestData& RecommendedQuest)
 		FMergeFieldItem SoftCoins;
 		SoftCoins.Type = EMergeItemType::SoftCoinBox;
 		SoftCoins.Level = 1;
-		SoftCoins.RemainItemsToSpawn = 20;
+		SoftCoins.RemainItemsToSpawn = 10;
 		
 		RecommendedQuest.RewardItems.Add(SoftCoins);
 
@@ -466,7 +466,7 @@ bool UMBQuestSubsystem::GetRecommendedQuest(FQuestData& RecommendedQuest)
 		FMergeFieldItem SoftCoins;
 		SoftCoins.Type = EMergeItemType::SoftCoinBox;
 		SoftCoins.Level = 1;
-		SoftCoins.RemainItemsToSpawn = 20;
+		SoftCoins.RemainItemsToSpawn = 15;
 		
 		RecommendedQuest.RewardItems.Add(SoftCoins);
 
@@ -522,11 +522,9 @@ int32 UMBQuestSubsystem::CalculateHardnessOfRequiredObjects(const TArray<FRequir
 		FString RowName = UMBUtilityFunctionLibrary::EnumToString("EMergeItemType", (int32)RequiredItem.Item.Type);
 		const FMergeItemChainRow* RowStruct = MergeSubsystem->MergeItemsDataTable->FindRow<FMergeItemChainRow>(FName(RowName), "");
 
-		int32 ItemCost = FMath::Pow(2.0f, RequiredItem.Item.Level);
+		int32 ItemCost = RowStruct->ItemsChain[RequiredItem.Item.Level-1].SellPrice;
 
 		ItemCost *= RequiredItem.RequiredNum;
-
-		ItemCost *= RowStruct->ItemsChain[0].SellPrice;
 
 		Hardness += ItemCost;
 	}

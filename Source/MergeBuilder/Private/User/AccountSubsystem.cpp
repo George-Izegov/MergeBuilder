@@ -11,10 +11,13 @@ UAccountSubsystem::UAccountSubsystem()
 	LevelRewards.Empty();
 	FMergeFieldItem Reward;
 	Reward.Type = EMergeItemType::SoftCoinBox;
+	Reward.RemainItemsToSpawn = 7;
 	LevelRewards.Add(Reward);
 	Reward.Type = EMergeItemType::PremCoinBox;
+	Reward.RemainItemsToSpawn = 4;
 	LevelRewards.Add(Reward);
 	Reward.Type = EMergeItemType::EnergyBox;
+	Reward.RemainItemsToSpawn = 4;
 	LevelRewards.Add(Reward);
 }
 
