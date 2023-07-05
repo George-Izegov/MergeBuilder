@@ -182,6 +182,11 @@ void UShopSubsystem::GiveRewardOfProduct(const FString& ProductID)
 	}
 }
 
+APlayerController* UShopSubsystem::GetPlayerController()
+{
+	return UGameplayStatics::GetPlayerController(GetWorld(), 0);
+}
+
 
 void UShopSubsystem::MakeExternalStorePurchase(const FString& ProductID)
 {

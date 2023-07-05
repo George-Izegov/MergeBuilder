@@ -127,6 +127,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void GiveRewardOfProduct(const FString& ProductID);
 
+	UFUNCTION(BlueprintPure)
+	APlayerController* GetPlayerController();
+
 public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
