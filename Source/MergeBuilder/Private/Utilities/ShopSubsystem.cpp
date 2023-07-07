@@ -37,20 +37,20 @@ void UShopSubsystem::GetStorePriceText(const FString& ProductID, FText& PriceTex
 #endif
 
 #if PLATFORM_ANDROID
-	FOnlineProxyStoreOffer GooglePlayOffer;
+	FSkuDetailsRecord GooglePlayOffer;
 	if (!GetGooglePlayOfferInfo(ProductID, GooglePlayOffer))
 		return;
 
-	PriceText = GooglePlayOffer.PriceText;
+	PriceText = FText::FromString(GooglePlayOffer.Price);
 #endif
 	
 }
 
-bool UShopSubsystem::GetGooglePlayOfferInfo(const FString& ProductID, FOnlineProxyStoreOffer& OfferInfo)
+bool UShopSubsystem::GetGooglePlayOfferInfo(const FString& ProductID, FSkuDetailsRecord& OfferInfo)
 {
-	for (const FOnlineProxyStoreOffer& Offer : GooglePlayOffers)
+	for (const FSkuDetailsRecord& Offer : GooglePlayOffers)
 	{
-		if (Offer.OfferId == ProductID)
+		if (Offer.ProductID == ProductID)
 		{
 			OfferInfo = Offer;
 			return true;

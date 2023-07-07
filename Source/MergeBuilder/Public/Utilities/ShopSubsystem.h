@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "MergeItemData.h"
-#include "InAppPurchaseQueryCallbackProxy2.h"
+#include "AndroidPlayBillingSubsystem.h"
 #include "ShopSubsystem.generated.h"
 
 UENUM(BlueprintType)
@@ -92,7 +92,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetStorePriceText(const FString& ProductID, FText& PriceText);
 
-	bool GetGooglePlayOfferInfo(const FString& ProductID, FOnlineProxyStoreOffer& OfferInfo);
+	bool GetGooglePlayOfferInfo(const FString& ProductID, FSkuDetailsRecord& OfferInfo);
 
 	UFUNCTION(BlueprintCallable)
 	bool IsProductAvailable(const FString& ProductID);
@@ -109,7 +109,7 @@ protected:
 
 	void SaveHistory();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void RequestStoreProductsInfo();
 
 	UFUNCTION(BlueprintCallable)
@@ -153,7 +153,7 @@ protected:
 	UDataTable* ProductsDataTable = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
-	TArray<FOnlineProxyStoreOffer> GooglePlayOffers;
+	TArray<FSkuDetailsRecord> GooglePlayOffers;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FPurchaseHistory> ProductsHistory;
