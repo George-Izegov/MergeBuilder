@@ -211,6 +211,9 @@ void AMBMergeFieldManager::DestroyAllItems()
 			if (!IsValid(Item))
 				continue;
 
+			if (Item->IsPendingKill())
+				continue;
+
 			Item->Destroy();
 			Item = nullptr;
 		}
@@ -435,7 +438,10 @@ void AMBMergeFieldManager::StartDrag()
 
 void AMBMergeFieldManager::HandleDrag(const FVector& FieldLocation)
 {
-	if (!TouchStartItem)
+	if (!IsValid(TouchStartItem))
+		return;
+
+	if (TouchStartItem->IsPendingKill())
 		return;
 
 	if (!InDrag)
